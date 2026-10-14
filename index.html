@@ -8,6 +8,8 @@
 :root{--bg:#eef2f6;--card:#fff;--ink:#101828;--mute:#5b6678;--line:#d5dce6;--acc:#0b5f66;--on:#fff;--red:#b42318;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1520;--card:#162131;--ink:#e8edf4;--mute:#9aa7ba;--line:#2a3a50;--acc:#5fc4cc;--on:#06222a;--red:#ff8a80}}
 :root[data-theme="dark"]{--bg:#0e1520;--card:#162131;--ink:#e8edf4;--mute:#9aa7ba;--line:#2a3a50;--acc:#5fc4cc;--on:#06222a;--red:#ff8a80}
+:root[data-theme="dark"]{color-scheme:dark}:root[data-theme="light"]{color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark}}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -50,7 +52,7 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 </head>
 <body>
 <header>
-<h1>Real Property Tax Counter</h1>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h1>Real Property Tax Counter</h1><button class="ghost noprint" id="th"></button></div>
 <p class="sub">Prototype with sample data only. Rates and rules are demo assumptions.</p>
 </header>
 <nav role="tablist">
@@ -194,6 +196,12 @@ $('#go').onclick=()=>{const p=cur(),ys=[...document.querySelectorAll('#br input:
  const t=pay(p,ys,$('#pn').value.trim()||p.owner,$('#pm').value,$('#pc').value,new Date());bl();look();slip(t)};
 $('#pr').onclick=()=>{document.body.dataset.p='rep';print()};
 window.onafterprint=()=>delete document.body.dataset.p;
+// Theme switch: light or dark, remembered in this browser
+function eff(){return document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')}
+function sh(){$('#th').textContent=eff()=='dark'?'Switch to light mode':'Switch to dark mode'}
+try{const s=localStorage.getItem('rpt-theme');if(s)document.documentElement.dataset.theme=s}catch(e){}
+$('#th').onclick=()=>{const n=eff()=='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem('rpt-theme',n)}catch(e){}sh()};
+sh();
 // Delinquency list: unpaid tax years before the current year, with penalties
 function dq(){const b=$('#db').value;let tot=0;
  const L=S.p.filter(p=>!b||p.brgy==b).map(p=>{const ys=p.u.filter(y=>y<cy).sort();return{p,ys,amt:r(ys.reduce((a,y)=>a+bill(p,y).t,0))}}).filter(x=>x.ys.length).sort((a,c)=>c.amt-a.amt);
