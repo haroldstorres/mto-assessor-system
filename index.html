@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Real Property Tax Counter (Prototype)</title>
+<style>
+:root{--bg:#eef2f6;--card:#fff;--ink:#101828;--mute:#5b6678;--line:#d5dce6;--acc:#0b5f66;--on:#fff;--red:#b42318;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1520;--card:#162131;--ink:#e8edf4;--mute:#9aa7ba;--line:#2a3a50;--acc:#5fc4cc;--on:#06222a;--red:#ff8a80}}
+:root[data-theme="dark"]{--bg:#0e1520;--card:#162131;--ink:#e8edf4;--mute:#9aa7ba;--line:#2a3a50;--acc:#5fc4cc;--on:#06222a;--red:#ff8a80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:20px 16px 8px;max-width:1000px;margin:auto}
+h1{margin:0;font-size:22px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:2px 0 0;font-size:13px}
+nav{display:flex;gap:4px;max-width:1000px;margin:12px auto 0;padding:0 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;font-weight:600;color:var(--mute);cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true]{color:var(--acc);border-color:var(--acc)}
+main{max-width:1000px;margin:16px auto;padding:0 16px}
+section[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:4px}
+input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);min-width:150px}
+button{font:inherit;cursor:pointer}
+button.pri,td button{background:var(--acc);color:var(--on);border:0;border-radius:6px;padding:8px 14px;font-weight:600}
+button.pri:disabled{opacity:.4;cursor:not-allowed}
+button.ghost{background:none;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:8px 14px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--mute);font-weight:600;font-size:13px}
+.n{text-align:right;font-variant-numeric:tabular-nums}
+.pen{color:var(--red)}
+tfoot td{font-weight:700;border-top:2px solid var(--ink);border-bottom:0}
+dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px;margin:0}
+dt{font-size:12px;color:var(--mute)}dd{margin:0;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.stat{border:1px solid var(--line);border-radius:6px;padding:10px}
+.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.slip{border:2px dashed var(--ink);background:var(--card);padding:18px;max-width:460px}
+.slip h3{margin:0 0 4px}
+.muted{color:var(--mute);font-size:13px}
+footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
+@media print{body *{visibility:hidden}body[data-p=rc] #rc,body[data-p=rc] #rc *,body[data-p=rep] #repbox,body[data-p=rep] #repbox *{visibility:visible}body[data-p=rc] #rc,body[data-p=rep] #repbox{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}
+</style>
+</head>
+<body>
+<header>
+<h1>Real Property Tax Counter</h1>
+<p class="sub">Prototype with sample data only. Rates and rules are demo assumptions.</p>
+</header>
+<nav role="tablist">
+<button role="tab" data-t="look" aria-selected="true">Property lookup</button>
+<button role="tab" data-t="bill" aria-selected="false">Billing and payment</button>
+<button role="tab" data-t="del" aria-selected="false">Delinquency list</button>
+<button role="tab" data-t="rep" aria-selected="false">Daily collection report</button>
+<button role="tab" data-t="set" aria-selected="false">Rates</button>
+</nav>
+<main>
+<section id="look">
+<div class="card row">
+<label>Search<input id="q" placeholder="TD number, owner, or barangay"></label>
+<label>Barangay<select id="bg"></select></label>
+</div>
+<div class="card wrap"><table>
+<thead><tr><th>TD no.</th><th>Owner</th><th>Barangay</th><th>Class</th><th class="n">Assessed value</th><th>Unpaid tax years</th><th></th></tr></thead>
+<tbody id="lr"></tbody></table></div>
+</section>
+
+<section id="bill" hidden>
+<div class="card row"><label>Tax declaration<select id="sp"></select></label></div>
+<div class="card"><dl id="pd"></dl></div>
+<div class="card">
+<div class="wrap"><table>
+<thead><tr><th></th><th>Tax year</th><th class="n">Basic tax</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th></tr></thead>
+<tbody id="br"></tbody>
+<tfoot><tr><td colspan="6">Amount to collect</td><td class="n" id="tot">0.00</td></tr></tfoot></table></div>
+<div class="row" style="margin-top:14px">
+<label>Payor name<input id="pn"></label>
+<label>Payment mode<select id="pm"><option>Cash</option><option>Check</option><option>GCash</option></select></label>
+<label>Cashier<select id="pc"><option>Cashier A</option><option>Cashier B</option></select></label>
+<button class="pri" id="go" disabled>Collect payment</button>
+</div></div>
+<div id="rc" class="slip" hidden></div>
+</section>
+
+<section id="rep" hidden>
+<div class="card row noprint"><label>Report date<input type="date" id="rd"></label>
+<button class="ghost" id="pr">Print report</button></div>
+<div id="repbox" class="card"><h2 style="margin:0 0 4px;font-size:18px">Report of collections</h2><p class="muted" id="rt"></p>
+<div class="stats" id="rs"></div>
+<div class="wrap"><table>
+<thead><tr><th>OR no.</th><th>Time</th><th>Payor</th><th>TD no.</th><th>Tax years</th><th class="n">Basic</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th><th>Mode</th><th>Cashier</th></tr></thead>
+<tbody id="rr"></tbody></table></div></div>
+</section>
+<section id="del" hidden>
+<div class="card row"><label>Barangay<select id="db"></select></label></div>
+<div class="stats" id="ds"></div>
+<div class="card wrap"><table>
+<thead><tr><th>TD no.</th><th>Owner</th><th>Barangay</th><th>Unpaid prior years</th><th class="n">Total due with penalty</th><th></th></tr></thead>
+<tbody id="dr"></tbody></table></div>
+</section>
+
+<section id="set" hidden>
+<div class="card"><h2 style="margin:0 0 4px;font-size:18px">Tax rates and rules</h2>
+<p class="muted">Adjust these to match the municipal tax ordinance. Values shown are demo defaults.</p>
+<div class="row">
+<label>Basic tax (% of assessed value)<input id="r_b" type="number" min="0" max="100" step="0.01"></label>
+<label>SEF (% of assessed value)<input id="r_s" type="number" min="0" max="100" step="0.01"></label>
+<label>Advance discount (%)<input id="r_d" type="number" min="0" max="100" step="0.01"></label>
+<label>Discount applies through month (0 to 12)<input id="r_e" type="number" min="0" max="12" step="1"></label>
+<label>Interest per month (%)<input id="r_p" type="number" min="0" max="100" step="0.01"></label>
+<label>Maximum months of interest<input id="r_c" type="number" min="0" step="1"></label>
+</div>
+<div class="row" style="margin-top:14px"><button class="pri" id="rsave">Save rates</button><button class="ghost" id="rreset">Restore defaults</button></div>
+<p id="rm" class="muted" role="status"></p></div>
+</section>
+</main>
+<footer class="muted">
+<p>Default demo rules (editable in the Rates tab): basic tax 1% and SEF 1% of assessed value; 10% discount on the current year if paid by March 31; 2% interest per month on prior years, up to 36 months. Payments are stored in this browser only.</p>
+<button class="ghost" id="reset">Reset demo data</button>
+</footer>
+<script>
+const $=s=>document.querySelector(s),now=new Date(),cy=now.getFullYear(),KEY='rpt-demo-v1';
+const M=n=>n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const r=x=>Math.round(x*100)/100,esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const seed=[
+["TD-0001","Maria L. Santos","San Antonio","Residential",300,1200000,.2,[2025,2026]],
+["TD-0002","Jose R. Dela Cruz","Zapote","Agricultural",12000,1800000,.4,[2024,2025,2026]],
+["TD-0003","Ana P. Reyes","Poblacion","Commercial",150,4500000,.5,[2025,2026]],
+["TD-0004","Ramon C. Bautista","Santo Tomas","Residential",250,900000,.2,[2026]],
+["TD-0005","Lorna M. Garcia","San Antonio","Residential",400,1600000,.2,[2023,2024,2025,2026]],
+["TD-0006","Eduardo T. Mendoza","Zapote","Agricultural",8000,960000,.4,[2026]],
+["TD-0007","Gloria S. Villanueva","Poblacion","Commercial",220,6600000,.5,[2024,2025,2026]],
+["TD-0008","Pedro A. Navarro","Santo Tomas","Residential",180,540000,.2,[2025,2026]],
+["TD-0009","Teresita B. Flores","San Antonio","Industrial",900,5400000,.5,[2026]],
+["TD-0010","Rodel Q. Aquino","Zapote","Residential",320,1280000,.2,[2024,2025,2026]]
+].map(a=>({td:a[0],owner:a[1],brgy:a[2],cls:a[3],area:a[4],mv:a[5],al:a[6],u:a[7]}));
+let S;
+const DEF={b:1,s:1,d:10,e:3,p:2,c:36};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function bill(p,y){const av=p.mv*p.al,b=r(av*S.r.b/100),s=r(av*S.r.s/100);let d=0,n=0;
+ if(y==cy){if(now.getMonth()<S.r.e)d=r((b+s)*S.r.d/100)}else n=Math.min(S.r.c,(cy-y)*12+now.getMonth()+1);
+ const pen=r((b+s)*S.r.p/100*n);return{y,b,s,d,pen,n,t:r(b+s-d+pen)}}
+function pay(p,yrs,payor,mode,cash,when){const rows=yrs.map(y=>bill(p,y)),sum=k=>r(rows.reduce((a,x)=>a+x[k],0));
+ const t={or:'OR-'+cy+'-'+String(S.t.length+1).padStart(5,'0'),at:when.toISOString(),payor,td:p.td,brgy:p.brgy,yrs,b:sum('b'),s:sum('s'),d:sum('d'),pen:sum('pen'),t:sum('t'),mode,cash};
+ p.u=p.u.filter(y=>!yrs.includes(y));S.t.push(t);save();return t}
+function init(){S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+ if(!S||!S.p){S={p:JSON.parse(JSON.stringify(seed)),t:[],r:{...DEF}};
+  const at=(h,m)=>new Date(cy,now.getMonth(),now.getDate(),h,m);
+  pay(S.p[3],[2026],'Ramon C. Bautista','Cash','Cashier A',at(8,42));
+  pay(S.p[0],[2025],'Maria L. Santos','GCash','Cashier A',at(9,5));
+  pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30));save()}
+ if(!S.r)S.r={...DEF}}
+function tab(t){document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
+ document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep')rep();if(t=='del')dq();if(t=='set')rt()}
+function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
+ const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
+ $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${p.owner}</td><td>${p.brgy}</td><td>${p.cls}</td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?p.u.join(', '):'Paid up'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
+function cur(){return S.p.find(x=>x.td==$('#sp').value)}
+function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;
+ $('#pd').innerHTML=[['TD no.',p.td],['Owner',p.owner],['Barangay',p.brgy],['Class',p.cls],['Area',p.area.toLocaleString()+' sqm'],['Market value',M(p.mv)],['Assessment level',p.al*100+'%'],['Assessed value',M(p.mv*p.al)]].map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
+ const ys=[...p.u].sort();
+ $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${y}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
+ tot()}
+function tot(){const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
+ $('#tot').textContent=M(r(ys.reduce((a,y)=>a+bill(p,y).t,0)));$('#go').disabled=!ys.length}
+function slip(t){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3><p class="muted">Prototype only. Not a valid official receipt.</p>
+<dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div></dl>
+<table style="margin:10px 0"><tr><td>Basic tax</td><td class="n">${f(t.b)}</td></tr><tr><td>SEF</td><td class="n">${f(t.s)}</td></tr><tr><td>Discount</td><td class="n">${t.d?'-'+f(t.d):'0.00'}</td></tr><tr><td>Penalty</td><td class="n">${f(t.pen)}</td></tr><tfoot><tr><td>Total paid</td><td class="n">${f(t.t)}</td></tr></tfoot></table>
+<p class="muted">Collected by ${t.cash}</p><button class="ghost noprint" id="prc">Print receipt</button>`;
+ $('#prc').onclick=()=>{document.body.dataset.p='rc';print()};$('#rc').scrollIntoView({block:'nearest'})}
+function rep(){const d=$('#rd').value,L=S.t.filter(t=>new Date(t.at).toLocaleDateString('en-CA')==d);
+ const sum=(a,k)=>r(a.reduce((x,t)=>x+t[k],0)),by=k=>[...new Set(L.map(t=>t[k]))].map(v=>`${v}: ${M(sum(L.filter(t=>t[k]==v),'t'))}`).join(' | ')||'None';
+ $('#rt').textContent=new Date(d+'T00:00').toLocaleDateString('en-PH',{dateStyle:'full'})+' - '+L.length+' transaction(s)';
+ $('#rs').innerHTML=[['Total collections',M(sum(L,'t'))],['Basic tax',M(sum(L,'b'))],['SEF',M(sum(L,'s'))],['Penalties',M(sum(L,'pen'))],['Discounts',M(sum(L,'d'))]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('')+`<div class="stat" style="grid-column:1/-1">By mode - ${by('mode')}<br>By cashier - ${by('cash')}</div>`;
+ $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${t.mode}</td><td>${t.cash}</td></tr>`).join(''):'<tr><td colspan="12">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
+function boot(){init();
+ $('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${b}</option>`).join('');
+ $('#sp').innerHTML=S.p.map(p=>`<option value="${p.td}">${p.td} - ${p.owner}</option>`).join('');
+ $('#rd').value=now.toLocaleDateString('en-CA');$('#db').innerHTML=$('#bg').innerHTML;look();bl()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+$('#q').oninput=look;$('#bg').onchange=look;$('#sp').onchange=bl;$('#rd').onchange=rep;
+$('#lr').onclick=e=>{const t=e.target.dataset.td;if(t){$('#sp').value=t;bl();tab('bill')}};
+$('#br').onchange=e=>{const c=[...document.querySelectorAll('#br input')],i=c.indexOf(e.target);
+ c.forEach((x,j)=>{if(e.target.checked&&j<i)x.checked=true;if(!e.target.checked&&j>i)x.checked=false});tot()};
+$('#go').onclick=()=>{const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
+ const t=pay(p,ys,$('#pn').value.trim()||p.owner,$('#pm').value,$('#pc').value,new Date());bl();look();slip(t)};
+$('#pr').onclick=()=>{document.body.dataset.p='rep';print()};
+window.onafterprint=()=>delete document.body.dataset.p;
+// Delinquency list: unpaid tax years before the current year, with penalties
+function dq(){const b=$('#db').value;let tot=0;
+ const L=S.p.filter(p=>!b||p.brgy==b).map(p=>{const ys=p.u.filter(y=>y<cy).sort();return{p,ys,amt:r(ys.reduce((a,y)=>a+bill(p,y).t,0))}}).filter(x=>x.ys.length).sort((a,c)=>c.amt-a.amt);
+ L.forEach(x=>tot+=x.amt);
+ $('#ds').innerHTML=`<div class="stat">Delinquent accounts<b>${L.length}</b></div><div class="stat">Total due with penalty<b>${M(r(tot))}</b></div>`;
+ $('#dr').innerHTML=L.length?L.map(x=>`<tr><td>${x.p.td}</td><td>${x.p.owner}</td><td>${x.p.brgy}</td><td>${x.ys.join(', ')}</td><td class="n">${M(x.amt)}</td><td><button data-td="${x.p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="6">No delinquent accounts for this filter.</td></tr>'}
+$('#db').onchange=dq;
+$('#dr').onclick=e=>{const t=e.target.dataset.td;if(t){$('#sp').value=t;bl();tab('bill')}};
+// Rates form
+function rt(){['b','s','d','e','p','c'].forEach(k=>$('#r_'+k).value=S.r[k]);$('#rm').textContent=''}
+$('#rsave').onclick=()=>{const n={};let ok=1;
+ ['b','s','d','e','p','c'].forEach(k=>{const v=parseFloat($('#r_'+k).value);if(!(v>=0))ok=0;n[k]=v});
+ if(n.e>12||n.d>100||n.b>100||n.s>100||n.p>100)ok=0;
+ $('#rm').textContent=ok?'Rates saved. New bills use these rates; past receipts are unchanged.':'Please enter valid numbers (percentages up to 100, month 0 to 12).';
+ if(ok){S.r=n;save()}};
+$('#rreset').onclick=()=>{S.r={...DEF};save();rt();$('#rm').textContent='Defaults restored.'};
+$('#reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}boot()};
+boot();
+</script>
+</body>
+</html>
