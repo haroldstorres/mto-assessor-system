@@ -60,6 +60,7 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <button role="tab" data-t="bill" aria-selected="false">Billing and payment</button>
 <button role="tab" data-t="del" aria-selected="false">Delinquency list</button>
 <button role="tab" data-t="rep" aria-selected="false">Daily collection report</button>
+<button role="tab" data-t="dash" aria-selected="false">Mayor's dashboard</button>
 <button role="tab" data-t="set" aria-selected="false">Rates</button>
 </nav>
 <main>
@@ -106,6 +107,19 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <div class="card wrap"><table>
 <thead><tr><th>TD no.</th><th>Owner</th><th>Barangay</th><th>Unpaid prior years</th><th class="n">Total due with penalty</th><th></th></tr></thead>
 <tbody id="dr"></tbody></table></div>
+</section>
+
+<section id="dash" hidden>
+<div class="card row"><label>Annual collection target (sample)<input id="tg" type="number" min="0" step="10000"></label>
+<p class="muted" style="margin:0">Figures marked sample are placeholders until real data is connected.</p></div>
+<div class="stats" id="dk"></div>
+<div class="card"><b>Year-to-date progress</b>
+<div style="height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin:10px 0"><i id="pf" style="display:block;height:100%;background:var(--acc);width:0"></i></div>
+<p class="muted" id="pt" style="margin:0"></p></div>
+<div class="card"><b>Monthly collections</b> <span class="muted">(sample history; the current month is live)</span>
+<div id="tr" style="display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:12px"></div></div>
+<div class="card wrap"><b>By barangay</b> <span class="muted">(from the properties in this demo)</span>
+<table><thead><tr><th>Barangay</th><th class="n">Accounts</th><th class="n">Collected</th><th class="n">Outstanding</th></tr></thead><tbody id="bb"></tbody></table></div>
 </section>
 
 <section id="set" hidden>
@@ -161,7 +175,7 @@ function init(){S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30));save()}
  if(!S.r)S.r={...DEF}}
 function tab(t){document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
- document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep')rep();if(t=='del')dq();if(t=='set')rt()}
+ document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep')rep();if(t=='del')dq();if(t=='set')rt();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${p.owner}</td><td>${p.brgy}</td><td>${p.cls}</td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?p.u.join(', '):'Paid up'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
@@ -229,6 +243,19 @@ $('#rsave').onclick=()=>{const n={};let ok=1;
  $('#rm').textContent=ok?'Rates saved. New bills use these rates; past receipts are unchanged.':'Please enter valid numbers (percentages up to 100, month 0 to 12).';
  if(ok){S.r=n;save()}};
 $('#rreset').onclick=()=>{S.r={...DEF};save();rt();$('#rm').textContent='Defaults restored.'};
+// Mayor's dashboard: sample monthly history plus live collections for the current month
+const H=[210,240,310,140,120,150,130,160,170,180,190,200].map(x=>x*1000),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dash(){if(!S.g)S.g=2500000;$('#tg').value=S.g;const cm=now.getMonth();
+ const live=S.t.filter(t=>{const d=new Date(t.at);return d.getFullYear()==cy&&d.getMonth()==cm}).reduce((a,t)=>a+t.t,0);
+ const ytd=r(H.slice(0,cm).reduce((a,x)=>a+x,0)+live),pct=S.g?ytd/S.g*100:0,el=(cm+now.getDate()/new Date(cy,cm+1,0).getDate())/12*100;
+ let del=0;S.p.forEach(p=>p.u.forEach(y=>{if(y<cy)del+=bill(p,y).t}));
+ $('#dk').innerHTML=[['Collected year to date',M(ytd)],['Target (sample)',M(S.g)],['Target reached',pct.toFixed(1)+'%'],['Delinquent amount (demo properties)',M(r(del))]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('');
+ $('#pf').style.width=Math.min(100,pct)+'%';
+ $('#pt').textContent=`Year elapsed: ${el.toFixed(1)}%. Expected by now: ${M(r(S.g*el/100))}. `+(ytd>=S.g*el/100?'Collections are on or ahead of pace.':'Collections are behind pace.');
+ const mx=Math.max(...H.slice(0,cm),live,1);
+ $('#tr').innerHTML=MN.map((m,i)=>{const v=i<cm?H[i]:i==cm?live:0;return`<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%" title="${m}: ${M(v)}"><i style="display:block;width:100%;height:${v/mx*85}%;background:var(--acc);opacity:${i==cm?1:.55};border-radius:3px 3px 0 0"></i><span class="muted" style="font-size:11px">${m}</span></div>`}).join('');
+ $('#bb').innerHTML=[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>{const ps=S.p.filter(p=>p.brgy==b),c=r(S.t.filter(t=>t.brgy==b).reduce((a,t)=>a+t.t,0)),o=r(ps.reduce((a,p)=>a+p.u.reduce((s,y)=>s+bill(p,y).t,0),0));return`<tr><td>${b}</td><td class="n">${ps.length}</td><td class="n">${M(c)}</td><td class="n">${M(o)}</td></tr>`}).join('')}
+$('#tg').onchange=()=>{const v=parseFloat($('#tg').value);if(v>=0){S.g=v;save();dash()}};
 $('#reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}boot()};
 boot();
 </script>
