@@ -43,8 +43,9 @@ dt{font-size:12px;color:var(--mute)}dd{margin:0;font-weight:600}
 .slip{border:2px dashed var(--ink);background:var(--card);padding:18px;max-width:460px}
 .slip h3{margin:0 0 4px}
 .muted{color:var(--mute);font-size:13px}
+#doc{display:none;padding:24px;background:var(--card);color:var(--ink)}
 footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
-@media print{body *{visibility:hidden}body[data-p=rc] #rc,body[data-p=rc] #rc *,body[data-p=rep] #repbox,body[data-p=rep] #repbox *{visibility:visible}body[data-p=rc] #rc,body[data-p=rep] #repbox{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}}
+@media print{body *{visibility:hidden}body[data-p=rc] #rc,body[data-p=rc] #rc *,body[data-p=rep] #repbox,body[data-p=rep] #repbox *{visibility:visible}body[data-p=rc] #rc,body[data-p=rep] #repbox{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}body[data-p=doc] #doc,body[data-p=doc] #doc *{visibility:visible}body[data-p=doc] #doc{position:absolute;left:0;top:0;width:100%;display:block}:root:root:root{--bg:#fff;--card:#fff;--ink:#000;--mute:#444;--line:#999;--red:#b42318;--acc:#0b5f66;--on:#fff}}
 </style>
 </head>
 <body>
@@ -83,6 +84,7 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <label>Payment mode<select id="pm"><option>Cash</option><option>Check</option><option>GCash</option></select></label>
 <label>Cashier<select id="pc"><option>Cashier A</option><option>Cashier B</option></select></label>
 <button class="pri" id="go" disabled>Collect payment</button>
+<button class="ghost" id="psoa">Print statement of account</button>
 </div></div>
 <div id="rc" class="slip" hidden></div>
 </section>
@@ -119,6 +121,7 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <p id="rm" class="muted" role="status"></p></div>
 </section>
 </main>
+<div id="doc"></div>
 <footer class="muted">
 <p>Default demo rules (editable in the Rates tab): basic tax 1% and SEF 1% of assessed value; 10% discount on the current year if paid by March 31; 2% interest per month on prior years, up to 36 months. Payments are stored in this browser only.</p>
 <button class="ghost" id="reset">Reset demo data</button>
@@ -167,7 +170,7 @@ function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;
  $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${y}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
  tot()}
 function tot(){const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
- $('#tot').textContent=M(r(ys.reduce((a,y)=>a+bill(p,y).t,0)));$('#go').disabled=!ys.length}
+ $('#tot').textContent=M(r(ys.reduce((a,y)=>a+bill(p,y).t,0)));$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
 function slip(t){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3><p class="muted">Prototype only. Not a valid official receipt.</p>
 <dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div></dl>
 <table style="margin:10px 0"><tr><td>Basic tax</td><td class="n">${f(t.b)}</td></tr><tr><td>SEF</td><td class="n">${f(t.s)}</td></tr><tr><td>Discount</td><td class="n">${t.d?'-'+f(t.d):'0.00'}</td></tr><tr><td>Penalty</td><td class="n">${f(t.pen)}</td></tr><tfoot><tr><td>Total paid</td><td class="n">${f(t.t)}</td></tr></tfoot></table>
@@ -196,9 +199,19 @@ function dq(){const b=$('#db').value;let tot=0;
  const L=S.p.filter(p=>!b||p.brgy==b).map(p=>{const ys=p.u.filter(y=>y<cy).sort();return{p,ys,amt:r(ys.reduce((a,y)=>a+bill(p,y).t,0))}}).filter(x=>x.ys.length).sort((a,c)=>c.amt-a.amt);
  L.forEach(x=>tot+=x.amt);
  $('#ds').innerHTML=`<div class="stat">Delinquent accounts<b>${L.length}</b></div><div class="stat">Total due with penalty<b>${M(r(tot))}</b></div>`;
- $('#dr').innerHTML=L.length?L.map(x=>`<tr><td>${x.p.td}</td><td>${x.p.owner}</td><td>${x.p.brgy}</td><td>${x.ys.join(', ')}</td><td class="n">${M(x.amt)}</td><td><button data-td="${x.p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="6">No delinquent accounts for this filter.</td></tr>'}
+ $('#dr').innerHTML=L.length?L.map(x=>`<tr><td>${x.p.td}</td><td>${x.p.owner}</td><td>${x.p.brgy}</td><td>${x.ys.join(', ')}</td><td class="n">${M(x.amt)}</td><td><button data-td="${x.p.td}">Open bill</button> <button class="ghost" data-n="${x.p.td}">Print notice</button></td></tr>`).join(''):'<tr><td colspan="6">No delinquent accounts for this filter.</td></tr>'}
 $('#db').onchange=dq;
-$('#dr').onclick=e=>{const t=e.target.dataset.td;if(t){$('#sp').value=t;bl();tab('bill')}};
+$('#psoa').onclick=()=>pdoc('s',cur());
+$('#dr').onclick=e=>{const t=e.target.dataset.td,n=e.target.dataset.n;if(t){$('#sp').value=t;bl();tab('bill')}if(n)pdoc('n',S.p.find(x=>x.td==n))};
+// Printable documents: statement of account ('s') and notice of delinquency ('n')
+function pdoc(k,p){const ys=[...p.u].sort().filter(y=>k=='n'?y<cy:1);let T=0;
+ const rows=ys.map(y=>{const b=bill(p,y);T+=b.t;return`<tr><td>${y}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${M(b.d)}</td><td class="n">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join('');
+ const f={dateStyle:'long'},dt=now.toLocaleDateString('en-PH',f),eom=new Date(cy,now.getMonth()+1,0).toLocaleDateString('en-PH',f);
+ const head=t=>`<div style="text-align:center"><div class="muted">Republic of the Philippines</div><b>Municipality of [Municipality name]</b><br><span class="muted">Office of the Municipal Treasurer</span><h2 style="margin:12px 0 4px">${t}</h2></div>`;
+ const tbl=`<table><thead><tr><th>Tax year</th><th class="n">Basic tax</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="5">Total amount due</td><td class="n">${M(r(T))}</td></tr></tfoot></table>`;
+ const info=`<dl style="grid-template-columns:1fr 1fr;margin:12px 0"><div><dt>Owner</dt><dd>${esc(p.owner)}</dd></div><div><dt>TD no.</dt><dd>${p.td}</dd></div><div><dt>Barangay</dt><dd>${p.brgy}</dd></div><div><dt>Class</dt><dd>${p.cls}</dd></div><div><dt>Area</dt><dd>${p.area.toLocaleString()} sqm</dd></div><div><dt>Assessed value</dt><dd>${M(p.mv*p.al)}</dd></div></dl>`;
+ $('#doc').innerHTML=k=='n'?head('Notice of Delinquency')+`<p>${dt}</p><p>To: <b>${esc(p.owner)}</b><br>${p.brgy}</p>`+info+`<p>Our records show that the real property tax on the property described above remains unpaid for tax year(s) ${ys.join(', ')}. The amount due, including interest computed up to ${dt}, is shown below.</p>`+tbl+`<p>You are requested to settle this amount at the Municipal Treasurer's Office at your earliest convenience to avoid further interest.</p><p class="muted">Demo template. Wording to be confirmed with the Municipal Treasurer.</p><p style="margin-top:36px">______________________<br>Municipal Treasurer</p>`:head('Statement of Account')+`<p>As of ${dt}</p>`+info+tbl+`<p>The amount shown is valid until ${eom}. Interest on unpaid prior years increases each month.</p><p class="muted">Demo document. Sample data only.</p><p style="margin-top:36px">Prepared by: ______________________</p>`;
+ document.body.dataset.p='doc';print()}
 // Rates form
 function rt(){['b','s','d','e','p','c'].forEach(k=>$('#r_'+k).value=S.r[k]);$('#rm').textContent=''}
 $('#rsave').onclick=()=>{const n={};let ok=1;
