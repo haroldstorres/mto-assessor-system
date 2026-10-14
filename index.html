@@ -45,6 +45,21 @@ dt{font-size:12px;color:var(--mute)}dd{margin:0;font-weight:600}
 .slip{border:2px dashed var(--ink);background:var(--card);padding:18px;max-width:460px}
 .slip h3{margin:0 0 4px}
 .muted{color:var(--mute);font-size:13px}
+.dec{color:var(--mute)}
+.big{font-size:34px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.hero,.g2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.kp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;align-content:start}
+.kp .stat{background:var(--card)}
+.tx{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pill{background:var(--acc);color:var(--on);border-radius:10px;padding:1px 7px;font-size:11px;margin-bottom:4px;white-space:nowrap}
+#bill:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0 16px;align-items:start}
+#bill>.card:nth-child(-n+3){grid-column:1}
+#bill>.pay{grid-column:2;grid-row:1 / span 3;position:sticky;top:12px}
+#bill>#rc{grid-column:2}
+.pay .row{flex-direction:column;align-items:stretch}
+.pay input,.pay select{min-width:0;width:100%}
+.pay .pri{padding:12px;font-size:16px}
+@media(max-width:760px){.hero,.g2{grid-template-columns:1fr}#bill:not([hidden]){display:block}#bill>.pay{position:static}}
 #doc{display:none;padding:24px;background:var(--card);color:var(--ink)}
 footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 @media print{body *{visibility:hidden}body[data-p=rc] #rc,body[data-p=rc] #rc *,body[data-p=rep] #repbox,body[data-p=rep] #repbox *{visibility:visible}body[data-p=rc] #rc,body[data-p=rep] #repbox{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}body[data-p=doc] #doc,body[data-p=doc] #doc *{visibility:visible}body[data-p=doc] #doc{position:absolute;left:0;top:0;width:100%;display:block}:root:root:root{--bg:#fff;--card:#fff;--ink:#000;--mute:#444;--line:#999;--red:#b42318;--acc:#0b5f66;--on:#fff}}
@@ -81,7 +96,8 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <div class="wrap"><table>
 <thead><tr><th></th><th>Tax year</th><th class="n">Basic tax</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th></tr></thead>
 <tbody id="br"></tbody>
-<tfoot><tr><td colspan="6">Amount to collect</td><td class="n" id="tot">0.00</td></tr></tfoot></table></div>
+<tfoot><tr><td colspan="6">Amount to collect</td><td class="n" id="tot">0.00</td></tr></tfoot></table></div></div>
+<div class="card pay"><div class="muted">Amount to collect</div><div class="big" id="big">0.00</div>
 <div class="row" style="margin-top:14px">
 <label>Payor name<input id="pn"></label>
 <label>Payment mode<select id="pm"><option>Cash</option><option>Check</option><option>GCash</option></select></label>
@@ -112,12 +128,15 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <section id="dash" hidden>
 <div class="card row"><label>Annual collection target (sample)<input id="tg" type="number" min="0" step="10000"></label>
 <p class="muted" style="margin:0">Figures marked sample are placeholders until real data is connected.</p></div>
-<div class="stats" id="dk"></div>
-<div class="card"><b>Year-to-date progress</b>
-<div style="height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin:10px 0"><i id="pf" style="display:block;height:100%;background:var(--acc);width:0"></i></div>
+<div class="hero"><div class="card"><div class="muted">Collected year to date</div><div class="big" id="hb"></div>
+<div style="height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin:12px 0"><i id="pf" style="display:block;height:100%;background:var(--acc);width:0"></i></div>
 <p class="muted" id="pt" style="margin:0"></p></div>
-<div class="card"><b>Monthly collections</b> <span class="muted">(sample history; the current month is live)</span>
-<div id="tr" style="display:flex;align-items:flex-end;gap:6px;height:150px;margin-top:12px"></div></div>
+<div class="kp" id="dk"></div></div>
+<div class="g2"><div class="card"><b>Monthly collections</b> <span class="muted">(sample history; the current month is live)</span>
+<div id="tr" style="display:flex;align-items:flex-end;gap:6px;height:170px;margin-top:12px"></div></div>
+<div class="card"><b>Receivables</b> <span class="muted">(demo properties)</span>
+<div class="row" style="margin-top:10px;flex-wrap:nowrap;align-items:center"><div id="dn"></div><div id="lg" style="font-size:13px"></div></div></div></div>
+<div class="card"><b>Recent payments</b><div id="rp"></div></div>
 <div class="card wrap"><b>By barangay</b> <span class="muted">(from the properties in this demo)</span>
 <table><thead><tr><th>Barangay</th><th class="n">Accounts</th><th class="n">Collected</th><th class="n">Outstanding</th></tr></thead><tbody id="bb"></tbody></table></div>
 </section>
@@ -186,7 +205,7 @@ function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;
  $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${y}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
  tot()}
 function tot(){const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
- $('#tot').textContent=M(r(ys.reduce((a,y)=>a+bill(p,y).t,0)));$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
+ const T=r(ys.reduce((a,y)=>a+bill(p,y).t,0));$('#tot').textContent=M(T);$('#big').innerHTML=bigM(T);$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
 function slip(t){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3><p class="muted">Prototype only. Not a valid official receipt.</p>
 <dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div></dl>
 <table style="margin:10px 0"><tr><td>Basic tax</td><td class="n">${f(t.b)}</td></tr><tr><td>SEF</td><td class="n">${f(t.s)}</td></tr><tr><td>Discount</td><td class="n">${t.d?'-'+f(t.d):'0.00'}</td></tr><tr><td>Penalty</td><td class="n">${f(t.pen)}</td></tr><tfoot><tr><td>Total paid</td><td class="n">${f(t.t)}</td></tr></tfoot></table>
@@ -249,12 +268,22 @@ function dash(){if(!S.g)S.g=2500000;$('#tg').value=S.g;const cm=now.getMonth();
  const live=S.t.filter(t=>{const d=new Date(t.at);return d.getFullYear()==cy&&d.getMonth()==cm}).reduce((a,t)=>a+t.t,0);
  const ytd=r(H.slice(0,cm).reduce((a,x)=>a+x,0)+live),pct=S.g?ytd/S.g*100:0,el=(cm+now.getDate()/new Date(cy,cm+1,0).getDate())/12*100;
  let del=0;S.p.forEach(p=>p.u.forEach(y=>{if(y<cy)del+=bill(p,y).t}));
- $('#dk').innerHTML=[['Collected year to date',M(ytd)],['Target (sample)',M(S.g)],['Target reached',pct.toFixed(1)+'%'],['Delinquent amount (demo properties)',M(r(del))]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('');
- $('#pf').style.width=Math.min(100,pct)+'%';
+ $('#hb').innerHTML=bigM(ytd);
+ $('#dk').innerHTML=[['Target (sample)',M(S.g)],['Target reached',pct.toFixed(1)+'%'],['Delinquent amount',M(r(del))],['Accounts paid up',S.p.filter(p=>!p.u.length).length+' of '+S.p.length]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('');
+ $('#pf').style.width=Math.min(100,pct)+'%';dash2();
  $('#pt').textContent=`Year elapsed: ${el.toFixed(1)}%. Expected by now: ${M(r(S.g*el/100))}. `+(ytd>=S.g*el/100?'Collections are on or ahead of pace.':'Collections are behind pace.');
  const mx=Math.max(...H.slice(0,cm),live,1);
- $('#tr').innerHTML=MN.map((m,i)=>{const v=i<cm?H[i]:i==cm?live:0;return`<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%" title="${m}: ${M(v)}"><i style="display:block;width:100%;height:${v/mx*85}%;background:var(--acc);opacity:${i==cm?1:.55};border-radius:3px 3px 0 0"></i><span class="muted" style="font-size:11px">${m}</span></div>`}).join('');
+ $('#tr').innerHTML=MN.map((m,i)=>{const v=i<cm?H[i]:i==cm?live:0;return`<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%" title="${m}: ${M(v)}">${i==cm?`<span class="pill">${M(v)}</span>`:''}<i style="display:block;width:100%;height:${v/mx*85}%;background:var(--acc);opacity:${i==cm?1:.55};border-radius:3px 3px 0 0"></i><span class="muted" style="font-size:11px">${m}</span></div>`}).join('');
  $('#bb').innerHTML=[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>{const ps=S.p.filter(p=>p.brgy==b),c=r(S.t.filter(t=>t.brgy==b).reduce((a,t)=>a+t.t,0)),o=r(ps.reduce((a,p)=>a+p.u.reduce((s,y)=>s+bill(p,y).t,0),0));return`<tr><td>${b}</td><td class="n">${ps.length}</td><td class="n">${M(c)}</td><td class="n">${M(o)}</td></tr>`}).join('')}
+// Big amount with muted decimals, donut chart, and recent payments
+function bigM(n){const a=M(n).split('.');return a[0]+'<span class="dec">.'+a[1]+'</span>'}
+function donut(P){const T=P.reduce((a,x)=>a+x.v,0)||1,C=2*Math.PI*42;let off=0;
+ return `<svg viewBox="0 0 100 100" width="140" height="140" role="img" aria-label="Receivables breakdown"><g transform="rotate(-90 50 50)" fill="none" stroke-width="14"><circle cx="50" cy="50" r="42" stroke="var(--line)"/>`+P.map(x=>{const l=x.v/T*C,s=`<circle cx="50" cy="50" r="42" stroke="${x.c}" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}"/>`;off+=l;return s}).join('')+'</g></svg>'}
+function dash2(){let cu=0,dl=0;S.p.forEach(p=>p.u.forEach(y=>{const t=bill(p,y).t;if(y<cy)dl+=t;else cu+=t}));
+ const col=r(S.t.reduce((a,t)=>a+t.t,0)),P=[{n:'Collected',v:col,c:'var(--acc)'},{n:'Due this year',v:r(cu),c:'var(--mute)'},{n:'Delinquent',v:r(dl),c:'var(--red)'}],T=P.reduce((a,x)=>a+x.v,0)||1;
+ $('#dn').innerHTML=donut(P);
+ $('#lg').innerHTML=P.map(x=>`<div style="margin-bottom:8px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${x.c};margin-right:6px"></i>${x.n}<br><b>${M(x.v)}</b> <span class="muted">(${(x.v/T*100).toFixed(1)}%)</span></div>`).join('');
+ $('#rp').innerHTML=S.t.length?S.t.slice(-5).reverse().map(t=>`<div class="tx"><div><b>${esc(t.payor)}</b><div class="muted">${t.or} - ${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</div></div><b style="color:var(--acc)">+${M(t.t)}</b></div>`).join(''):'<p class="muted">No payments yet.</p>'}
 $('#tg').onchange=()=>{const v=parseFloat($('#tg').value);if(v>=0){S.g=v;save();dash()}};
 $('#reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}boot()};
 boot();
