@@ -50,6 +50,19 @@ dt{font-size:12px;color:var(--mute)}dd{margin:0;font-weight:600}
 .seg{transition:opacity .2s,transform .2s;transform-origin:100px 100px}
 .arcs:hover .seg{opacity:.5}.arcs .seg:hover{opacity:1;transform:scale(1.03)}
 @media (prefers-reduced-motion:reduce){.rvp{animation:none;stroke-dashoffset:0}.seg{transition:none}}
+.bc{position:relative;flex:1;min-width:0}
+.trk{position:absolute;inset:0;border-radius:8px;background:var(--line);opacity:.4}
+.bar{position:absolute;left:0;right:0;bottom:0;border-radius:8px 8px 4px 4px;background:var(--mute);opacity:.35;transform-origin:bottom;animation:gr .7s cubic-bezier(.3,.7,.2,1) backwards;animation-delay:calc(var(--i)*45ms);transition:opacity .2s}
+.bc:hover .bar{opacity:.7}
+.bc.hl .bar{opacity:1;background:var(--acc);box-shadow:inset 0 16px 18px -12px rgba(255,255,255,.5)}
+.bc .pill{position:absolute;left:50%;transform:translateX(-50%);margin:0;display:none;z-index:2}
+.bc.hl .pill,.bc:hover .pill{display:block}
+@keyframes gr{from{transform:scaleY(0)}}
+@media (prefers-reduced-motion:reduce){.bar{animation:none}}
+.bar{background:linear-gradient(180deg,hsl(var(--h,175) 72% 62%),hsl(var(--h,175) 72% 42%));opacity:.78}
+.bc:hover .bar{opacity:1}
+.bc.hl .bar{opacity:1;box-shadow:0 0 16px hsl(var(--h,175) 80% 55%/.55),inset 0 16px 18px -12px rgba(255,255,255,.5)}
+.bc .pill{background:hsl(var(--h,175) 72% 40%);color:#fff}
 .dec{color:var(--mute)}
 .big{font-size:34px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
 .hero,.g2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
@@ -138,7 +151,7 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <p class="muted" id="pt" style="margin:0"></p></div>
 <div class="kp" id="dk"></div></div>
 <div class="g2"><div class="card"><b>Monthly collections</b> <span class="muted">(sample history; the current month is live)</span>
-<div id="tr" style="display:flex;align-items:flex-end;gap:6px;height:170px;margin-top:12px"></div></div>
+<div id="tr" style="position:relative;height:210px;margin-top:14px"></div></div>
 <div class="card"><b>Receivables</b> <span class="muted">(demo properties)</span>
 <div class="row" style="margin-top:10px;flex-wrap:nowrap;align-items:center"><div id="dn" style="flex:0 0 56%;min-width:0"></div><div id="lg" style="font-size:13px"></div></div></div></div>
 <div class="card"><b>Recent payments</b><div id="rp"></div></div>
@@ -277,11 +290,16 @@ function dash(){if(!S.g)S.g=2500000;$('#tg').value=S.g;const cm=now.getMonth();
  $('#dk').innerHTML=[['Target (sample)',M(S.g)],['Target reached',pct.toFixed(1)+'%'],['Delinquent amount',M(r(del))],['Accounts paid up',S.p.filter(p=>!p.u.length).length+' of '+S.p.length]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('');
  $('#pf').style.width=Math.min(100,pct)+'%';dash2();
  $('#pt').textContent=`Year elapsed: ${el.toFixed(1)}%. Expected by now: ${M(r(S.g*el/100))}. `+(ytd>=S.g*el/100?'Collections are on or ahead of pace.':'Collections are behind pace.');
- const mx=Math.max(...H.slice(0,cm),live,1);
- $('#tr').innerHTML=MN.map((m,i)=>{const v=i<cm?H[i]:i==cm?live:0;return`<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%" title="${m}: ${M(v)}">${i==cm?`<span class="pill">${M(v)}</span>`:''}<i style="display:block;width:100%;height:${v/mx*85}%;background:var(--acc);opacity:${i==cm?1:.55};border-radius:3px 3px 0 0"></i><span class="muted" style="font-size:11px">${m}</span></div>`}).join('');
+ barChart(cm,live);
  $('#bb').innerHTML=[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>{const ps=S.p.filter(p=>p.brgy==b),c=r(S.t.filter(t=>t.brgy==b).reduce((a,t)=>a+t.t,0)),o=r(ps.reduce((a,p)=>a+p.u.reduce((s,y)=>s+bill(p,y).t,0),0));return`<tr><td>${b}</td><td class="n">${ps.length}</td><td class="n">${M(c)}</td><td class="n">${M(o)}</td></tr>`}).join('')}
 // Big amount with muted decimals, donut chart, and recent payments
 function bigM(n){const a=M(n).split('.');return a[0]+'<span class="dec">.'+a[1]+'</span>'}
+// Monthly bar chart: tracks, rounded bars, y-axis, highlighted current month, grow-in animation
+function barChart(cm,live){const vals=MN.map((m,i)=>i<cm?H[i]:i==cm?live:0),mx=Math.max(...vals,1),raw=mx/4,mag=Math.pow(10,Math.floor(Math.log10(raw))),step=[1,2,2.5,5,10].find(k=>k*mag>=raw)*mag,top=step*Math.ceil(mx/step),n=Math.round(top/step);
+ const fm=v=>v>=1000?(v/1000)+'k':String(v);
+ let g='';for(let k=0;k<=n;k++){const b=k/n*100;g+=`<div style="position:absolute;left:0;right:0;bottom:${b}%;border-top:1px dashed var(--line)"></div><span class="muted" style="position:absolute;left:-38px;width:32px;text-align:right;font-size:11px;bottom:${b}%;transform:translateY(50%)">${fm(step*k)}</span>`}
+ const cols=vals.map((v,i)=>`<div class="bc${i==cm?' hl':''}" style="--h:${175+i*8}" title="${MN[i]}: ${M(v)}"><div class="trk"></div><div class="bar" style="height:${v/top*100}%;--i:${i}"></div><span class="pill" style="bottom:calc(${v/top*100}% + 6px)">${M(v)}</span></div>`).join('');
+ $('#tr').innerHTML=`<div style="position:absolute;left:38px;right:0;top:8px;bottom:22px">${g}<div style="position:absolute;inset:0;display:flex;gap:8px">${cols}</div></div><div style="position:absolute;left:38px;right:0;bottom:0;display:flex;gap:8px">${MN.map(m=>`<span class="muted" style="flex:1;text-align:center;font-size:11px">${m}</span>`).join('')}</div>`}
 // Semicircle arc chart: rounded, gapped segments with gradient fills and an animated reveal
 function arcChart(P){const T=P.reduce((a,x)=>a+x.v,0)||1,R=85,ri=65,d=4.2,pt=(q,a)=>{const t=Math.PI*(1-a/180);return[(100+q*Math.cos(t)).toFixed(2),(100-q*Math.sin(t)).toFixed(2)]};let a=0,defs='',paths='';
  P.forEach((x,i)=>{const a0=a+d,a1=Math.max(a0+1,a+x.v/T*180-d),p1=pt(R,a0),p2=pt(R,a1),p3=pt(ri,a1),p4=pt(ri,a0);a+=x.v/T*180;
