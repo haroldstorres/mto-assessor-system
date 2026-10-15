@@ -239,6 +239,17 @@ select option{background:var(--card);color:var(--ink)}
 #prc{background:linear-gradient(135deg,#1d4ed8,#0f766e);color:#fff;border:0;font-weight:600;padding:10px 18px;transition:filter .15s,transform .15s}
 #prc:hover{filter:brightness(1.12)}
 #prc:active{transform:translateY(1px)}
+/* Print: drop everything except the document being printed, so there is no blank second sheet */
+@page{margin:12mm}
+@media print{
+body[data-p] header,body[data-p] nav,body[data-p] footer,body[data-p] #cm,body[data-p] #tip{display:none!important}
+body[data-p=rc] #doc,body[data-p=rep] #doc{display:none!important}
+body[data-p=rc] main>section:not(#bill),body[data-p=rep] main>section:not(#rep),body[data-p=doc] main{display:none!important}
+body[data-p=rc] #bill>*:not(#rc),body[data-p=rep] #rep>*:not(#repbox){display:none!important}
+body[data-p=rc] #bill,body[data-p=rep] #rep{display:block!important}
+body[data-p=rc] #rc,body[data-p=rep] #repbox,body[data-p=doc] #doc{position:static!important;width:auto!important}
+body[data-p=rc] #rc{max-width:460px}
+}
 </style>
 </head>
 <body>
