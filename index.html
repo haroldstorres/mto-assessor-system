@@ -250,6 +250,10 @@ body[data-p=rc] #bill,body[data-p=rep] #rep{display:block!important}
 body[data-p=rc] #rc,body[data-p=rep] #repbox,body[data-p=doc] #doc{position:static!important;width:auto!important}
 body[data-p=rc] #rc{max-width:460px}
 }
+/* Receipt history and duplicate copies */
+.rpb{margin:6px 0 10px;padding:6px 10px;border:1.5px solid var(--red);border-radius:6px;color:var(--red);font-size:0.8125rem;text-transform:uppercase;letter-spacing:.04em}
+.rpb span{text-transform:none;letter-spacing:0;font-weight:400}
+#bill>#hist{grid-column:1}
 </style>
 </head>
 <body>
@@ -304,6 +308,7 @@ body[data-p=rc] #rc{max-width:460px}
 <button class="ghost" id="psoa">Print statement of account</button>
 </div></div>
 <div id="rc" class="slip" hidden></div>
+<div class="card wrap" id="hist"><b>Payment history for this property</b><table style="margin-top:8px"><thead><tr><th>OR no.</th><th>Date and time</th><th>Tax years</th><th>Mode</th><th class="n">Total</th><th class="n">Reprints</th><th></th></tr></thead><tbody id="hr"></tbody></table></div>
 </section>
 
 <section id="rep" hidden>
@@ -313,7 +318,7 @@ body[data-p=rc] #rc{max-width:460px}
 <div id="repbox" class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Report of collections</h2><p class="muted" id="rt"></p>
 <div class="stats" id="rs"></div>
 <div class="wrap"><table>
-<thead><tr><th>OR no.</th><th>Time</th><th>Payor</th><th>TD no.</th><th>Tax years</th><th class="n">Basic</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th><th>Mode</th><th>Ref. no.</th><th>Cashier</th></tr></thead>
+<thead><tr><th>OR no.</th><th>Time</th><th>Payor</th><th>TD no.</th><th>Tax years</th><th class="n">Basic</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th><th>Mode</th><th>Ref. no.</th><th>Cashier</th><th></th></tr></thead>
 <tbody id="rr"></tbody></table></div></div>
 </section>
 <section id="del" hidden>
@@ -404,19 +409,19 @@ function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;$('#px')
  $('#pd').innerHTML=[['TD no.',p.td],['Owner',av(p.owner)+p.owner],['Barangay',p.brgy],['Class',`<span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span>`],['Area',p.area.toLocaleString()+' sqm'],['Market value',M(p.mv)],['Assessment level',p.al*100+'%'],['Assessed value',M(p.mv*p.al)]].map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
  const ys=[...p.u].sort();
  $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${yc(y)}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
- tot()}
+ tot();hist()}
 function tot(){const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
  const T=r(ys.reduce((a,y)=>a+bill(p,y).t,0));TT=T;$('#tot').textContent=M(T);cashUpd();cfClose();$('#big').innerHTML=bigM(T);$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
-function slip(t){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3><p class="muted">Prototype only. Not a valid official receipt.</p>
+function slip(t,copy){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3>${copy?`<p class="rpb"><b>Duplicate copy</b> <span id="rpn">${(t.rp||[]).length?'Reprinted '+t.rp.length+' time'+(t.rp.length>1?'s':'')+' before':'Not reprinted before'}</span></p>`:''}<p class="muted">Prototype only. Not a valid official receipt.</p>
 <dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div>${t.ref?`<div><dt>${t.mode=='Check'?'Check no.':'GCash ref. no.'}</dt><dd>${esc(t.ref)}</dd></div>`:''}</dl>
 <table style="margin:10px 0"><tr><td>Basic tax</td><td class="n">${f(t.b)}</td></tr><tr><td>SEF</td><td class="n">${f(t.s)}</td></tr><tr><td>Discount</td><td class="n">${t.d?'-'+f(t.d):'0.00'}</td></tr><tr><td>Penalty</td><td class="n">${f(t.pen)}</td></tr><tfoot><tr><td>Total paid</td><td class="n">${f(t.t)}</td></tr></tfoot></table>
 ${t.tend>0?`<table style="margin:0 0 10px"><tr><td>Cash received</td><td class="n">${f(t.tend)}</td></tr><tr><td>Change</td><td class="n">${f(r(t.tend-t.t))}</td></tr></table>`:''}<p class="muted">Collected by ${t.cash}</p><button class="ghost noprint" id="prc">Print receipt</button>`;
- $('#prc').onclick=()=>{document.body.dataset.p='rc';print()};$('#rc').scrollIntoView({block:'nearest'})}
+ $('#prc').onclick=()=>{if(copy){t.rp=t.rp||[];t.rp.push(new Date().toISOString());save();$('#rpn').textContent='Reprint no. '+t.rp.length+', printed '+new Date().toLocaleString('en-PH');hist()}document.body.dataset.p='rc';print()};$('#rc').scrollIntoView({block:'nearest'})}
 function rep(){const d=$('#rd').value,L=S.t.filter(t=>new Date(t.at).toLocaleDateString('en-CA')==d);
  const sum=(a,k)=>r(a.reduce((x,t)=>x+t[k],0)),by=k=>[...new Set(L.map(t=>t[k]))].map(v=>`${v}: ${M(sum(L.filter(t=>t[k]==v),'t'))}`).join(' | ')||'None';
  $('#rt').textContent=new Date(d+'T00:00').toLocaleDateString('en-PH',{dateStyle:'full'})+' - '+L.length+' transaction(s)';
  $('#rs').innerHTML=[['Total collections',M(sum(L,'t'))],['Basic tax',M(sum(L,'b'))],['SEF',M(sum(L,'s'))],['Penalties',M(sum(L,'pen'))],['Discounts',M(sum(L,'d'))]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('')+`<div class="stat" style="grid-column:1/-1">By mode - ${by('mode')}<br>By cashier - ${by('cash')}</div>`;
- $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.ref?esc(t.ref):''}</td><td>${t.cash}</td></tr>`).join(''):'<tr><td colspan="13">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
+ $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.ref?esc(t.ref):''}</td><td>${t.cash}</td><td><button data-or="${t.or}">Open receipt</button></td></tr>`).join(''):'<tr><td colspan="14">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
 function boot(){init();
  $('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${b}</option>`).join('');
  $('#sp').value=S.p[0].td;$('#spq').value=S.p[0].td+' - '+S.p[0].owner;
@@ -534,6 +539,12 @@ $('#cm').onclick=e=>{if(e.target==$('#cm'))cfClose()};
 $('#cfy').onclick=()=>{if($('#cfy').disabled)return;$('#cfy').disabled=true;const p=cur(),m=$('#pm').value,v=parseFloat($('#pcr').value),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
  const t=pay(p,ys,$('#pn').value.trim()||p.owner,m,$('#pc').value,new Date(),{ref:m=='Cash'?'':$('#px').value.trim(),tend:m=='Cash'&&v>0?v:0});
  cfClose();bl();look();slip(t)};
+// Receipt history: reopen any issued receipt and print a marked duplicate copy
+function hist(){const p=cur(),L=S.t.filter(t=>t.td==p.td).slice().reverse();
+ $('#hr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</td><td>${t.yrs.join(', ')}</td><td>${mc(t.mode)}</td><td class="n">${M(t.t)}</td><td class="n">${(t.rp||[]).length}</td><td><button data-or="${t.or}">Open receipt</button></td></tr>`).join(''):'<tr><td colspan="7">No payments recorded yet for this property.</td></tr>'}
+function openOR(or){const t=S.t.find(x=>x.or==or);if(!t)return;$('#sp').value=t.td;spLabel();bl();tab('bill');slip(t,true)}
+$('#hr').onclick=e=>{const o=e.target.dataset.or;if(o)openOR(o)};
+$('#rr').onclick=e=>{const o=e.target.dataset.or;if(o)openOR(o)};
 // Rates form
 function rt(){['b','s','d','e','p','c'].forEach(k=>$('#r_'+k).value=S.r[k]);$('#rm').textContent=''}
 $('#rsave').onclick=()=>{const n={};let ok=1;
