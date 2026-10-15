@@ -518,6 +518,7 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <footer class="muted">
 <p>Default demo rules (editable in the Rates tab): basic tax 1% and SEF 1% of assessed value; 10% discount on the current year if paid by March 31; 2% interest per month on prior years, up to 36 months. Payments are saved in the shared database.</p>
 
+<button class="ghost" id="rdm" hidden>Reset demo data</button>
 </footer>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -794,6 +795,8 @@ try{if(localStorage.getItem('rpt-nav')=='1'){document.body.classList.add('nc');$
 $('#nc').onclick=()=>{const c=document.body.classList.toggle('nc');try{localStorage.setItem('rpt-nav',c?'1':'0')}catch(e){}$('#nc').setAttribute('aria-label',c?'Expand sidebar':'Collapse sidebar');$('#nc').dispatchEvent(new MouseEvent('mouseover',{bubbles:true}))};
 
 // ---- Offices, login, roles and users (Firebase Auth and Firestore) ----
+// Reset demo data button: leave false in the LIVE copy. Set to true ONLY in the copy that points to the TEST Firebase project.
+const DEMO_RESET=false;
 const FB_CFG={apiKey:"AIzaSyC6CZ2p05Mja6eouMeVRUyTocrBXl716dc",authDomain:"mto-assessor-system.firebaseapp.com",projectId:"mto-assessor-system",storageBucket:"mto-assessor-system.firebasestorage.app",messagingSenderId:"1070249719",appId:"1:1070249719:web:d89ba39b086f5a65a3c5f2"};
 const ROLES={admin:'Administrator',treasurer:'Treasurer',cashier:'Cashier',assessor:'Assessor',mayor:'Mayor'};
 // Tabs each role can open (the ids are the data-t values in the sidebar). An account gets the tabs of ALL its roles.
@@ -853,7 +856,7 @@ function enter(P,o){if(ROLE)return;ROLE=P.roles;ALLOW=canAct(P.roles);ME={uid:P.
  document.querySelectorAll('nav .ng').forEach(g=>{let n=g.nextElementSibling,any=false;while(n&&n.matches('button[data-t]')){if(!n.hidden)any=true;n=n.nextElementSibling}g.hidden=!any});
  if(!ALLOW.includes('bill'))document.body.dataset.nb=1;
  $('#uxr').innerHTML=roleBoxes(['cashier']);
- $('#pc').value=P.name||P.email;boot();tab(OFF[o].home.find(t=>ALLOW.includes(t))||ALLOW[0]);idleStart()}
+ $('#pc').value=P.name||P.email;$('#rdm').hidden=!(DEMO_RESET&&ROLE.includes('admin'));boot();tab(OFF[o].home.find(t=>ALLOW.includes(t))||ALLOW[0]);idleStart()}
 function authInit(){
  try{firebase.initializeApp(FB_CFG);fa=firebase.auth();fdb=firebase.firestore()}
  catch(x){$('#of').hidden=true;$('#au').hidden=false;aMsg('#aum','Cannot start Firebase. Check the internet connection and reload the page.');return}
@@ -1045,6 +1048,14 @@ $('#rx').onclick=()=>{const d=$('#rd').value,A=S.t.filter(t=>new Date(t.at).toLo
  c='\uFEFF'+[H,...W].map(w=>w.map(q).join(',')).join('\r\n'),a=document.createElement('a');
  a.href=URL.createObjectURL(new Blob([c],{type:'text/csv;charset=utf-8'}));a.download='collections-'+d+'.csv';document.body.appendChild(a);a.click();a.remove();
  setTimeout(()=>URL.revokeObjectURL(a.href),1000);AUD('export',d,A.length+' rows')};
+// Test project only: wipe payments, receipts, closings and the audit log, and restore the 10 sample properties
+$('#rdm').onclick=async()=>{if(!DEMO_RESET||!ROLE.includes('admin'))return;
+ if(prompt('This deletes ALL payments, receipts, day closings and the audit log, and restores the 10 sample properties. Type RESET to continue.')!=='RESET')return;
+ const b=$('#rdm');b.disabled=true;b.textContent='Resetting...';
+ try{for(const c of ['payments','counters','closings','audit','properties']){const q=await fdb.collection(c).get();
+   for(let i=0;i<q.docs.length;i+=400){const w=fdb.batch();q.docs.slice(i,i+400).forEach(d=>w.delete(d.ref));await w.commit()}}
+  const w=fdb.batch();seed.forEach(x=>w.set(fdb.doc('properties/'+pk(x.td)),x));await w.commit();location.reload()}
+ catch(x){b.disabled=false;b.textContent='Reset demo data';alert(lgErr(x))}};
 authInit();
 </script>
 </body>
