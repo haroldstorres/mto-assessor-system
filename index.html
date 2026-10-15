@@ -266,17 +266,40 @@ nav [hidden]{display:none!important}
 nav [data-t=usr]{--nh:230}
 body[data-nb] #lr button{display:none}
 @media print{.aw{display:none!important}}
+/* Office tiles, role checkboxes, idle warning */
+#of{--sc:#64748b}
+.ofc{width:min(60rem,100%);margin:auto;display:flex;flex-direction:column;gap:18px}
+.oft{display:flex;align-items:center;gap:12px}
+.otg{display:grid;grid-template-columns:repeat(auto-fit,minmax(13.5rem,1fr));gap:14px}
+.otg[hidden],#tsi[hidden],#idl[hidden],#tlm[hidden]{display:none}
+.otl{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:10.5rem;padding:20px;text-align:left;border:1px solid var(--line);border-left:4px solid hsl(var(--h) 70% 50%);border-radius:14px;background:linear-gradient(135deg,hsl(var(--h) 80% 50%/.16),transparent 70%),var(--card);color:var(--ink);font:inherit;transition:transform .2s,box-shadow .2s}
+.otl:hover{transform:translateY(-3px);box-shadow:0 10px 26px hsl(var(--h) 70% 50%/.28)}
+.otl:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+.otl .tic{display:flex;width:52px;height:52px;border-radius:14px;align-items:center;justify-content:center;background:linear-gradient(135deg,hsl(var(--h) 70% 42%),hsl(calc(var(--h) + 30) 70% 32%));color:#fff;margin-bottom:6px}
+.otl .tic svg{width:28px;height:28px}
+.otl b{font-size:1.125rem}
+@media (prefers-reduced-motion:reduce){.otl{transition:none}.otl:hover{transform:none}}
+.rk{display:flex;flex-wrap:wrap;gap:6px 16px}
+.rk label{flex-direction:row;align-items:center;gap:6px;color:var(--ink);white-space:normal}
+.rk input,.ac .rk input{min-width:0;width:20px;height:20px}
+td .rk{min-width:15rem}
+#idl{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:300;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:var(--ink);color:var(--bg);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#idl button{min-height:36px}
+@media print{#of,#idl{display:none!important}}
 </style>
 </head>
 <body>
+<div class="aw" id="of"><div class="ofc"><div class="oft"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><div><b style="font-size:1.25rem">RPT Counter</b><div class="muted">Real Property Tax. Choose your office.</div></div></div><p id="tm" class="pen muted" role="alert"></p><p id="tlm" class="muted">Loading...</p><div class="otg" id="otg" hidden><button type="button" class="otl" data-o="mto" style="--h:215"><span class="tic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span><b>Municipal Treasurer's Office</b><span class="muted">Billing, payments, delinquency and collection report</span></button><button type="button" class="otl" data-o="assessor" style="--h:175"><span class="tic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10l7-6 7 6v11M10 21v-6h4v6"/></svg></span><b>Assessor's Office</b><span class="muted">Property records and lookup</span></button><button type="button" class="otl" data-o="mayor" style="--h:265"><span class="tic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></span><b>Mayor's Office</b><span class="muted">Collections dashboard</span></button><button type="button" class="otl" data-o="admin" style="--h:25"><span class="tic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2.2.7 3.5 2.6 3.5 5.6"/></svg></span><b>Administration</b><span class="muted">Users, roles and tax rates</span></button></div><p class="muted" id="tsi" hidden><span id="tsn"></span> <button class="ghost" id="tso" type="button">Sign out</button></p></div></div>
 <div class="aw" id="au" hidden>
 <form class="ac" id="auf">
-<div class="ah"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><div><b>RPT Counter</b><div class="muted">Sign in to continue</div></div></div>
+<div class="ah"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><div><b id="aot">Sign in</b><div class="muted">Use your own account</div></div></div>
 <label>Email<input id="aue" type="email" autocomplete="username" required></label>
 <label>Password<input id="aup" type="password" autocomplete="current-password" required></label>
+<label class="rk"><input type="checkbox" id="aurm"> Remember me on this computer</label>
 <p id="aum" class="pen muted" role="alert"></p>
 <button class="pri" id="aub" type="submit">Sign in</button>
 <button class="ghost" id="aur" type="button">Forgot password</button>
+<button class="ghost" id="aub2" type="button">Back to offices</button>
 <button class="ghost" id="aus" type="button" hidden>First-time setup: create the administrator</button>
 </form>
 <form class="ac" id="asf" hidden>
@@ -291,7 +314,7 @@ body[data-nb] #lr button{display:none}
 </form>
 </div>
 <header>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h1>Real Property Tax Counter</h1><div class="noprint" style="display:flex;gap:8px;align-items:center"><span id="who" class="muted"></span><button class="ghost" id="lo" hidden>Sign out</button><button class="ghost noprint" id="th" style="padding:8px 10px;display:flex"></button></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h1>Real Property Tax Counter</h1><div class="noprint" style="display:flex;gap:8px;align-items:center"><span id="who" class="muted"></span><button class="ghost" id="swo" hidden>Switch office</button><button class="ghost" id="lo" hidden>Sign out</button><button class="ghost noprint" id="th" style="padding:8px 10px;display:flex"></button></div></div>
 <p class="sub">Prototype with sample data only. Rates and rules are demo assumptions.</p>
 </header>
 <nav role="tablist">
@@ -400,16 +423,17 @@ body[data-nb] #lr button{display:none}
 <label>Full name<input id="uxn" autocomplete="off"></label>
 <label>Email<input id="uxe" type="email" autocomplete="off"></label>
 <label>Temporary password<input id="uxp" type="text" autocomplete="off" placeholder="At least 8 characters"></label>
-<label>Role<select id="uxr"></select></label>
+<div class="fld"><span id="uxrl">Roles</span><div class="rk" id="uxr" role="group" aria-labelledby="uxrl"></div></div>
 <button class="pri" id="uxb">Add user</button></div>
 <p id="uxm" class="muted" role="status"></p></div>
 <div class="card wrap"><table>
-<thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+<thead><tr><th>Name</th><th>Email</th><th>Roles</th><th>Status</th><th></th></tr></thead>
 <tbody id="uxl"></tbody></table></div>
 </section>
 </main>
 <dialog id="cm" aria-labelledby="cmt"><div class="cmi"><div><div class="muted" id="cmt">Confirm payment</div><div class="big" id="cmb"></div></div><dl id="cmd"></dl><table id="cmx"></table><div class="cfb"><button type="button" class="pri" id="cfy">Confirm and issue receipt</button><button type="button" class="ghost" id="cfn">Go back</button></div></div></dialog>
 <div id="doc"></div>
+<div id="idl" role="alert" hidden><span>No activity. Signing out in <b id="idn"></b> s.</span><button class="pri" id="idk" type="button">Stay signed in</button></div>
 <div id="tip" role="tooltip"></div>
 <footer class="muted">
 <p>Default demo rules (editable in the Rates tab): basic tax 1% and SEF 1% of assessed value; 10% discount on the current year if paid by March 31; 2% interest per month on prior years, up to 36 months. Payments are stored in this browser only.</p>
@@ -450,7 +474,7 @@ function init(){S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   pay(S.p[0],[2025],'Maria L. Santos','GCash','Cashier A',at(9,5),{ref:'5021 334 871'});
   pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30),{ref:'0004521'});save()}
  if(!S.r)S.r={...DEF}}
-function tab(t){if(ROLE&&!ACC[ROLE].includes(t))return;document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
+function tab(t){if(ALLOW&&!ALLOW.includes(t))return;document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
  document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
@@ -669,14 +693,28 @@ addEventListener('scroll',()=>tip.classList.remove('on'),true);
 try{if(localStorage.getItem('rpt-nav')=='1'){document.body.classList.add('nc');$('#nc').setAttribute('aria-label','Expand sidebar')}}catch(e){}
 $('#nc').onclick=()=>{const c=document.body.classList.toggle('nc');try{localStorage.setItem('rpt-nav',c?'1':'0')}catch(e){}$('#nc').setAttribute('aria-label',c?'Expand sidebar':'Collapse sidebar');$('#nc').dispatchEvent(new MouseEvent('mouseover',{bubbles:true}))};
 $('#reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}boot()};
-// ---- Login, roles and users (Firebase Auth and Firestore) ----
+// ---- Offices, login, roles and users (Firebase Auth and Firestore) ----
 const FB_CFG={apiKey:"AIzaSyC6CZ2p05Mja6eouMeVRUyTocrBXl716dc",authDomain:"mto-assessor-system.firebaseapp.com",projectId:"mto-assessor-system",storageBucket:"mto-assessor-system.firebasestorage.app",messagingSenderId:"1070249719",appId:"1:1070249719:web:d89ba39b086f5a65a3c5f2"};
 const ROLES={admin:'Administrator',treasurer:'Treasurer',cashier:'Cashier',assessor:'Assessor',mayor:'Mayor'};
-// Tabs each role can open (the ids are the data-t values in the sidebar)
+// Tabs each role can open (the ids are the data-t values in the sidebar). An account gets the tabs of ALL its roles.
 const ACC={admin:['look','bill','del','rep','dash','set','usr'],treasurer:['look','bill','del','rep','dash'],cashier:['look','bill','rep'],assessor:['look'],mayor:['dash']};
-let ROLE=null,ME=null,SETUP=false,UL=[],fa,fdb;
+// Office tiles. An account can enter an office if it holds one of the listed roles (administrators can enter any office).
+// "home" is the tab opened first. Change the names here when an LGU gets its own branding.
+const OFF={
+ mto:{name:"Municipal Treasurer's Office",roles:['treasurer','cashier'],home:['look']},
+ assessor:{name:"Assessor's Office",roles:['assessor'],home:['look']},
+ mayor:{name:"Mayor's Office",roles:['mayor'],home:['dash']},
+ admin:{name:'Administration',roles:['admin'],home:['usr']}
+};
+const IDLE_MIN=10,WARN_S=60; // auto sign-out after this many minutes without activity; warning during the last WARN_S seconds
+let ROLE=null,ALLOW=null,ME=null,SETUP=false,UL=[],fa,fdb,OFC=null,PROF=null,FRESH=false,lastAct=Date.now(),idleDone=false;
 const TS=()=>firebase.firestore.FieldValue.serverTimestamp();
-const roleOpts=v=>Object.keys(ROLES).map(k=>`<option value="${k}"${k==v?' selected':''}>${ROLES[k]}</option>`).join('');
+// Accounts store a "roles" list. Older accounts with a single "role" text are read as a one-item list.
+const rolesOf=d=>{const l=Array.isArray(d.roles)?d.roles:(d.role?[d.role]:[]);return l.filter((x,i)=>ROLES[x]&&l.indexOf(x)==i)};
+const roleChips=l=>l.map(k=>`<span class="chip" style="--h:${hue(k)}">${ROLES[k]}</span>`).join(' ');
+const roleBoxes=(sel,uid)=>Object.keys(ROLES).map(k=>`<label><input type="checkbox" value="${k}"${uid?` data-ur="${uid}"`:''}${sel.includes(k)?' checked':''}> ${ROLES[k]}</label>`).join('');
+const canAct=l=>[...new Set(l.flatMap(k=>ACC[k]||[]))];
+const canEnter=(l,o)=>l.includes('admin')||l.some(k=>OFF[o].roles.includes(k));
 function lgErr(x){const c=(x&&x.code)||'';return({
  'auth/invalid-credential':'Wrong email or password.','auth/wrong-password':'Wrong email or password.','auth/user-not-found':'Wrong email or password.',
  'auth/invalid-email':'Enter a valid email address.','auth/user-disabled':'This account is turned off.',
@@ -687,33 +725,67 @@ function lgErr(x){const c=(x&&x.code)||'';return({
  'permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
 }[c])||('Something went wrong ('+(c||(x&&x.message)||'unknown')+').')}
 function aMsg(sel,t,ok){const m=$(sel);m.textContent=t||'';m.className=ok?'muted':'pen muted'}
-function showLogin(msg){$('#asf').hidden=true;$('#auf').hidden=false;$('#au').hidden=false;if(msg!==undefined)aMsg('#aum',msg);
+function idleMsg(){try{if(sessionStorage.getItem('rpt-idle')){sessionStorage.removeItem('rpt-idle');return'You were signed out after '+IDLE_MIN+' minutes without activity.'}}catch(x){}return''}
+// Screens: office tiles first, then the sign-in form of the chosen office
+function showTiles(msg,ok){OFC=null;$('#au').hidden=true;$('#of').hidden=false;$('#tlm').hidden=true;$('#otg').hidden=false;aMsg('#tm',msg,ok);
+ $('#tsi').hidden=!PROF;if(PROF)$('#tsn').textContent='Signed in as '+(PROF.name||PROF.email)+'.'}
+function showLogin(o,msg){$('#of').hidden=true;$('#asf').hidden=true;$('#auf').hidden=false;$('#au').hidden=false;
+ $('#aot').textContent='Sign in: '+OFF[o].name;aMsg('#aum',msg);
+ try{const e=localStorage.getItem('rpt-email');if(e&&!$('#aue').value)$('#aue').value=e;$('#aurm').checked=localStorage.getItem('rpt-rem')=='1'}catch(x){}
  fdb.doc('meta/setup').get().then(s=>{$('#aus').hidden=s.exists}).catch(()=>{$('#aus').hidden=false})}
-function enter(u,d){if(ROLE)return;ME=u;ROLE=d.role;$('#au').hidden=true;
- $('#who').innerHTML=esc(d.name||u.email)+' <span class="chip" style="--h:'+hue(d.role)+'">'+ROLES[d.role]+'</span>';$('#lo').hidden=false;
- const ok=ACC[ROLE];
- document.querySelectorAll('nav [data-t]').forEach(b=>b.hidden=!ok.includes(b.dataset.t));
+async function loadProf(u){const s=await fdb.doc('users/'+u.uid).get(),d=s.exists&&s.data();
+ return d?{uid:u.uid,email:u.email,name:d.name,active:d.active===true,roles:rolesOf(d)}:null}
+// Check the account against the chosen office. fresh = the person just typed the password.
+async function deny(out,msg,o,fresh){if(out){try{await fa.signOut()}catch(x){}PROF=null}if(fresh)showLogin(o,msg);else showTiles(msg)}
+function tryEnter(o,fresh){const P=PROF;
+ if(!P||!P.active||!P.roles.length){deny(true,'This account is turned off or has no role. Ask the administrator.',o,fresh);return}
+ if(!canEnter(P.roles,o)){deny(fresh,'Hindi ito account ng '+OFF[o].name+'.',o,fresh);return}
+ enter(P,o)}
+function enter(P,o){if(ROLE)return;ROLE=P.roles;ALLOW=canAct(P.roles);ME={uid:P.uid,email:P.email};FRESH=false;OFC=o;
+ try{localStorage.setItem('rpt-off',o)}catch(x){}
+ $('#au').hidden=true;$('#of').hidden=true;$('#aup').value='';
+ $('#who').innerHTML=esc(P.name||P.email)+' '+roleChips(P.roles)+' <span class="muted">- '+esc(OFF[o].name)+'</span>';$('#lo').hidden=false;$('#swo').hidden=false;
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.hidden=!ALLOW.includes(b.dataset.t));
  document.querySelectorAll('nav .ng').forEach(g=>{let n=g.nextElementSibling,any=false;while(n&&n.matches('button[data-t]')){if(!n.hidden)any=true;n=n.nextElementSibling}g.hidden=!any});
- if(!ok.includes('bill'))document.body.dataset.nb=1;
- $('#uxr').innerHTML=roleOpts('cashier');
- boot();tab(ok[0])}
+ if(!ALLOW.includes('bill'))document.body.dataset.nb=1;
+ $('#uxr').innerHTML=roleBoxes(['cashier']);
+ boot();tab(OFF[o].home.find(t=>ALLOW.includes(t))||ALLOW[0]);idleStart()}
 function authInit(){
  try{firebase.initializeApp(FB_CFG);fa=firebase.auth();fdb=firebase.firestore()}
- catch(x){$('#au').hidden=false;aMsg('#aum','Cannot start Firebase. Check the internet connection and reload the page.');return}
+ catch(x){$('#of').hidden=true;$('#au').hidden=false;aMsg('#aum','Cannot start Firebase. Check the internet connection and reload the page.');return}
  fa.onAuthStateChanged(async u=>{if(SETUP||ROLE)return;
-  if(!u){showLogin();return}
-  try{const s=await fdb.doc('users/'+u.uid).get(),d=s.exists&&s.data();
-   if(!d){await fa.signOut();showLogin('This account has no access yet. Ask the administrator to add you.');return}
-   if(d.active!==true||!ACC[d.role]){await fa.signOut();showLogin('This account is turned off. Ask the administrator.');return}
-   enter(u,d)}
-  catch(x){await fa.signOut().catch(()=>{});showLogin(lgErr(x))}})}
-// Sign in, password reset, sign out
+  if(!u){PROF=null;if(!OFC)showTiles(idleMsg(),1);return}
+  try{PROF=await loadProf(u);
+   if(!PROF){await fa.signOut();const m='This account has no access yet. Ask the administrator to add you.';if(OFC)showLogin(OFC,m);else showTiles(m);return}
+   if(OFC){tryEnter(OFC,FRESH);return}
+   // Page reloaded while signed in: go back into the last office if the account still fits it
+   let last=null;try{last=localStorage.getItem('rpt-off')}catch(x){}
+   if(last&&OFF[last]&&PROF.active&&PROF.roles.length&&canEnter(PROF.roles,last)){enter(PROF,last);return}
+   showTiles()}
+  catch(x){await fa.signOut().catch(()=>{});PROF=null;if(OFC)showLogin(OFC,lgErr(x));else showTiles(lgErr(x))}})}
+// Office tiles
+$('#otg').onclick=e=>{const b=e.target.closest('button[data-o]');if(!b)return;OFC=b.dataset.o;FRESH=false;aMsg('#tm','');
+ if(PROF)tryEnter(OFC,false);else showLogin(OFC)};
+$('#aub2').onclick=()=>showTiles();
+$('#tso').onclick=async()=>{try{await fa.signOut()}catch(x){}PROF=null;showTiles()};
+// Sign in (Remember me keeps the sign-in after the browser is closed), password reset, sign out
 $('#auf').onsubmit=async e=>{e.preventDefault();aMsg('#aum','');$('#aub').disabled=true;
- try{await fa.signInWithEmailAndPassword($('#aue').value.trim(),$('#aup').value)}catch(x){aMsg('#aum',lgErr(x))}
+ const em=$('#aue').value.trim(),rem=$('#aurm').checked,P=firebase.auth.Auth.Persistence;
+ try{await fa.setPersistence(rem?P.LOCAL:P.SESSION);
+  try{localStorage.setItem('rpt-rem',rem?'1':'0');if(rem)localStorage.setItem('rpt-email',em);else localStorage.removeItem('rpt-email')}catch(y){}
+  FRESH=true;await fa.signInWithEmailAndPassword(em,$('#aup').value)}
+ catch(x){FRESH=false;aMsg('#aum',lgErr(x))}
  $('#aub').disabled=false};
 $('#aur').onclick=async()=>{const e=$('#aue').value.trim();if(!e){aMsg('#aum','Type your email first, then press Forgot password.');return}
  try{await fa.sendPasswordResetEmail(e);aMsg('#aum','If that email has an account, a reset link was sent.',1)}catch(x){aMsg('#aum',lgErr(x))}};
-$('#lo').onclick=async()=>{try{await fa.signOut()}catch(x){}location.reload()};
+$('#lo').onclick=async()=>{try{localStorage.removeItem('rpt-off')}catch(x){}try{await fa.signOut()}catch(x){}location.reload()};
+$('#swo').onclick=()=>{try{localStorage.removeItem('rpt-off')}catch(x){}location.reload()};
+// Auto sign-out after a period without activity (also catches a PC that was asleep)
+function idleStart(){['pointerdown','keydown','mousemove','scroll','touchstart'].forEach(k=>addEventListener(k,()=>{lastAct=Date.now()},{passive:true,capture:true}));
+ lastAct=Date.now();setInterval(()=>{if(idleDone)return;const s=(Date.now()-lastAct)/1000,L=IDLE_MIN*60;
+  if(s>=L){idleOut();return}
+  const w=s>=L-WARN_S;$('#idl').hidden=!w;if(w)$('#idn').textContent=Math.ceil(L-s)},1000)}
+async function idleOut(){idleDone=true;try{sessionStorage.setItem('rpt-idle','1')}catch(x){}try{localStorage.removeItem('rpt-off')}catch(x){}try{await fa.signOut()}catch(x){}location.reload()}
 // First-time setup: the first administrator. Works only until meta/setup exists (enforced by the Firestore rules).
 $('#aus').onclick=()=>{$('#auf').hidden=true;$('#asf').hidden=false;aMsg('#asm','');$('#asn').focus()};
 $('#asc').onclick=()=>{$('#asf').hidden=true;$('#auf').hidden=false};
@@ -723,33 +795,36 @@ $('#asf').onsubmit=async e=>{e.preventDefault();const n=$('#asn').value.trim(),e
  aMsg('#asm','');SETUP=true;$('#asb').disabled=true;let c=null;
  try{c=await fa.createUserWithEmailAndPassword(em,p);
   const b=fdb.batch();
-  b.set(fdb.doc('users/'+c.user.uid),{name:n,email:em.toLowerCase(),role:'admin',active:true,createdAt:TS()});
+  b.set(fdb.doc('users/'+c.user.uid),{name:n,email:em.toLowerCase(),roles:['admin'],active:true,createdAt:TS()});
   b.set(fdb.doc('meta/setup'),{by:c.user.uid,at:TS()});
-  await b.commit();SETUP=false;enter(c.user,{name:n,role:'admin'})}
+  await b.commit();SETUP=false;PROF={uid:c.user.uid,email:em,name:n,active:true,roles:['admin']};enter(PROF,'admin')}
  catch(x){SETUP=false;if(c&&c.user){try{await c.user.delete()}catch(y){}}try{await fa.signOut()}catch(y){}aMsg('#asm',lgErr(x))}
  $('#asb').disabled=false};
-// Users tab (administrator only)
+// Users tab (administrator only): one account can hold several roles
 async function ul(){const t=$('#uxl');t.innerHTML='<tr><td colspan="5">Loading...</td></tr>';
  try{const q=await fdb.collection('users').get();
   UL=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-  t.innerHTML=UL.map(u=>{const me=u.id==ME.uid;
-   return`<tr><td>${av(u.name||u.email||'?')}${esc(u.name||'')}${me?' <span class="muted">(you)</span>':''}</td><td>${esc(u.email||'')}</td><td>${me?ROLES[u.role]:`<select data-ur="${u.id}" aria-label="Role of ${esc(u.name||u.email||'user')}">${roleOpts(u.role)}</select>`}</td><td>${u.active?'<span class="chip" style="--h:150">Active</span>':'<span class="chip" style="--h:5">Turned off</span>'}</td><td>${me?'':`<button class="ghost" data-ut="${u.id}">${u.active?'Turn off':'Turn on'}</button>`}</td></tr>`}).join('')}
+  t.innerHTML=UL.map(u=>{const me=u.id==ME.uid,rl=rolesOf(u);
+   return`<tr><td>${av(u.name||u.email||'?')}${esc(u.name||'')}${me?' <span class="muted">(you)</span>':''}</td><td>${esc(u.email||'')}</td><td>${me?roleChips(rl):`<div class="rk" role="group" aria-label="Roles of ${esc(u.name||u.email||'user')}">${roleBoxes(rl,u.id)}</div>`}</td><td>${u.active?'<span class="chip" style="--h:150">Active</span>':'<span class="chip" style="--h:5">Turned off</span>'}</td><td>${me?'':`<button class="ghost" data-ut="${u.id}">${u.active?'Turn off':'Turn on'}</button>`}</td></tr>`}).join('')}
  catch(x){t.innerHTML='<tr><td colspan="5">Could not load the users.</td></tr>';aMsg('#uxm',lgErr(x))}}
-$('#uxb').onclick=async()=>{const n=$('#uxn').value.trim(),e=$('#uxe').value.trim(),p=$('#uxp').value,ro=$('#uxr').value;
+$('#uxb').onclick=async()=>{const n=$('#uxn').value.trim(),e=$('#uxe').value.trim(),p=$('#uxp').value,ro=[...document.querySelectorAll('#uxr input:checked')].map(i=>i.value);
  if(!n||!e||p.length<8){aMsg('#uxm','Enter the name, email, and a temporary password of at least 8 characters.');return}
+ if(!ro.length){aMsg('#uxm','Choose at least one role.');return}
  $('#uxb').disabled=true;aMsg('#uxm','Creating the account...',1);let sec=null,made=false;
  try{sec=firebase.apps.find(a=>a.name=='sec')||firebase.initializeApp(FB_CFG,'sec');
   const c=await sec.auth().createUserWithEmailAndPassword(e,p);made=true;
-  await fdb.doc('users/'+c.user.uid).set({name:n,email:e.toLowerCase(),role:ro,active:true,createdAt:TS()});
+  await fdb.doc('users/'+c.user.uid).set({name:n,email:e.toLowerCase(),roles:ro,active:true,createdAt:TS()});
   await sec.auth().signOut();
-  ['#uxn','#uxe','#uxp'].forEach(i=>$(i).value='');aMsg('#uxm',n+' was added as '+ROLES[ro]+'.',1);ul()}
+  ['#uxn','#uxe','#uxp'].forEach(i=>$(i).value='');$('#uxr').innerHTML=roleBoxes(['cashier']);aMsg('#uxm',n+' was added as '+ro.map(k=>ROLES[k]).join(', ')+'.',1);ul()}
  catch(x){if(made){try{await sec.auth().currentUser.delete()}catch(y){}}aMsg('#uxm',lgErr(x))}
  $('#uxb').disabled=false};
 $('#uxl').onclick=async e=>{const b=e.target.closest('button[data-ut]');if(!b)return;const u=UL.find(x=>x.id==b.dataset.ut);if(!u)return;b.disabled=true;
  try{await fdb.doc('users/'+u.id).update({active:!u.active});aMsg('#uxm',(u.name||u.email)+(u.active?' was turned off.':' was turned on.'),1)}catch(x){aMsg('#uxm',lgErr(x))}
  ul()};
-$('#uxl').onchange=async e=>{const s=e.target.closest('select[data-ur]');if(!s)return;
- try{await fdb.doc('users/'+s.dataset.ur).update({role:s.value});aMsg('#uxm','Role updated.',1)}catch(x){aMsg('#uxm',lgErr(x));ul()}};
+$('#uxl').onchange=async e=>{const c=e.target.closest('input[data-ur]');if(!c)return;
+ const l=[...c.closest('.rk').querySelectorAll('input:checked')].map(i=>i.value);
+ if(!l.length){c.checked=true;aMsg('#uxm','Every account needs at least one role.');return}
+ try{await fdb.doc('users/'+c.dataset.ur).update({roles:l});aMsg('#uxm','Roles updated.',1)}catch(x){aMsg('#uxm',lgErr(x));ul()}};
 authInit();
 </script>
 </body>
