@@ -301,11 +301,13 @@ td .rk{min-width:15rem}
 button.ghost.pen{color:var(--red);border-color:var(--red)}
 @media print{#ue,#ud{display:none}}
 /* Reopen day and record deposit dialogs */
-#ro,#xd{width:min(32rem,calc(100vw - 32px));max-width:100%;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4)}
-#ro::backdrop,#xd::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
+#ro,#xd,#tyd{width:min(32rem,calc(100vw - 32px));max-width:100%;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+#ro::backdrop,#xd::backdrop,#tyd::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
 #xd dl{grid-template-columns:1fr 1fr}
 #dcl td .ghost{padding:6px 10px;margin:2px 0}
-@media print{#ro,#xd{display:none}}
+@media print{#ro,#xd,#tyd{display:none}}
+#ty{--sc:#14b8a6}nav [data-t=ty]{--nh:175}
+#tyd dl{grid-template-columns:1fr 1fr}#tyd input{min-width:0;width:100%}
 /* Add or edit property dialog */
 #pq,#im{width:min(34rem,calc(100vw - 32px));max-width:100%;max-height:calc(100vh - 32px);padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:auto}
 #pq::backdrop,#im::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
@@ -373,6 +375,7 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <button role="tab" data-t="del" aria-selected="false" data-tipc="Delinquency list" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg><span class="nl">Delinquency</span></button>
 <button role="tab" data-t="rep" aria-selected="false" data-tipc="Daily collection report" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Collection report</span></button>
 <button role="tab" data-t="close" aria-selected="false" data-tipc="Day closing" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Day closing</span></button>
+<button role="tab" data-t="ty" aria-selected="false" data-tipc="Tax year" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 15h3"/></svg><span class="nl">Tax year</span></button>
 <button role="tab" data-t="aud" aria-selected="false" data-tipc="Audit log" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Audit log</span></button>
 <div class="ng">Assessor</div>
 <button role="tab" data-t="prop" aria-selected="false" data-tipc="Properties" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="nl">Properties</span></button>
@@ -465,9 +468,16 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 </div>
 <div class="wrap"><table><thead><tr><th>Date</th><th>Cashier</th><th class="n">Receipts</th><th class="n">Cash</th><th class="n">Check</th><th class="n">GCash</th><th class="n">Total</th><th class="n">Counted</th><th class="n">Over / short</th><th>Status</th><th></th></tr></thead><tbody id="dcl"></tbody></table></div><p id="dcz" class="muted" role="status"></p></div>
 </section>
+<section id="ty" hidden>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Tax year billing</h2>
+<p class="muted">Each new year, add that year's tax to every property. A year can be added only once. Properties that already have the year, or already paid it, are not changed.</p>
+<div id="tyr" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:8px;margin:12px 0"></div>
+<p id="tym" class="muted" role="status"></p>
+<div class="wrap"><table><thead><tr><th>Tax year</th><th>Status</th><th class="n">Properties added</th><th>Done by</th><th>Date</th></tr></thead><tbody id="tyl"></tbody></table></div></div>
+</section>
 <section id="aud" hidden>
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Audit log</h2><p class="muted">The latest 200 actions.</p>
-<div class="row"><label>Action<select id="adf"><option value="">All</option><option>collect</option><option>void</option><option>reprint</option><option>close</option><option>reopen</option><option>deposit</option><option>property</option><option>import</option><option>rates</option><option>export</option></select></label></div>
+<div class="row"><label>Action<select id="adf"><option value="">All</option><option>collect</option><option>void</option><option>reprint</option><option>close</option><option>reopen</option><option>deposit</option><option>taxyear</option><option>property</option><option>import</option><option>rates</option><option>export</option></select></label></div>
 <div class="wrap"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Reference</th><th>Detail</th></tr></thead><tbody id="adr"></tbody></table></div></div>
 </section>
 <section id="prop" hidden>
@@ -513,6 +523,13 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <div class="nmr"><label>Last name<input id="uenl" autocomplete="off"></label><label>First name<input id="uenf" autocomplete="off"></label><label>Middle name (optional)<input id="uenm" autocomplete="off"></label></div>
 <p id="uem" class="pen muted" role="alert"></p>
 <div class="cfb"><button type="button" class="pri" id="ues">Save name</button><button type="button" class="ghost" id="uec">Cancel</button></div></div></dialog>
+<dialog id="tyd" aria-labelledby="tyt"><div class="cmi"><div><div class="muted" id="tyt">Generate tax year</div><div class="big" id="tyb"></div></div>
+<dl><div><dt>Properties in the system</dt><dd id="tyi"></dd></div><div><dt>Will get the new bill</dt><dd id="tya"></dd></div></dl>
+<p class="muted" style="margin:0" id="tyk"></p>
+<p style="margin:0">This adds the year to the unpaid years of those properties. It runs once. Receipts and payments already issued are not touched.</p>
+<label>Type the year to confirm<input id="tyc" autocomplete="off" inputmode="numeric"></label>
+<p id="typ" class="muted" role="status"></p><p id="tye" class="pen muted" role="alert"></p>
+<div class="cfb"><button type="button" class="pri" id="tyy" disabled>Generate</button><button type="button" class="ghost" id="tyn">Cancel</button></div></div></dialog>
 <dialog id="ro" aria-labelledby="rot"><div class="cmi"><div><div class="muted" id="rot">Reopen day</div><b id="roi"></b></div>
 <p style="margin:0">The closing will be removed so this cashier can collect again. They must close the day again afterwards. The reason is written to the audit log.</p>
 <label>Reason (required)<input id="ror" maxlength="200" autocomplete="off"></label>
@@ -600,7 +617,7 @@ async function pay(p,yrs,payor,mode,cash,when,x){
   tx.set(fdb.collection('audit').doc(),{at:TS(),uid:ME.uid,name:cash,act:'collect',ref:t.or,detail:p.td+' '+yrs.join(',')+' '+M(t.t)})});
  p.u=p.u.filter(y=>!yrs.includes(y));if(!S.t.some(z=>z.or==t.or))S.t.push(t);return t}
 function tab(t){if(ALLOW&&!ALLOW.includes(t))return;document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
- document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='prop')pf();if(t=='close')dcl();if(t=='aud')adl();if(t=='dash')dash()}
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='prop')pf();if(t=='close')dcl();if(t=='aud')adl();if(t=='ty')tyl();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${av(p.owner)}${p.owner}</td><td>${p.brgy}</td><td><span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span></td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?[...p.u].sort().map(yc).join(''):'<span class="chip" style="--h:150">Paid up</span>'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
@@ -840,7 +857,7 @@ const DEMO_RESET=false;
 const FB_CFG={apiKey:"AIzaSyC6CZ2p05Mja6eouMeVRUyTocrBXl716dc",authDomain:"mto-assessor-system.firebaseapp.com",projectId:"mto-assessor-system",storageBucket:"mto-assessor-system.firebasestorage.app",messagingSenderId:"1070249719",appId:"1:1070249719:web:d89ba39b086f5a65a3c5f2"};
 const ROLES={admin:'Administrator',treasurer:'Treasurer',cashier:'Cashier',assessor:'Assessor',mayor:'Mayor'};
 // Tabs each role can open (the ids are the data-t values in the sidebar). An account gets the tabs of ALL its roles.
-const ACC={admin:['look','bill','del','rep','dash','prop','set','usr','close','aud'],treasurer:['look','bill','del','rep','dash','close','aud'],cashier:['look','bill','rep','close'],assessor:['look','prop'],mayor:['dash']};
+const ACC={admin:['look','bill','del','rep','dash','prop','set','usr','close','ty','aud'],treasurer:['look','bill','del','rep','dash','close','ty','aud'],cashier:['look','bill','rep','close'],assessor:['look','prop'],mayor:['dash']};
 // Office tiles. An account can enter an office if it holds one of the listed roles (administrators can enter any office).
 // "home" is the tab opened first. Change the names here when an LGU gets its own branding.
 const OFF={
@@ -1131,6 +1148,33 @@ ${c.note?`<p class="muted">Cashier note: ${esc(c.note)}</p>`:''}${rm&&rm.note?`<
 <p class="muted" style="margin-top:18px">Demo document. Sample data only. Wording to be confirmed with the Municipal Treasurer.</p>`;
  document.body.dataset.p='doc';print()}
 
+// Tax year billing (administrator and treasurer): adds the current year to every property, once
+let TYM=[];
+function tyTodo(){const pd=new Set();S.t.forEach(t=>{if(!t.void&&t.yrs.includes(cy))pd.add(t.td)});return{L:S.p.filter(p=>!p.u.includes(cy)&&!pd.has(p.td)),paid:S.p.filter(p=>!p.u.includes(cy)&&pd.has(p.td)).length}}
+async function tyl(){const b=$('#tyl'),pn=$('#tyr');b.innerHTML='<tr><td colspan="5">Loading...</td></tr>';aMsg('#tym','');
+ try{TYM=(await fdb.collection('taxyears').get()).docs.map(d=>d.data()).sort((a,c)=>c.year-a.year);
+  const done=TYM.some(m=>m.year==cy),n=tyTodo().L.length;
+  pn.innerHTML=done?`<div><div class="muted">Next tax year</div><div class="big">${cy+1}</div><div class="muted">Opens on January 1, ${cy+1}. ${cy} is already billed.</div></div>`:`<div><div class="muted">Ready to add</div><div class="big">Tax year ${cy}</div><div class="muted">${n} of ${S.p.length} properties will get a ${cy} bill</div></div><div class="row"><button class="pri" id="tyg">Generate tax year ${cy}</button><button class="ghost" id="tyx">Already billed before this feature</button></div>`;
+  b.innerHTML=TYM.length?TYM.map(m=>`<tr><td>${m.year}</td><td><span class="chip" style="--h:150">Billed</span></td><td class="n">${m.pre?'Set up before this feature':m.n}</td><td>${esc(m.name||'')}</td><td>${m.at&&m.at.toDate?m.at.toDate().toLocaleDateString('en-PH',{dateStyle:'medium'}):''}</td></tr>`).join(''):'<tr><td colspan="5">No tax year has been recorded yet.</td></tr>'}
+ catch(x){b.innerHTML='<tr><td colspan="5">Could not load: '+esc(lgErr(x))+'</td></tr>'}}
+$('#tyr').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id=='tyg')tyOpen();else if(b.id=='tyx')tyMark(b)};
+async function tyMark(b){if(!confirm('Mark tax year '+cy+' as already billed? The properties will not be changed.'))return;b.disabled=true;
+ try{await fdb.doc('taxyears/'+cy).set({year:cy,n:0,pre:true,by:ME.uid,name:PROF.name||PROF.email,at:TS()});AUD('taxyear',String(cy),'marked as already billed');aMsg('#tym','Tax year '+cy+' marked as billed.',1)}
+ catch(x){aMsg('#tym',lgErr(x))}
+ tyl()}
+function tyOpen(){const t=tyTodo();$('#tyb').textContent=cy;$('#tyi').textContent=S.p.length;$('#tya').textContent=t.L.length;
+ $('#tyk').textContent=t.paid?t.paid+' propert'+(t.paid>1?'ies':'y')+' already paid '+cy+' and will be skipped.':'';
+ $('#tyc').value='';$('#tyc').disabled=false;$('#typ').textContent='';aMsg('#tye',t.L.length?'':'Nothing to add. Every property already has '+cy+'.');$('#tyy').disabled=true;dlgOpen('#tyd');$('#tyc').focus()}
+$('#tyc').oninput=()=>{$('#tyy').disabled=$('#tyc').value.trim()!=String(cy)||!tyTodo().L.length};
+$('#tyn').onclick=()=>dlgClose('#tyd');
+$('#tyy').onclick=async()=>{const L=tyTodo().L;if(!L.length||$('#tyc').value.trim()!=String(cy))return;
+ $('#tyy').disabled=true;$('#tyc').disabled=true;aMsg('#tye','');const nm=PROF.name||PROF.email;let d=0;
+ try{for(let i=0;i<L.length;i+=400){const w=fdb.batch(),part=L.slice(i,i+400);
+   part.forEach(p=>w.update(fdb.doc('properties/'+pk(p.td)),{u:[...new Set([...p.u,cy])].sort()}));
+   if(i+400>=L.length)w.set(fdb.doc('taxyears/'+cy),{year:cy,n:L.length,by:ME.uid,name:nm,at:TS()});
+   await w.commit();d+=part.length;$('#typ').textContent=d+' of '+L.length+' done. Keep this page open until it finishes.'}
+  AUD('taxyear',String(cy),L.length+' properties');dlgClose('#tyd');aMsg('#tym','Tax year '+cy+' added to '+L.length+' properties.',1);tyl()}
+ catch(x){aMsg('#tye',lgErr(x)+' Some properties may already be updated. Open this tab again and run it again; properties already done are skipped.');$('#tyc').disabled=false;$('#tyy').disabled=false}};
 // Audit log screen (administrator and treasurer)
 async function adl(){const t=$('#adr');t.innerHTML='<tr><td colspan="5">Loading...</td></tr>';
  try{const f=$('#adf').value,L=(await fdb.collection('audit').orderBy('at','desc').limit(200).get()).docs.map(x=>x.data()).filter(a=>!f||a.act==f);
