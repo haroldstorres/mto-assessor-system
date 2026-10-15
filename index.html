@@ -502,7 +502,7 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <tbody id="uxl"></tbody></table></div>
 </section>
 </main>
-<dialog id="cm" aria-labelledby="cmt"><div class="cmi"><div><div class="muted" id="cmt">Confirm payment</div><div class="big" id="cmb"></div></div><dl id="cmd"></dl><table id="cmx"></table><div class="cfb"><button type="button" class="pri" id="cfy">Confirm and issue receipt</button><button type="button" class="ghost" id="cfn">Go back</button></div></div></dialog>
+<dialog id="cm" aria-labelledby="cmt"><div class="cmi"><div><div class="muted" id="cmt">Confirm payment</div><div class="big" id="cmb"></div></div><dl id="cmd"></dl><table id="cmx"></table><p id="cme" class="pen muted" role="alert" hidden></p><div class="cfb"><button type="button" class="pri" id="cfy">Confirm and issue receipt</button><button type="button" class="ghost" id="cfn">Go back</button></div></div></dialog>
 <dialog id="ue" aria-labelledby="uet"><div class="cmi"><div><div class="muted" id="uet">Edit user</div><b id="uee"></b><div class="muted">The email cannot be changed here. Roles are changed with the checkboxes in the list.</div></div>
 <div class="nmr"><label>Last name<input id="uenl" autocomplete="off"></label><label>First name<input id="uenf" autocomplete="off"></label><label>Middle name (optional)<input id="uenm" autocomplete="off"></label></div>
 <p id="uem" class="pen muted" role="alert"></p>
@@ -703,14 +703,17 @@ function cfOpen(){const p=cur(),m=$('#pm').value,ref=$('#px').value.trim(),v=par
  $('#cmb').innerHTML=bigM(TT);
  $('#cmd').innerHTML=dl.map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
  $('#cmx').innerHTML=`<tr><td>Basic tax</td><td class="n">${M(sm('b'))}</td></tr><tr><td>SEF</td><td class="n">${M(sm('s'))}</td></tr><tr><td>Discount</td><td class="n">${sm('d')?'-'+M(sm('d')):'0.00'}</td></tr><tr><td>Penalty</td><td class="n pen">${M(sm('pen'))}</td></tr><tr><td><b>Total</b></td><td class="n"><b>${M(sm('t'))}</b></td></tr>`;
- const d=$('#cm');$('#cfy').disabled=false;if(d.showModal)d.showModal();else d.setAttribute('open','');$('#cfy').focus()}
+ const d=$('#cm');$('#cme').hidden=true;$('#cfy').textContent='Confirm and issue receipt';$('#cfy').disabled=false;if(d.showModal)d.showModal();else d.setAttribute('open','');$('#cfy').focus()}
 $('#go').onclick=cfOpen;
 $('#pcr').oninput=cashUpd;
 $('#cfn').onclick=cfClose;
 $('#cm').onclick=e=>{if(e.target==$('#cm'))cfClose()};
-$('#cfy').onclick=async()=>{if($('#cfy').disabled)return;$('#cfy').disabled=true;const p=cur(),m=$('#pm').value,v=parseFloat($('#pcr').value),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
- try{const t=await pay(p,ys,$('#pn').value.trim()||p.owner,m,$('#pc').value,new Date(),{ref:m=='Cash'?'':$('#px').value.trim(),tend:m=='Cash'&&v>0?v:0});cfClose();bl();look();slip(t)}
- catch(x){cfClose();if(x&&x.code=='stale')bl();const e=$('#pe');e.textContent=lgErr(x);e.hidden=false}};
+$('#cfy').onclick=async()=>{if($('#cfy').disabled)return;const b=$('#cfy'),er=$('#cme'),lab='Confirm and issue receipt';b.disabled=true;b.textContent='Saving...';er.hidden=true;
+ const p=cur(),m=$('#pm').value,v=parseFloat($('#pcr').value),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
+ try{const t=await Promise.race([pay(p,ys,$('#pn').value.trim()||p.owner,m,$('#pc').value,new Date(),{ref:m=='Cash'?'':$('#px').value.trim(),tend:m=='Cash'&&v>0?v:0}),new Promise((_,j)=>setTimeout(()=>j({code:'timeout'}),20000))]);
+  b.textContent=lab;cfClose();bl();look();slip(t)}
+ catch(x){console.error(x);b.textContent=lab;b.disabled=false;er.textContent=lgErr(x);er.hidden=false;
+  if(x&&x.code=='stale'){cfClose();bl();const e=$('#pe');e.textContent=lgErr(x);e.hidden=false}}};
 // Receipt history: reopen any issued receipt and print a marked duplicate copy
 function hist(){const p=cur(),L=S.t.filter(t=>t.td==p.td).slice().reverse();
  $('#hr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}${t.void?' <span class="chip" style="--h:5">VOID</span>':''}</td><td>${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</td><td>${t.yrs.join(', ')}</td><td>${mc(t.mode)}</td><td class="n">${M(t.t)}</td><td class="n">${(t.rp||[]).length}</td><td><button data-or="${t.or}">Open receipt</button></td></tr>`).join(''):'<tr><td colspan="7">No payments recorded yet for this property.</td></tr>'}
@@ -819,7 +822,7 @@ function lgErr(x){const c=(x&&x.code)||'';return({
  'auth/email-already-in-use':'That email is already registered in Firebase Authentication. If the user was deleted here, remove the email in the Firebase console (Authentication, Users) before adding it again.','auth/weak-password':'Use a password of at least 8 characters.',
  'auth/invalid-api-key':'The Firebase API key in the page is wrong.','auth/api-key-not-valid.-please-pass-a-valid-api-key.':'The Firebase API key in the page is wrong.',
  'auth/operation-not-allowed':'Email/Password sign-in is not enabled in Firebase Authentication.',
- 'closed':'Your day is already closed. Ask the treasurer if more must be collected today.','stale':'Another counter already collected one of these tax years. The bill was refreshed.','permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
+ 'timeout':'Taking too long. Check the internet connection, and check the payment history before trying again.','closed':'Your day is already closed. Ask the treasurer if more must be collected today.','stale':'Another counter already collected one of these tax years. The bill was refreshed.','permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
 }[c])||('Something went wrong ('+(c||(x&&x.message)||'unknown')+').')}
 // Names are stored in one text field as "Last, First Middle" (sorts by last name)
 const nm1=s=>$(s).value.trim().replace(/\s+/g,' ');
