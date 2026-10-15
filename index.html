@@ -304,7 +304,9 @@ td .rk{min-width:15rem}
 </form>
 <form class="ac" id="asf" hidden>
 <div class="ah"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><div><b>First-time setup</b><div class="muted">Create the administrator account</div></div></div>
-<label>Full name<input id="asn" autocomplete="name" required></label>
+<label>Last name<input id="asln" autocomplete="family-name" required></label>
+<label>First name<input id="asfn" autocomplete="given-name" required></label>
+<label>Middle name (optional)<input id="asmn" autocomplete="additional-name"></label>
 <label>Email<input id="ase" type="email" autocomplete="username" required></label>
 <label>Password (at least 8 characters)<input id="asp" type="password" autocomplete="new-password" required minlength="8"></label>
 <label>Confirm password<input id="asp2" type="password" autocomplete="new-password" required></label>
@@ -420,7 +422,9 @@ td .rk{min-width:15rem}
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Users and roles</h2>
 <p class="muted">Create staff accounts and choose what each person can do. Give the temporary password in person; the user can change it with Forgot password on the sign-in screen.</p>
 <div class="row">
-<label>Full name<input id="uxn" autocomplete="off"></label>
+<label>Last name<input id="uxln" autocomplete="off"></label>
+<label>First name<input id="uxfn" autocomplete="off"></label>
+<label>Middle name (optional)<input id="uxmn" autocomplete="off"></label>
 <label>Email<input id="uxe" type="email" autocomplete="off"></label>
 <label>Temporary password<input id="uxp" type="text" autocomplete="off" placeholder="At least 8 characters"></label>
 <div class="fld"><span id="uxrl">Roles</span><div class="rk" id="uxr" role="group" aria-labelledby="uxrl"></div></div>
@@ -724,6 +728,10 @@ function lgErr(x){const c=(x&&x.code)||'';return({
  'auth/operation-not-allowed':'Email/Password sign-in is not enabled in Firebase Authentication.',
  'permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
 }[c])||('Something went wrong ('+(c||(x&&x.message)||'unknown')+').')}
+// Names are stored in one text field as "Last, First Middle" (sorts by last name)
+const nm1=s=>$(s).value.trim().replace(/\s+/g,' ');
+function fullName(l,f,m){const a=nm1(l),b=nm1(f),c=nm1(m);return a&&b?a+', '+b+(c?' '+c:''):''}
+const fl=n=>{const i=n.indexOf(',');return i<0?n:n.slice(i+1).trim()+' '+n.slice(0,i).trim()};
 function aMsg(sel,t,ok){const m=$(sel);m.textContent=t||'';m.className=ok?'muted':'pen muted'}
 function idleMsg(){try{if(sessionStorage.getItem('rpt-idle')){sessionStorage.removeItem('rpt-idle');return'You were signed out after '+IDLE_MIN+' minutes without activity.'}}catch(x){}return''}
 // Screens: office tiles first, then the sign-in form of the chosen office
@@ -787,10 +795,10 @@ function idleStart(){['pointerdown','keydown','mousemove','scroll','touchstart']
   const w=s>=L-WARN_S;$('#idl').hidden=!w;if(w)$('#idn').textContent=Math.ceil(L-s)},1000)}
 async function idleOut(){idleDone=true;try{sessionStorage.setItem('rpt-idle','1')}catch(x){}try{localStorage.removeItem('rpt-off')}catch(x){}try{await fa.signOut()}catch(x){}location.reload()}
 // First-time setup: the first administrator. Works only until meta/setup exists (enforced by the Firestore rules).
-$('#aus').onclick=()=>{$('#auf').hidden=true;$('#asf').hidden=false;aMsg('#asm','');$('#asn').focus()};
+$('#aus').onclick=()=>{$('#auf').hidden=true;$('#asf').hidden=false;aMsg('#asm','');$('#asln').focus()};
 $('#asc').onclick=()=>{$('#asf').hidden=true;$('#auf').hidden=false};
-$('#asf').onsubmit=async e=>{e.preventDefault();const n=$('#asn').value.trim(),em=$('#ase').value.trim(),p=$('#asp').value;
- if(!n||!em||p.length<8){aMsg('#asm','Enter the name, email, and a password of at least 8 characters.');return}
+$('#asf').onsubmit=async e=>{e.preventDefault();const n=fullName('#asln','#asfn','#asmn'),em=$('#ase').value.trim(),p=$('#asp').value;
+ if(!n||!em||p.length<8){aMsg('#asm','Enter the last name, first name, email, and a password of at least 8 characters.');return}
  if(p!=$('#asp2').value){aMsg('#asm','The two passwords do not match.');return}
  aMsg('#asm','');SETUP=true;$('#asb').disabled=true;let c=null;
  try{c=await fa.createUserWithEmailAndPassword(em,p);
@@ -805,17 +813,17 @@ async function ul(){const t=$('#uxl');t.innerHTML='<tr><td colspan="5">Loading..
  try{const q=await fdb.collection('users').get();
   UL=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   t.innerHTML=UL.map(u=>{const me=u.id==ME.uid,rl=rolesOf(u);
-   return`<tr><td>${av(u.name||u.email||'?')}${esc(u.name||'')}${me?' <span class="muted">(you)</span>':''}</td><td>${esc(u.email||'')}</td><td>${me?roleChips(rl):`<div class="rk" role="group" aria-label="Roles of ${esc(u.name||u.email||'user')}">${roleBoxes(rl,u.id)}</div>`}</td><td>${u.active?'<span class="chip" style="--h:150">Active</span>':'<span class="chip" style="--h:5">Turned off</span>'}</td><td>${me?'':`<button class="ghost" data-ut="${u.id}">${u.active?'Turn off':'Turn on'}</button>`}</td></tr>`}).join('')}
+   return`<tr><td>${av(fl(u.name||u.email||'?'))}${esc(u.name||'')}${me?' <span class="muted">(you)</span>':''}</td><td>${esc(u.email||'')}</td><td>${me?roleChips(rl):`<div class="rk" role="group" aria-label="Roles of ${esc(u.name||u.email||'user')}">${roleBoxes(rl,u.id)}</div>`}</td><td>${u.active?'<span class="chip" style="--h:150">Active</span>':'<span class="chip" style="--h:5">Turned off</span>'}</td><td>${me?'':`<button class="ghost" data-ut="${u.id}">${u.active?'Turn off':'Turn on'}</button>`}</td></tr>`}).join('')}
  catch(x){t.innerHTML='<tr><td colspan="5">Could not load the users.</td></tr>';aMsg('#uxm',lgErr(x))}}
-$('#uxb').onclick=async()=>{const n=$('#uxn').value.trim(),e=$('#uxe').value.trim(),p=$('#uxp').value,ro=[...document.querySelectorAll('#uxr input:checked')].map(i=>i.value);
- if(!n||!e||p.length<8){aMsg('#uxm','Enter the name, email, and a temporary password of at least 8 characters.');return}
+$('#uxb').onclick=async()=>{const n=fullName('#uxln','#uxfn','#uxmn'),e=$('#uxe').value.trim(),p=$('#uxp').value,ro=[...document.querySelectorAll('#uxr input:checked')].map(i=>i.value);
+ if(!n||!e||p.length<8){aMsg('#uxm','Enter the last name, first name, email, and a temporary password of at least 8 characters.');return}
  if(!ro.length){aMsg('#uxm','Choose at least one role.');return}
  $('#uxb').disabled=true;aMsg('#uxm','Creating the account...',1);let sec=null,made=false;
  try{sec=firebase.apps.find(a=>a.name=='sec')||firebase.initializeApp(FB_CFG,'sec');
   const c=await sec.auth().createUserWithEmailAndPassword(e,p);made=true;
   await fdb.doc('users/'+c.user.uid).set({name:n,email:e.toLowerCase(),roles:ro,active:true,createdAt:TS()});
   await sec.auth().signOut();
-  ['#uxn','#uxe','#uxp'].forEach(i=>$(i).value='');$('#uxr').innerHTML=roleBoxes(['cashier']);aMsg('#uxm',n+' was added as '+ro.map(k=>ROLES[k]).join(', ')+'.',1);ul()}
+  ['#uxln','#uxfn','#uxmn','#uxe','#uxp'].forEach(i=>$(i).value='');$('#uxr').innerHTML=roleBoxes(['cashier']);aMsg('#uxm',n+' was added as '+ro.map(k=>ROLES[k]).join(', ')+'.',1);ul()}
  catch(x){if(made){try{await sec.auth().currentUser.delete()}catch(y){}}aMsg('#uxm',lgErr(x))}
  $('#uxb').disabled=false};
 $('#uxl').onclick=async e=>{const b=e.target.closest('button[data-ut]');if(!b)return;const u=UL.find(x=>x.id==b.dataset.ut);if(!u)return;b.disabled=true;
