@@ -186,6 +186,33 @@ select option{background:var(--card);color:var(--ink)}
 .cb li.on{background:color-mix(in srgb,var(--acc) 24%,transparent)}
 .cb li.none{cursor:default;color:var(--mute)}
 @media print{.cb ul{display:none}}
+/* Report date picker: the browser's own calendar cannot be styled, so this one is drawn by the page */
+.dp{position:relative}
+.dpb{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:15rem;min-height:44px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;text-align:left;transition:border-color .15s,box-shadow .15s}
+.dpb:hover{border-color:var(--mute)}
+.dpb:focus-visible,.dpb[aria-expanded=true]{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 30%,transparent)}
+.dpb svg{width:18px;height:18px;flex:none;color:var(--mute)}
+.dpop{position:absolute;left:0;top:calc(100% + 4px);z-index:40;width:19.5rem;max-width:calc(100vw - 32px);padding:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.22);color:var(--ink)}
+.dpop[hidden]{display:none}
+.dph{display:flex;align-items:center;gap:2px;margin-bottom:8px}
+.dpm{flex:1;text-align:center;font-weight:700}
+.dpn{display:flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:0;border-radius:8px;background:none;color:var(--ink)}
+.dpn:hover{background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.dpn svg{width:16px;height:16px}
+.dpg{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dpg>span{text-align:center;font-size:0.75rem;font-weight:600;color:var(--mute);padding:4px 0 6px}
+.dd{position:relative;height:38px;padding:0;border:0;border-radius:8px;background:none;color:var(--ink);font:inherit;font-variant-numeric:tabular-nums}
+.dd:hover{background:color-mix(in srgb,var(--acc) 16%,transparent)}
+.dd.out{color:var(--mute);opacity:.6}
+.dd.tod{box-shadow:inset 0 0 0 1.5px var(--acc)}
+.dd.sel{background:var(--acc);color:var(--on);font-weight:700;opacity:1}
+.dd.has::after{content:"";position:absolute;left:50%;bottom:4px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--acc)}
+.dd.sel.has::after{background:var(--on)}
+.dd:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.dpf{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.dpf .ghost{padding:6px 12px}
+.dpk{display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:var(--acc)}
+@media print{.dpop{display:none}}
 </style>
 </head>
 <body>
@@ -240,7 +267,8 @@ select option{background:var(--card);color:var(--ink)}
 </section>
 
 <section id="rep" hidden>
-<div class="card row noprint"><label>Report date<input type="date" id="rd"></label>
+<div class="card row noprint"><div class="fld"><label for="rdq" id="rdl">Report date</label>
+<div class="dp"><button type="button" class="dpb" id="rdq" aria-haspopup="dialog" aria-expanded="false" aria-controls="rdp"><span id="rdt"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button><input type="hidden" id="rd"><div class="dpop" id="rdp" role="dialog" aria-label="Choose report date" hidden></div></div></div>
 <button class="ghost" id="pr">Print report</button></div>
 <div id="repbox" class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Report of collections</h2><p class="muted" id="rt"></p>
 <div class="stats" id="rs"></div>
@@ -351,7 +379,7 @@ function rep(){const d=$('#rd').value,L=S.t.filter(t=>new Date(t.at).toLocaleDat
 function boot(){init();
  $('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${b}</option>`).join('');
  $('#sp').value=S.p[0].td;$('#spq').value=S.p[0].td+' - '+S.p[0].owner;
- $('#rd').value=now.toLocaleDateString('en-CA');$('#db').innerHTML=$('#bg').innerHTML;look();bl()}
+ $('#rd').value=now.toLocaleDateString('en-CA');dpLabel();$('#db').innerHTML=$('#bg').innerHTML;look();bl()}
 document.querySelectorAll('nav [data-t]').forEach(b=>b.onclick=()=>tab(b.dataset.t));
 $('#q').oninput=look;$('#bg').onchange=look;$('#rd').onchange=rep;
 // Searchable tax declaration picker: type to filter, arrows and Enter to choose, Esc to close
@@ -411,6 +439,36 @@ function pdoc(k,p){const ys=[...p.u].sort().filter(y=>k=='n'?y<cy:1);let T=0;
  const info=`<dl style="grid-template-columns:1fr 1fr;margin:12px 0"><div><dt>Owner</dt><dd>${esc(p.owner)}</dd></div><div><dt>TD no.</dt><dd>${p.td}</dd></div><div><dt>Barangay</dt><dd>${p.brgy}</dd></div><div><dt>Class</dt><dd>${p.cls}</dd></div><div><dt>Area</dt><dd>${p.area.toLocaleString()} sqm</dd></div><div><dt>Assessed value</dt><dd>${M(p.mv*p.al)}</dd></div></dl>`;
  $('#doc').innerHTML=k=='n'?head('Notice of Delinquency')+`<p>${dt}</p><p>To: <b>${esc(p.owner)}</b><br>${p.brgy}</p>`+info+`<p>Our records show that the real property tax on the property described above remains unpaid for tax year(s) ${ys.join(', ')}. The amount due, including interest computed up to ${dt}, is shown below.</p>`+tbl+`<p>You are requested to settle this amount at the Municipal Treasurer's Office at your earliest convenience to avoid further interest.</p><p class="muted">Demo template. Wording to be confirmed with the Municipal Treasurer.</p><p style="margin-top:36px">______________________<br>Municipal Treasurer</p>`:head('Statement of Account')+`<p>As of ${dt}</p>`+info+tbl+`<p>The amount shown is valid until ${eom}. Interest on unpaid prior years increases each month.</p><p class="muted">Demo document. Sample data only.</p><p style="margin-top:36px">Prepared by: ______________________</p>`;
  document.body.dataset.p='doc';print()}
+// Report date picker (month grid, keyboard support, dot on days that have collections)
+const dpFmt=(y,m,d)=>{const t=new Date(y,m,d);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')};
+const dpParse=s=>{const a=s.split('-');return new Date(+a[0],a[1]-1,+a[2])};
+const DPC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+let dpY,dpM,dpF;
+function dpToday(){return dpFmt(now.getFullYear(),now.getMonth(),now.getDate())}
+function dpLabel(){const v=$('#rd').value;$('#rdt').textContent=v?dpParse(v).toLocaleDateString('en-PH',{day:'numeric',month:'long',year:'numeric'}):'Choose a date'}
+function dpRender(){const sel=$('#rd').value,td=dpToday(),dots=new Set(S.t.map(t=>new Date(t.at).toLocaleDateString('en-CA'))),start=-new Date(dpY,dpM,1).getDay();
+ let h=['Su','Mo','Tu','We','Th','Fr','Sa'].map(x=>`<span aria-hidden="true">${x}</span>`).join('');
+ for(let i=0;i<42;i++){const d=new Date(dpY,dpM,1+start+i),k=dpFmt(d.getFullYear(),d.getMonth(),d.getDate()),c=['dd'];
+  if(d.getMonth()!=dpM)c.push('out');if(k==sel)c.push('sel');if(k==td)c.push('tod');if(dots.has(k))c.push('has');
+  h+=`<button type="button" class="${c.join(' ')}" data-d="${k}" tabindex="${k==dpF?0:-1}" aria-label="${d.toLocaleDateString('en-PH',{dateStyle:'full'})}${dots.has(k)?', has collections':''}"${k==sel?' aria-pressed="true"':''}>${d.getDate()}</button>`}
+ $('#rdp').innerHTML=`<div class="dph"><button type="button" class="dpn" data-s="-12" aria-label="Previous year">${DPC}<path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button><button type="button" class="dpn" data-s="-1" aria-label="Previous month">${DPC}<path d="M15 6l-6 6 6 6"/></svg></button><div class="dpm" aria-live="polite">${new Date(dpY,dpM,1).toLocaleDateString('en-PH',{month:'long',year:'numeric'})}</div><button type="button" class="dpn" data-s="1" aria-label="Next month">${DPC}<path d="M9 6l6 6-6 6"/></svg></button><button type="button" class="dpn" data-s="12" aria-label="Next year">${DPC}<path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></button></div><div class="dpg" role="group" aria-labelledby="rdl">${h}</div><div class="dpf"><button type="button" class="ghost" data-today="1">Today</button><span class="muted"><i class="dpk"></i>has collections</span></div>`}
+function dpOpen(){const v=$('#rd').value||dpToday(),d=dpParse(v);dpY=d.getFullYear();dpM=d.getMonth();dpF=v;dpRender();$('#rdp').hidden=false;$('#rdq').setAttribute('aria-expanded','true');const b=$('#rdp [data-d="'+dpF+'"]');if(b)b.focus()}
+function dpClose(f){$('#rdp').hidden=true;$('#rdq').setAttribute('aria-expanded','false');if(f)$('#rdq').focus()}
+function dpSet(k){$('#rd').value=k;dpLabel();dpClose(true);rep()}
+$('#rdq').onclick=()=>$('#rdp').hidden?dpOpen():dpClose();
+$('#rdq').onkeydown=e=>{if(e.key=='ArrowDown'&&$('#rdp').hidden){e.preventDefault();dpOpen()}};
+$('#rdp').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.d)dpSet(b.dataset.d);
+ else if(b.dataset.today)dpSet(dpToday());
+ else if(b.dataset.s){const s=+b.dataset.s,f=dpParse(dpF),n=new Date(dpY,dpM+s,1),last=new Date(n.getFullYear(),n.getMonth()+1,0).getDate();
+  dpY=n.getFullYear();dpM=n.getMonth();dpF=dpFmt(dpY,dpM,Math.min(f.getDate(),last));dpRender();$('#rdp [data-s="'+b.dataset.s+'"]').focus()}};
+$('#rdp').onkeydown=e=>{if(e.key=='Escape'){e.preventDefault();dpClose(true);return}
+ if(!e.target.closest('.dd'))return;
+ const mv={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[0,-7],ArrowDown:[0,7],PageUp:[-1,0],PageDown:[1,0]}[e.key];if(!mv)return;e.preventDefault();
+ const d=dpParse(dpF),n=mv[0]?new Date(d.getFullYear(),d.getMonth()+mv[0],Math.min(d.getDate(),new Date(d.getFullYear(),d.getMonth()+mv[0]+1,0).getDate())):new Date(d.getFullYear(),d.getMonth(),d.getDate()+mv[1]);
+ dpF=dpFmt(n.getFullYear(),n.getMonth(),n.getDate());dpY=n.getFullYear();dpM=n.getMonth();dpRender();$('#rdp [data-d="'+dpF+'"]').focus()};
+document.addEventListener('mousedown',e=>{if(!$('#rdp').hidden&&!e.target.closest('.dp'))dpClose()});
+document.addEventListener('focusin',e=>{if(!$('#rdp').hidden&&!e.target.closest('.dp'))dpClose()});
 // Rates form
 function rt(){['b','s','d','e','p','c'].forEach(k=>$('#r_'+k).value=S.r[k]);$('#rm').textContent=''}
 $('#rsave').onclick=()=>{const n={};let ok=1;
