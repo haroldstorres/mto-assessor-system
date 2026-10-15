@@ -300,6 +300,12 @@ td .rk{min-width:15rem}
 .dng:disabled{opacity:.4}
 button.ghost.pen{color:var(--red);border-color:var(--red)}
 @media print{#ue,#ud{display:none}}
+/* Reopen day and record deposit dialogs */
+#ro,#xd{width:min(32rem,calc(100vw - 32px));max-width:100%;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+#ro::backdrop,#xd::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
+#xd dl{grid-template-columns:1fr 1fr}
+#dcl td .ghost{padding:6px 10px;margin:2px 0}
+@media print{#ro,#xd{display:none}}
 @media(max-width:560px){
 .bt thead{display:none}
 .bt,.bt tbody,.bt tfoot{display:block}
@@ -444,11 +450,11 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Closed shifts</h2><div class="row"><div class="fld"><label for="dcq" id="dcl2">Date</label>
 <div class="dp"><button type="button" class="dpb" id="dcq" aria-haspopup="dialog" aria-expanded="false" aria-controls="dcp"><span id="dct"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button><input type="hidden" id="dcd"><div class="dpop" id="dcp" role="dialog" aria-label="Choose date" hidden></div></div></div>
 </div>
-<div class="wrap"><table><thead><tr><th>Date</th><th>Cashier</th><th class="n">Receipts</th><th class="n">Cash</th><th class="n">Check</th><th class="n">GCash</th><th class="n">Total</th><th class="n">Counted</th><th class="n">Over / short</th></tr></thead><tbody id="dcl"></tbody></table></div></div>
+<div class="wrap"><table><thead><tr><th>Date</th><th>Cashier</th><th class="n">Receipts</th><th class="n">Cash</th><th class="n">Check</th><th class="n">GCash</th><th class="n">Total</th><th class="n">Counted</th><th class="n">Over / short</th><th>Status</th><th></th></tr></thead><tbody id="dcl"></tbody></table></div><p id="dcz" class="muted" role="status"></p></div>
 </section>
 <section id="aud" hidden>
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Audit log</h2><p class="muted">The latest 200 actions.</p>
-<div class="row"><label>Action<select id="adf"><option value="">All</option><option>collect</option><option>void</option><option>reprint</option><option>close</option><option>property</option><option>import</option><option>rates</option><option>export</option></select></label></div>
+<div class="row"><label>Action<select id="adf"><option value="">All</option><option>collect</option><option>void</option><option>reprint</option><option>close</option><option>reopen</option><option>deposit</option><option>property</option><option>import</option><option>rates</option><option>export</option></select></label></div>
 <div class="wrap"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Reference</th><th>Detail</th></tr></thead><tbody id="adr"></tbody></table></div></div>
 </section>
 <section id="prop" hidden>
@@ -507,6 +513,20 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <div class="nmr"><label>Last name<input id="uenl" autocomplete="off"></label><label>First name<input id="uenf" autocomplete="off"></label><label>Middle name (optional)<input id="uenm" autocomplete="off"></label></div>
 <p id="uem" class="pen muted" role="alert"></p>
 <div class="cfb"><button type="button" class="pri" id="ues">Save name</button><button type="button" class="ghost" id="uec">Cancel</button></div></div></dialog>
+<dialog id="ro" aria-labelledby="rot"><div class="cmi"><div><div class="muted" id="rot">Reopen day</div><b id="roi"></b></div>
+<p style="margin:0">The closing will be removed so this cashier can collect again. They must close the day again afterwards. The reason is written to the audit log.</p>
+<label>Reason (required)<input id="ror" maxlength="200" autocomplete="off"></label>
+<p id="rom" class="pen muted" role="alert"></p>
+<div class="cfb"><button type="button" class="dng" id="roy">Reopen day</button><button type="button" class="ghost" id="rob">Go back</button></div></div></dialog>
+<dialog id="xd" aria-labelledby="xdt"><div class="cmi"><div><div class="muted" id="xdt">Record deposit</div><b id="xdi"></b></div>
+<dl><div><dt>Cash to remit</dt><dd id="xdr"></dd></div><div><dt>Cash counted by cashier</dt><dd id="xdc"></dd></div></dl>
+<label>Deposit slip no.<input id="xds" maxlength="40" autocomplete="off"></label>
+<label>Amount deposited<input id="xda" type="number" min="0" step="0.01" inputmode="decimal"></label>
+<p id="xdw" class="muted" role="status"></p>
+<label>Note (optional)<input id="xdn" maxlength="200" autocomplete="off"></label>
+<p class="muted" style="margin:0">Saved once. A deposit cannot be edited afterwards, and the day can no longer be reopened.</p>
+<p id="xdm" class="pen muted" role="alert"></p>
+<div class="cfb"><button type="button" class="pri" id="xdy">Save deposit</button><button type="button" class="ghost" id="xdb">Cancel</button></div></div></dialog>
 <dialog id="ud" aria-labelledby="udt"><div class="cmi"><div><div class="muted" id="udt">Delete user</div><b id="udn"></b></div>
 <p style="margin:0">This user will no longer be able to open the app. Their sign-in email stays registered in Firebase Authentication. Remove it in the Firebase console (Authentication, Users) before using the same email again. If they may be needed again, use Turn off instead.</p>
 <p id="udm" class="pen muted" role="alert"></p>
@@ -1029,9 +1049,48 @@ $('#dcb').onclick=async()=>{const v=parseFloat($('#dcc').value);if(!(v>=0)){aMsg
  catch(x){aMsg('#dcm',lgErr(x));$('#dcb').disabled=false}};
 async function dcList(){const t=$('#dcl'),d=$('#dcd').value||dkey();$('#dcd').value=d;DPT=DPD;dpLabel();DPT=DPR;
  try{let q=fdb.collection('closings').where('date','==',d);if(!ROLE.some(k=>k=='admin'||k=='treasurer'))q=q.where('uid','==',ME.uid);
-  const L=(await q.get()).docs.map(x=>x.data()).sort((a,b)=>a.name.localeCompare(b.name));
-  t.innerHTML=L.length?L.map(c=>`<tr><td>${c.date}</td><td>${esc(c.name)}</td><td class="n">${c.n}</td><td class="n">${M(c.cash)}</td><td class="n">${M(c.check)}</td><td class="n">${M(c.gcash)}</td><td class="n">${M(c.total)}</td><td class="n">${M(c.counted)}</td><td class="n${c.variance?' pen':''}">${c.variance?(c.variance>0?'+':'')+M(c.variance):'0.00'}</td></tr>`).join(''):'<tr><td colspan="9">No closed shifts for this date.</td></tr>'}
- catch(x){t.innerHTML='<tr><td colspan="9">Could not load: '+esc(lgErr(x))+'</td></tr>'}}
+  const L=(await q.get()).docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>a.name.localeCompare(b.name)),tr=ROLE.some(k=>k=='admin'||k=='treasurer');CL=L;
+  t.innerHTML=L.length?L.map(c=>{const rm=c.remit;return`<tr><td>${c.date}</td><td>${esc(c.name)}</td><td class="n">${c.n}</td><td class="n">${M(c.cash)}</td><td class="n">${M(c.check)}</td><td class="n">${M(c.gcash)}</td><td class="n">${M(c.total)}</td><td class="n">${M(c.counted)}</td><td class="n${c.variance?' pen':''}">${c.variance?(c.variance>0?'+':'')+M(c.variance):'0.00'}</td><td>${rm?`<span class="chip" style="--h:150">Deposited</span><div class="muted">Slip ${esc(rm.slip)}, ${M(rm.amount)}</div>`:'<span class="chip" style="--h:35">Closed</span><div class="muted">Not deposited</div>'}</td><td>${tr&&!rm?`<button data-dd="${c.id}">Record deposit</button> <button class="ghost" data-dr="${c.id}">Reopen</button> `:''}<button class="ghost" data-dp="${c.id}">Print report</button></td></tr>`}).join(''):'<tr><td colspan="11">No closed shifts for this date.</td></tr>'}
+ catch(x){t.innerHTML='<tr><td colspan="11">Could not load: '+esc(lgErr(x))+'</td></tr>'}}
+// Reopen a closed day, record the deposit, print the closing report (treasurer and administrator; the cashier can print their own report)
+let CL=[],RO=null,DD=null;
+const clOf=k=>CL.find(x=>x.id==k);
+$('#dcl').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.dr)roOpen(clOf(b.dataset.dr));else if(b.dataset.dd)xdOpen(clOf(b.dataset.dd));else if(b.dataset.dp)pcl(clOf(b.dataset.dp))};
+function roOpen(c){if(!c)return;RO=c;$('#roi').textContent=c.name+' - '+c.date;$('#ror').value='';aMsg('#rom','');$('#roy').disabled=false;dlgOpen('#ro');$('#ror').focus()}
+$('#rob').onclick=()=>dlgClose('#ro');
+$('#roy').onclick=async()=>{const why=$('#ror').value.trim();if(why.length<5){aMsg('#rom','Enter the reason (at least 5 characters).');return}
+ $('#roy').disabled=true;const nm=PROF.name||PROF.email;
+ try{const b=fdb.batch();b.delete(fdb.doc('closings/'+RO.id));
+  b.set(fdb.collection('audit').doc(),{at:TS(),uid:ME.uid,name:nm,act:'reopen',ref:RO.id,detail:RO.name+' '+RO.date+': '+why});
+  await b.commit();dlgClose('#ro');aMsg('#dcz',RO.name+' - '+RO.date+' was reopened. The cashier can collect again and must close the day again.',1);dcl()}
+ catch(x){aMsg('#rom',lgErr(x));$('#roy').disabled=false}};
+function xdOpen(c){if(!c)return;DD=c;$('#xdi').textContent=c.name+' - '+c.date;$('#xdr').textContent=M(c.cash);$('#xdc').textContent=M(c.counted);
+ $('#xds').value='';$('#xda').value=c.counted;$('#xdn').value='';aMsg('#xdm','');xdw();$('#xdy').disabled=false;dlgOpen('#xd');$('#xds').focus()}
+function xdw(){const v=parseFloat($('#xda').value),h=$('#xdw');if(!DD||!(v>=0)){h.textContent='';return}
+ const d=r(DD.counted-v);h.textContent=d==0?'Deposit matches the cash counted.':(d>0?'Deposit is short by ':'Deposit is over by ')+M(Math.abs(d))+' compared with the cash counted.';h.className=d==0?'muted':'pen muted'}
+$('#xda').oninput=xdw;
+$('#xdb').onclick=()=>dlgClose('#xd');
+$('#xdy').onclick=async()=>{const slip=$('#xds').value.trim(),amt=parseFloat($('#xda').value);
+ if(!slip){aMsg('#xdm','Enter the deposit slip number.');return}
+ if(!(amt>=0)){aMsg('#xdm','Enter the amount deposited.');return}
+ $('#xdy').disabled=true;const nm=PROF.name||PROF.email,rm={slip,amount:r(amt),note:$('#xdn').value.trim(),by:ME.uid,name:nm,at:new Date().toISOString()};
+ try{const b=fdb.batch();b.update(fdb.doc('closings/'+DD.id),{remit:rm});
+  b.set(fdb.collection('audit').doc(),{at:TS(),uid:ME.uid,name:nm,act:'deposit',ref:DD.id,detail:DD.name+' '+DD.date+' slip '+slip+', '+M(rm.amount)});
+  await b.commit();dlgClose('#xd');aMsg('#dcz','Deposit recorded for '+DD.name+' ('+DD.date+').',1);dcList()}
+ catch(x){aMsg('#xdm',lgErr(x));$('#xdy').disabled=false}};
+function pcl(c){if(!c)return;const L=S.t.filter(t=>!t.void&&t.by==c.uid&&new Date(t.at).toLocaleDateString('en-CA')==c.date).sort((a,b)=>a.or<b.or?-1:1),rm=c.remit,
+ at=c.at&&c.at.toDate?c.at.toDate().toLocaleTimeString('en-PH',{timeStyle:'short'}):'',dt=new Date(c.date+'T00:00').toLocaleDateString('en-PH',{dateStyle:'long'}),
+ row=(a,b,s)=>`<tr><td${s?' style="border-top:2px solid var(--ink)"':''}>${s?'<b>'+a+'</b>':a}</td><td class="n"${s?' style="border-top:2px solid var(--ink)"':''}>${s?'<b>'+b+'</b>':b}</td></tr>`,
+ sig=t=>`<div style="flex:1;border-top:1px solid var(--ink);padding-top:4px;margin-top:40px">${t}</div>`;
+ $('#doc').innerHTML=`<div style="text-align:center"><div class="muted">Republic of the Philippines</div><b>Municipality of [Municipality name]</b><br><span class="muted">Office of the Municipal Treasurer</span><h2 style="margin:12px 0 4px">Cashier Closing Report</h2></div>
+<dl style="grid-template-columns:1fr 1fr;margin:12px 0"><div><dt>Cashier</dt><dd>${esc(c.name)}</dd></div><div><dt>Date</dt><dd>${dt}</dd></div><div><dt>Receipts issued</dt><dd>${c.n}${L.length?' ('+L[0].or+' to '+L[L.length-1].or+')':''}</dd></div><div><dt>Closed at</dt><dd>${at||'-'}</dd></div></dl>
+<table><thead><tr><th>Collections by mode</th><th class="n">Amount</th></tr></thead><tbody>${row('Cash',M(c.cash))}${row('Check',M(c.check))}${row('GCash',M(c.gcash))}${row('Total collected',M(c.total),1)}</tbody></table>
+<table style="margin-top:14px"><thead><tr><th>Cash reconciliation</th><th class="n">Amount</th></tr></thead><tbody>${row('Cash to remit',M(c.cash))}${row('Cash counted by cashier',M(c.counted))}${row('Over / short',c.variance?(c.variance>0?'+':'')+M(c.variance):'0.00')}${rm?row('Deposit slip no.',esc(rm.slip))+row('Amount deposited',M(rm.amount))+row('Difference (counted less deposited)',M(r(c.counted-rm.amount))):row('Deposit','Not yet recorded')}</tbody></table>
+${c.note?`<p class="muted">Cashier note: ${esc(c.note)}</p>`:''}${rm&&rm.note?`<p class="muted">Deposit note: ${esc(rm.note)}</p>`:''}
+<div style="display:flex;gap:24px">${sig('Cashier<br><span class="muted">'+esc(c.name)+'</span>')}${sig('Deposit confirmed by<br><span class="muted">'+(rm?esc(rm.name||''):'')+'</span>')}${sig('Municipal Treasurer')}</div>
+<p class="muted" style="margin-top:18px">Demo document. Sample data only. Wording to be confirmed with the Municipal Treasurer.</p>`;
+ document.body.dataset.p='doc';print()}
 
 // Audit log screen (administrator and treasurer)
 async function adl(){const t=$('#adr');t.innerHTML='<tr><td colspan="5">Loading...</td></tr>';
