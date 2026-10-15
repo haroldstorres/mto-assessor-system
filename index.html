@@ -286,6 +286,13 @@ td .rk{min-width:15rem}
 #idl{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:300;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:var(--ink);color:var(--bg);box-shadow:0 10px 30px rgba(0,0,0,.35)}
 #idl button{min-height:36px}
 @media print{#of,#idl{display:none!important}}
+/* Last, first and middle name on one row */
+.nmr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.nmr label{min-width:0}
+.nmr input,.ac .nmr input{min-width:0;width:100%}
+#asf{width:min(36rem,100%)}
+.row .nmr{flex:1 1 32rem}
+@media(max-width:560px){.nmr{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -304,9 +311,11 @@ td .rk{min-width:15rem}
 </form>
 <form class="ac" id="asf" hidden>
 <div class="ah"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><div><b>First-time setup</b><div class="muted">Create the administrator account</div></div></div>
+<div class="nmr">
 <label>Last name<input id="asln" autocomplete="family-name" required></label>
 <label>First name<input id="asfn" autocomplete="given-name" required></label>
 <label>Middle name (optional)<input id="asmn" autocomplete="additional-name"></label>
+</div>
 <label>Email<input id="ase" type="email" autocomplete="username" required></label>
 <label>Password (at least 8 characters)<input id="asp" type="password" autocomplete="new-password" required minlength="8"></label>
 <label>Confirm password<input id="asp2" type="password" autocomplete="new-password" required></label>
@@ -422,9 +431,11 @@ td .rk{min-width:15rem}
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Users and roles</h2>
 <p class="muted">Create staff accounts and choose what each person can do. Give the temporary password in person; the user can change it with Forgot password on the sign-in screen.</p>
 <div class="row">
+<div class="nmr">
 <label>Last name<input id="uxln" autocomplete="off"></label>
 <label>First name<input id="uxfn" autocomplete="off"></label>
 <label>Middle name (optional)<input id="uxmn" autocomplete="off"></label>
+</div>
 <label>Email<input id="uxe" type="email" autocomplete="off"></label>
 <label>Temporary password<input id="uxp" type="text" autocomplete="off" placeholder="At least 8 characters"></label>
 <div class="fld"><span id="uxrl">Roles</span><div class="rk" id="uxr" role="group" aria-labelledby="uxrl"></div></div>
