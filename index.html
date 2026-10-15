@@ -342,6 +342,8 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <button role="tab" data-t="bill" aria-selected="false" data-tipc="Billing and payment" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span class="nl">Billing</span></button>
 <button role="tab" data-t="del" aria-selected="false" data-tipc="Delinquency list" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg><span class="nl">Delinquency</span></button>
 <button role="tab" data-t="rep" aria-selected="false" data-tipc="Daily collection report" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Collection report</span></button>
+<div class="ng">Assessor</div>
+<button role="tab" data-t="prop" aria-selected="false" data-tipc="Properties" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="nl">Properties</span></button>
 <div class="ng">Mayor</div>
 <button role="tab" data-t="dash" aria-selected="false" data-tipc="Mayor's dashboard" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="nl">Dashboard</span></button>
 <div class="ng">Admin</div>
@@ -377,7 +379,7 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <input type="hidden" id="pm" value="Cash"></div>
 <div class="fld" id="pxf" hidden><label for="px" id="pxl">Reference no.</label><input id="px" autocomplete="off"></div>
 <div class="fld" id="pcf"><label for="pcr">Cash received (optional)</label><input id="pcr" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Amount handed over"><span class="muted" id="pch" role="status"></span></div>
-<label>Cashier<select id="pc"><option>Cashier A</option><option>Cashier B</option></select></label>
+<label>Cashier<input id="pc" readonly></label>
 <p id="pe" class="pen muted" role="alert" hidden></p>
 <button class="pri" id="go" disabled>Collect payment</button>
 <button class="ghost" id="psoa">Print statement of account</button>
@@ -420,6 +422,24 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <table><thead><tr><th>Barangay</th><th class="n">Accounts</th><th class="n">Collected</th><th class="n">Outstanding</th><th style="min-width:140px">Collection rate</th></tr></thead><tbody id="bb"></tbody></table></div>
 </section>
 
+<section id="prop" hidden>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Add or edit a property</h2>
+<p class="muted">Type an existing TD no. to change that property. Leave unpaid years blank to keep them (new property: current year).</p>
+<div class="row">
+<label>TD no.<input id="f_td" maxlength="40"></label><label>Owner<input id="f_ow" maxlength="120"></label><label>Barangay<input id="f_bg" maxlength="80"></label>
+<label>Class<select id="f_cl"><option>Residential</option><option>Agricultural</option><option>Commercial</option><option>Industrial</option></select></label>
+<label>Area (sqm)<input id="f_ar" type="number" min="0" step="any"></label><label>Market value<input id="f_mv" type="number" min="0" step="any"></label>
+<label>Assessment level (%)<input id="f_al" type="number" min="1" max="100" step="any"></label><label>Unpaid tax years (e.g. 2025, 2026)<input id="f_u"></label>
+</div>
+<div class="row" style="margin-top:14px"><button class="pri" id="f_save">Save property</button><button class="ghost" id="f_clr">Clear</button></div>
+<p id="f_m" class="muted" role="status"></p></div>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Import from Excel</h2>
+<p class="muted">In Excel, use Save As, CSV UTF-8. First row = column names: td, owner, barangay, class, area, market_value, assessment_level, unpaid_years (years separated by ; or space). Existing TD numbers are updated. Class must be Residential, Agricultural, Commercial or Industrial.</p>
+<div class="row"><input type="file" id="f_file" accept=".csv,text/csv"><button class="pri" id="f_imp" disabled>Import</button><button class="ghost" id="f_smp" hidden>Load 10 sample properties</button></div>
+<p id="f_im" class="muted" role="status"></p></div>
+<div class="card"><div class="row"><label>Search<input id="f_q" placeholder="TD, owner or barangay"></label></div>
+<div class="wrap"><table><thead><tr><th>TD no.</th><th>Owner</th><th>Barangay</th><th>Class</th><th class="n">Market value</th><th class="n">AL</th><th></th></tr></thead><tbody id="f_rows"></tbody></table></div></div>
+</section>
 <section id="set" hidden>
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Tax rates and rules</h2>
 <p class="muted">Adjust these to match the municipal tax ordinance. Values shown are demo defaults.</p>
@@ -464,10 +484,11 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <div class="cfb"><button type="button" class="dng" id="udy">Delete user</button><button type="button" class="ghost" id="udc">Cancel</button></div></div></dialog>
 <div id="doc"></div>
 <div id="idl" role="alert" hidden><span>No activity. Signing out in <b id="idn"></b> s.</span><button class="pri" id="idk" type="button">Stay signed in</button></div>
+<dialog id="vd" aria-labelledby="vdt"><div class="cmi"><div><div class="muted" id="vdt">Void receipt</div><b id="vdo"></b></div><label>Reason (required)<input id="vdr" maxlength="200"></label><p id="vdm" class="pen muted" role="status"></p><div class="cfb"><button type="button" class="pri" id="vdy">Void receipt</button><button type="button" class="ghost" id="vdn">Go back</button></div></div></dialog>
 <div id="tip" role="tooltip"></div>
 <footer class="muted">
-<p>Default demo rules (editable in the Rates tab): basic tax 1% and SEF 1% of assessed value; 10% discount on the current year if paid by March 31; 2% interest per month on prior years, up to 36 months. Payments are stored in this browser only.</p>
-<button class="ghost" id="reset">Reset demo data</button>
+<p>Default demo rules (editable in the Rates tab): basic tax 1% and SEF 1% of assessed value; 10% discount on the current year if paid by March 31; 2% interest per month on prior years, up to 36 months. Payments are saved in the shared database.</p>
+
 </footer>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -494,43 +515,55 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function bill(p,y){const av=p.mv*p.al,b=r(av*S.r.b/100),s=r(av*S.r.s/100);let d=0,n=0;
  if(y==cy){if(now.getMonth()<S.r.e)d=r((b+s)*S.r.d/100)}else n=Math.min(S.r.c,(cy-y)*12+now.getMonth()+1);
  const pen=r((b+s)*S.r.p/100*n);return{y,b,s,d,pen,n,t:r(b+s-d+pen)}}
-function pay(p,yrs,payor,mode,cash,when,x){const rows=yrs.map(y=>bill(p,y)),sum=k=>r(rows.reduce((a,x)=>a+x[k],0));
- const t={or:'OR-'+cy+'-'+String(S.t.length+1).padStart(5,'0'),at:when.toISOString(),payor,td:p.td,brgy:p.brgy,yrs,b:sum('b'),s:sum('s'),d:sum('d'),pen:sum('pen'),t:sum('t'),mode,cash,ref:(x&&x.ref)||'',tend:(x&&x.tend)||0};
- p.u=p.u.filter(y=>!yrs.includes(y));S.t.push(t);save();return t}
-function init(){S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
- if(!S||!S.p){S={p:JSON.parse(JSON.stringify(seed)),t:[],r:{...DEF}};
-  const at=(h,m)=>new Date(cy,now.getMonth(),now.getDate(),h,m);
-  pay(S.p[3],[2026],'Ramon C. Bautista','Cash','Cashier A',at(8,42),{tend:4000});
-  pay(S.p[0],[2025],'Maria L. Santos','GCash','Cashier A',at(9,5),{ref:'5021 334 871'});
-  pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30),{ref:'0004521'});save()}
- if(!S.r)S.r={...DEF}}
+const pk=td=>td.replace(/[\/\s]+/g,'_');
+const AUD=(act,ref,detail)=>fdb.collection('audit').add({at:TS(),uid:ME.uid,name:PROF.name||PROF.email,act,ref:ref||'',detail:detail||''}).catch(()=>{});
+// Collect a payment. One transaction: checks the years are still unpaid, takes the next OR number, saves the receipt, updates the property and writes the audit line.
+async function pay(p,yrs,payor,mode,cash,when,x){
+ const rows=yrs.map(y=>bill(p,y)),sum=k=>r(rows.reduce((a,z)=>a+z[k],0)),pr=fdb.doc('properties/'+pk(p.td)),cr=fdb.doc('counters/or-'+cy);let t;
+ await fdb.runTransaction(async tx=>{
+  const [ps,cs]=await Promise.all([tx.get(pr),tx.get(cr)]),u=(ps.exists&&ps.data().u)||[];
+  if(yrs.some(y=>!u.includes(y)))throw{code:'stale'};
+  const n=(cs.exists?cs.data().n:0)+1;
+  t={or:'OR-'+cy+'-'+String(n).padStart(5,'0'),at:when.toISOString(),payor,td:p.td,brgy:p.brgy,yrs,b:sum('b'),s:sum('s'),d:sum('d'),pen:sum('pen'),t:sum('t'),mode,cash,ref:(x&&x.ref)||'',tend:(x&&x.tend)||0,by:ME.uid};
+  tx.set(cr,{n});tx.set(fdb.doc('payments/'+t.or),t);tx.update(pr,{u:u.filter(y=>!yrs.includes(y))});
+  tx.set(fdb.collection('audit').doc(),{at:TS(),uid:ME.uid,name:cash,act:'collect',ref:t.or,detail:p.td+' '+yrs.join(',')+' '+M(t.t)})});
+ p.u=p.u.filter(y=>!yrs.includes(y));if(!S.t.some(z=>z.or==t.or))S.t.push(t);return t}
 function tab(t){if(ALLOW&&!ALLOW.includes(t))return;document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
- document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='dash')dash()}
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='prop')pf();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${av(p.owner)}${p.owner}</td><td>${p.brgy}</td><td><span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span></td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?[...p.u].sort().map(yc).join(''):'<span class="chip" style="--h:150">Paid up</span>'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
 function cur(){return S.p.find(x=>x.td==$('#sp').value)}
-function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;$('#px').value='';$('#pcr').value='';pmFields();
+function bl(){const p=cur();BSIG=p?p.u.join():'';$('#rc').hidden=true;if(!p){$('#pd').innerHTML='<div><dt>No property yet</dt><dd>Add properties in the Properties tab.</dd></div>';$('#br').innerHTML='<tr><td colspan="7">No property selected.</td></tr>';$('#hr').innerHTML='';$('#go').disabled=true;$('#psoa').disabled=true;return}$('#pn').value=p.owner;$('#px').value='';$('#pcr').value='';pmFields();
  $('#pd').innerHTML=[['TD no.',p.td],['Owner',av(p.owner)+p.owner],['Barangay',p.brgy],['Class',`<span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span>`],['Area',p.area.toLocaleString()+' sqm'],['Market value',M(p.mv)],['Assessment level',p.al*100+'%'],['Assessed value',M(p.mv*p.al)]].map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
  const ys=[...p.u].sort();
  $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${yc(y)}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
  tot();hist()}
 function tot(){const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
  const T=r(ys.reduce((a,y)=>a+bill(p,y).t,0));TT=T;$('#tot').textContent=M(T);cashUpd();cfClose();$('#big').innerHTML=bigM(T);$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
-function slip(t,copy){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3>${copy?`<p class="rpb"><b>Duplicate copy</b> <span id="rpn">${(t.rp||[]).length?'Reprinted '+t.rp.length+' time'+(t.rp.length>1?'s':'')+' before':'Not reprinted before'}</span></p>`:''}<p class="muted">Prototype only. Not a valid official receipt.</p>
+function slip(t,copy){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3>${t.void?`<p class="pen"><b>VOID</b> - ${esc(t.void.reason)} (${esc(t.void.name)}, ${new Date(t.void.at).toLocaleString('en-PH')})</p>`:''}${copy?`<p class="rpb"><b>Duplicate copy</b> <span id="rpn">${(t.rp||[]).length?'Reprinted '+t.rp.length+' time'+(t.rp.length>1?'s':'')+' before':'Not reprinted before'}</span></p>`:''}<p class="muted">Prototype only. Not a valid official receipt.</p>
 <dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div>${t.ref?`<div><dt>${t.mode=='Check'?'Check no.':'GCash ref. no.'}</dt><dd>${esc(t.ref)}</dd></div>`:''}</dl>
 <table style="margin:10px 0"><tr><td>Basic tax</td><td class="n">${f(t.b)}</td></tr><tr><td>SEF</td><td class="n">${f(t.s)}</td></tr><tr><td>Discount</td><td class="n">${t.d?'-'+f(t.d):'0.00'}</td></tr><tr><td>Penalty</td><td class="n">${f(t.pen)}</td></tr><tfoot><tr><td>Total paid</td><td class="n">${f(t.t)}</td></tr></tfoot></table>
-${t.tend>0?`<table style="margin:0 0 10px"><tr><td>Cash received</td><td class="n">${f(t.tend)}</td></tr><tr><td>Change</td><td class="n">${f(r(t.tend-t.t))}</td></tr></table>`:''}<p class="muted">Collected by ${t.cash}</p><button class="ghost noprint" id="prc">Print receipt</button>`;
- $('#prc').onclick=()=>{if(copy){t.rp=t.rp||[];t.rp.push(new Date().toISOString());save();$('#rpn').textContent='Reprint no. '+t.rp.length+', printed '+new Date().toLocaleString('en-PH');hist()}document.body.dataset.p='rc';print()};$('#rc').scrollIntoView({block:'nearest'})}
-function rep(){const d=$('#rd').value,L=S.t.filter(t=>new Date(t.at).toLocaleDateString('en-CA')==d);
+${t.tend>0?`<table style="margin:0 0 10px"><tr><td>Cash received</td><td class="n">${f(t.tend)}</td></tr><tr><td>Change</td><td class="n">${f(r(t.tend-t.t))}</td></tr></table>`:''}<p class="muted">Collected by ${t.cash}</p><button class="ghost noprint" id="prc">Print receipt</button>${copy&&!t.void&&ROLE.some(k=>k=='admin'||k=='treasurer')?' <button class="ghost noprint pen" id="vdb">Void receipt</button>':''}`;
+ $('#prc').onclick=()=>{if(copy){t.rp=t.rp||[];const iso=new Date().toISOString();t.rp.push(iso);fdb.doc('payments/'+t.or).update({rp:firebase.firestore.FieldValue.arrayUnion(iso)}).catch(()=>{});AUD('reprint',t.or);$('#rpn').textContent='Reprint no. '+t.rp.length+', printed '+new Date().toLocaleString('en-PH');hist()}document.body.dataset.p='rc';print()};{const vb=$('#vdb');if(vb)vb.onclick=()=>vdOpen(t)}$('#rc').scrollIntoView({block:'nearest'})}
+function rep(){const d=$('#rd').value,A=S.t.filter(t=>new Date(t.at).toLocaleDateString('en-CA')==d),L=A.filter(t=>!t.void);
  const sum=(a,k)=>r(a.reduce((x,t)=>x+t[k],0)),by=k=>[...new Set(L.map(t=>t[k]))].map(v=>`${v}: ${M(sum(L.filter(t=>t[k]==v),'t'))}`).join(' | ')||'None';
- $('#rt').textContent=new Date(d+'T00:00').toLocaleDateString('en-PH',{dateStyle:'full'})+' - '+L.length+' transaction(s)';
+ $('#rt').textContent=new Date(d+'T00:00').toLocaleDateString('en-PH',{dateStyle:'full'})+' - '+L.length+' transaction(s)'+(A.length>L.length?', '+(A.length-L.length)+' voided':'');
  $('#rs').innerHTML=[['Total collections',M(sum(L,'t'))],['Basic tax',M(sum(L,'b'))],['SEF',M(sum(L,'s'))],['Penalties',M(sum(L,'pen'))],['Discounts',M(sum(L,'d'))]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('')+`<div class="stat" style="grid-column:1/-1">By mode - ${by('mode')}<br>By cashier - ${by('cash')}</div>`;
- $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.ref?esc(t.ref):''}</td><td>${t.cash}</td><td><button data-or="${t.or}">Open receipt</button></td></tr>`).join(''):'<tr><td colspan="14">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
-function boot(){init();
- $('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${b}</option>`).join('');
- $('#sp').value=S.p[0].td;$('#spq').value=S.p[0].td+' - '+S.p[0].owner;
- $('#rd').value=now.toLocaleDateString('en-CA');dpLabel();$('#db').innerHTML=$('#bg').innerHTML;look();bl()}
+ $('#rr').innerHTML=A.length?A.map(t=>`<tr${t.void?' style="opacity:.55;text-decoration:line-through"':''}><td>${t.or}${t.void?' <span class="chip" style="--h:5">VOID</span>':''}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.ref?esc(t.ref):''}</td><td>${t.cash}</td><td><button data-or="${t.or}">Open receipt</button></td></tr>`).join(''):'<tr><td colspan="14">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
+// Shared data: properties, this year's payments and the rates are live from Firestore, so every counter sees the same records
+let UNS=[],BSIG='',RDY=false;
+function bgFill(){const v=$('#bg').value;$('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${esc(b)}</option>`).join('');$('#bg').value=v;$('#db').innerHTML=$('#bg').innerHTML}
+function ready(){bgFill();if(S.p.length){$('#sp').value=S.p[0].td;spLabel()}else{$('#sp').value='';$('#spq').value=''}
+ $('#rd').value=now.toLocaleDateString('en-CA');dpLabel();look();bl();pf()}
+function refresh(){bgFill();look();const c=cur();if((c?c.u.join():'')!=BSIG)bl();else if(c)hist();
+ const a=document.querySelector('section:not([hidden])');if(!a)return;const i=a.id;if(i=='rep')rep();if(i=='dash')dash();if(i=='del')dq();if(i=='prop')pf()}
+function boot(){S={p:[],t:[],r:{...DEF},g:2500000};let np=0,nt=0;
+ const go=()=>{if(np&&nt&&!RDY){RDY=true;ready()}else if(RDY)refresh()};
+ UNS.push(fdb.doc('settings/rates').onSnapshot(s=>{S.r={...DEF,...(s.exists?s.data():{})};if(RDY)refresh()},()=>{}));
+ UNS.push(fdb.doc('settings/target').onSnapshot(s=>{if(s.exists&&s.data().g>=0)S.g=s.data().g},()=>{}));
+ UNS.push(fdb.collection('properties').onSnapshot(q=>{S.p=q.docs.map(d=>d.data()).sort((a,b)=>String(a.td).localeCompare(String(b.td),undefined,{numeric:true}));np=1;go()},()=>{np=1;go()}));
+ UNS.push(fdb.collection('payments').where('at','>=',new Date(cy,0,1).toISOString()).onSnapshot(q=>{S.t=q.docs.map(d=>d.data()).sort((a,b)=>a.at<b.at?-1:1);nt=1;go()},()=>{nt=1;go()}))}
 document.querySelectorAll('nav [data-t]').forEach(b=>b.onclick=()=>tab(b.dataset.t));
 $('#q').oninput=look;$('#bg').onchange=look;$('#rd').onchange=rep;
 // Searchable tax declaration picker: type to filter, arrows and Enter to choose, Esc to close
@@ -641,12 +674,12 @@ $('#go').onclick=cfOpen;
 $('#pcr').oninput=cashUpd;
 $('#cfn').onclick=cfClose;
 $('#cm').onclick=e=>{if(e.target==$('#cm'))cfClose()};
-$('#cfy').onclick=()=>{if($('#cfy').disabled)return;$('#cfy').disabled=true;const p=cur(),m=$('#pm').value,v=parseFloat($('#pcr').value),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
- const t=pay(p,ys,$('#pn').value.trim()||p.owner,m,$('#pc').value,new Date(),{ref:m=='Cash'?'':$('#px').value.trim(),tend:m=='Cash'&&v>0?v:0});
- cfClose();bl();look();slip(t)};
+$('#cfy').onclick=async()=>{if($('#cfy').disabled)return;$('#cfy').disabled=true;const p=cur(),m=$('#pm').value,v=parseFloat($('#pcr').value),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
+ try{const t=await pay(p,ys,$('#pn').value.trim()||p.owner,m,$('#pc').value,new Date(),{ref:m=='Cash'?'':$('#px').value.trim(),tend:m=='Cash'&&v>0?v:0});cfClose();bl();look();slip(t)}
+ catch(x){cfClose();if(x&&x.code=='stale')bl();const e=$('#pe');e.textContent=lgErr(x);e.hidden=false}};
 // Receipt history: reopen any issued receipt and print a marked duplicate copy
 function hist(){const p=cur(),L=S.t.filter(t=>t.td==p.td).slice().reverse();
- $('#hr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</td><td>${t.yrs.join(', ')}</td><td>${mc(t.mode)}</td><td class="n">${M(t.t)}</td><td class="n">${(t.rp||[]).length}</td><td><button data-or="${t.or}">Open receipt</button></td></tr>`).join(''):'<tr><td colspan="7">No payments recorded yet for this property.</td></tr>'}
+ $('#hr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}${t.void?' <span class="chip" style="--h:5">VOID</span>':''}</td><td>${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</td><td>${t.yrs.join(', ')}</td><td>${mc(t.mode)}</td><td class="n">${M(t.t)}</td><td class="n">${(t.rp||[]).length}</td><td><button data-or="${t.or}">Open receipt</button></td></tr>`).join(''):'<tr><td colspan="7">No payments recorded yet for this property.</td></tr>'}
 function openOR(or){const t=S.t.find(x=>x.or==or);if(!t)return;$('#sp').value=t.td;spLabel();bl();tab('bill');slip(t,true)}
 $('#hr').onclick=e=>{const o=e.target.dataset.or;if(o)openOR(o)};
 $('#rr').onclick=e=>{const o=e.target.dataset.or;if(o)openOR(o)};
@@ -656,12 +689,12 @@ $('#rsave').onclick=()=>{const n={};let ok=1;
  ['b','s','d','e','p','c'].forEach(k=>{const v=parseFloat($('#r_'+k).value);if(!(v>=0))ok=0;n[k]=v});
  if(n.e>12||n.d>100||n.b>100||n.s>100||n.p>100)ok=0;
  $('#rm').textContent=ok?'Rates saved. New bills use these rates; past receipts are unchanged.':'Please enter valid numbers (percentages up to 100, month 0 to 12).';
- if(ok){S.r=n;save()}};
-$('#rreset').onclick=()=>{S.r={...DEF};save();rt();$('#rm').textContent='Defaults restored.'};
+ if(ok){S.r=n;fdb.doc('settings/rates').set(n).then(()=>AUD('rates','',JSON.stringify(n))).catch(x=>{$('#rm').textContent=lgErr(x)})}};
+$('#rreset').onclick=()=>{S.r={...DEF};fdb.doc('settings/rates').set(S.r).then(()=>AUD('rates','','restored defaults'));rt();$('#rm').textContent='Defaults restored.'};
 // Mayor's dashboard: sample monthly history plus live collections for the current month
-const H=[210,240,310,140,120,150,130,160,170,180,190,200].map(x=>x*1000),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function dash(){if(!S.g)S.g=2500000;$('#tg').value=S.g;const cm=now.getMonth();
- const live=S.t.filter(t=>{const d=new Date(t.at);return d.getFullYear()==cy&&d.getMonth()==cm}).reduce((a,t)=>a+t.t,0);
+const H=Array(12).fill(0),MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function dash(){H.fill(0);S.t.forEach(t=>{const d=new Date(t.at);if(!t.void&&d.getFullYear()==cy)H[d.getMonth()]+=t.t});if(!S.g)S.g=2500000;$('#tg').value=S.g;const cm=now.getMonth();
+ const live=S.t.filter(t=>{const d=new Date(t.at);return !t.void&&d.getFullYear()==cy&&d.getMonth()==cm}).reduce((a,t)=>a+t.t,0);
  const ytd=r(H.slice(0,cm).reduce((a,x)=>a+x,0)+live),pct=S.g?ytd/S.g*100:0,el=(cm+now.getDate()/new Date(cy,cm+1,0).getDate())/12*100;
  let del=0;S.p.forEach(p=>p.u.forEach(y=>{if(y<cy)del+=bill(p,y).t}));
  anim($('#hb'),ytd,bigM);
@@ -670,7 +703,7 @@ function dash(){if(!S.g)S.g=2500000;$('#tg').value=S.g;const cm=now.getMonth();
  $('#pf').style.width='0';void $('#pf').offsetWidth;$('#pf').style.width=Math.min(100,pct)+'%';dash2();
  $('#pt').textContent=`Year elapsed: ${el.toFixed(1)}%. Expected by now: ${M(r(S.g*el/100))}. `+(ytd>=S.g*el/100?'Collections are on or ahead of pace.':'Collections are behind pace.');
  barChart(cm,live);
- $('#bb').innerHTML=[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>{const ps=S.p.filter(p=>p.brgy==b),c=r(S.t.filter(t=>t.brgy==b).reduce((a,t)=>a+t.t,0)),o=r(ps.reduce((a,p)=>a+p.u.reduce((s,y)=>s+bill(p,y).t,0),0));return`<tr><td>${b}</td><td class="n">${ps.length}</td><td class="n">${M(c)}</td><td class="n">${M(o)}</td><td><span class="hb" style="margin:0 0 3px"><i style="width:${c+o?c/(c+o)*100:0}%;background:linear-gradient(90deg,#14b8a6,#3b82f6)"></i></span><span class="muted">${c+o?(c/(c+o)*100).toFixed(0):0}%</span></td></tr>`}).join('')}
+ $('#bb').innerHTML=[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>{const ps=S.p.filter(p=>p.brgy==b),c=r(S.t.filter(t=>!t.void&&t.brgy==b).reduce((a,t)=>a+t.t,0)),o=r(ps.reduce((a,p)=>a+p.u.reduce((s,y)=>s+bill(p,y).t,0),0));return`<tr><td>${b}</td><td class="n">${ps.length}</td><td class="n">${M(c)}</td><td class="n">${M(o)}</td><td><span class="hb" style="margin:0 0 3px"><i style="width:${c+o?c/(c+o)*100:0}%;background:linear-gradient(90deg,#14b8a6,#3b82f6)"></i></span><span class="muted">${c+o?(c/(c+o)*100).toFixed(0):0}%</span></td></tr>`}).join('')}
 // Display helpers: initials avatar, class/mode/year chips
 const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h},CC={Residential:210,Agricultural:140,Commercial:265,Industrial:25},MC={Cash:150,Check:35,GCash:210};
 const av=n=>{const w=n.split(' ');return`<span class="av" style="--h:${hue(n)}">${w[0][0]}${w[w.length-1][0]}</span>`};
@@ -696,11 +729,11 @@ function arcChart(P){const T=P.reduce((a,x)=>a+x.v,0)||1,R=85,ri=65,d=4.2,pt=(q,
   paths+=`<path class="seg" fill="url(#g${i})" stroke="url(#g${i})" stroke-width="6" stroke-linejoin="round" d="M${p1} A${R} ${R} 0 0 1 ${p2} L${p3} A${ri} ${ri} 0 0 0 ${p4}Z" data-tip="${x.n}: ${M(x.v)} (${(x.v/T*100).toFixed(1)}%)" data-tf></path>`});
  return `<svg viewBox="0 0 200 108" width="100%" role="img" aria-label="Receivables breakdown"><defs>${defs}<mask id="rv"><path class="rvp" pathLength="1" d="M13 100A87 87 0 0 1 187 100" fill="none" stroke="#fff" stroke-width="50"/></mask></defs><g class="arcs" mask="url(#rv)">${paths}</g><text x="100" y="84" text-anchor="middle" style="fill:var(--ink);font-size:24px;font-weight:700">${(P[0].v/T*100).toFixed(1)}%</text><text x="100" y="99" text-anchor="middle" style="fill:var(--mute);font-size:12px">collected</text></svg>`}
 function dash2(){let cu=0,dl=0;S.p.forEach(p=>p.u.forEach(y=>{const t=bill(p,y).t;if(y<cy)dl+=t;else cu+=t}));
- const col=r(S.t.reduce((a,t)=>a+t.t,0)),P=[{n:'Collected',v:col,c:'var(--acc)'},{n:'Due this year',v:r(cu),c:'var(--mute)'},{n:'Delinquent',v:r(dl),c:'var(--red)'}],T=P.reduce((a,x)=>a+x.v,0)||1;
+ const col=r(S.t.filter(t=>!t.void).reduce((a,t)=>a+t.t,0)),P=[{n:'Collected',v:col,c:'var(--acc)'},{n:'Due this year',v:r(cu),c:'var(--mute)'},{n:'Delinquent',v:r(dl),c:'var(--red)'}],T=P.reduce((a,x)=>a+x.v,0)||1;
  $('#dn').innerHTML=arcChart(P);
  $('#lg').innerHTML=P.map(x=>`<div style="margin-bottom:8px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${x.c};margin-right:6px"></i>${x.n}<br><b>${M(x.v)}</b> <span class="muted">(${(x.v/T*100).toFixed(1)}%)</span></div>`).join('');
- $('#rp').innerHTML=S.t.length?S.t.slice(-5).reverse().map(t=>`<div class="tx"><div style="display:flex;align-items:center">${av(t.payor)}<div><b>${esc(t.payor)}</b> ${mc(t.mode)}<div class="muted">${t.or} - ${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</div></div></div><b style="color:var(--acc)">+${M(t.t)}</b></div>`).join(''):'<p class="muted">No payments yet.</p>'}
-$('#tg').onchange=()=>{const v=parseFloat($('#tg').value);if(v>=0){S.g=v;save();dash()}};
+ $('#rp').innerHTML=S.t.filter(t=>!t.void).length?S.t.filter(t=>!t.void).slice(-5).reverse().map(t=>`<div class="tx"><div style="display:flex;align-items:center">${av(t.payor)}<div><b>${esc(t.payor)}</b> ${mc(t.mode)}<div class="muted">${t.or} - ${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</div></div></div><b style="color:var(--acc)">+${M(t.t)}</b></div>`).join(''):'<p class="muted">No payments yet.</p>'}
+$('#tg').onchange=()=>{const v=parseFloat($('#tg').value);if(v>=0){S.g=v;fdb.doc('settings/target').set({g:v}).catch(x=>alert(lgErr(x)));dash()}};
 // Instant custom tooltips (native title tooltips are delayed by the browser)
 // data-tip: always shown, data-tipc: only when the sidebar is collapsed, data-tf: follow the cursor, data-tp=r: show to the right
 const tip=$('#tip');
@@ -722,17 +755,17 @@ addEventListener('scroll',()=>tip.classList.remove('on'),true);
 // Sidebar collapse, remembered in this browser
 try{if(localStorage.getItem('rpt-nav')=='1'){document.body.classList.add('nc');$('#nc').setAttribute('aria-label','Expand sidebar')}}catch(e){}
 $('#nc').onclick=()=>{const c=document.body.classList.toggle('nc');try{localStorage.setItem('rpt-nav',c?'1':'0')}catch(e){}$('#nc').setAttribute('aria-label',c?'Expand sidebar':'Collapse sidebar');$('#nc').dispatchEvent(new MouseEvent('mouseover',{bubbles:true}))};
-$('#reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}boot()};
+
 // ---- Offices, login, roles and users (Firebase Auth and Firestore) ----
 const FB_CFG={apiKey:"AIzaSyC6CZ2p05Mja6eouMeVRUyTocrBXl716dc",authDomain:"mto-assessor-system.firebaseapp.com",projectId:"mto-assessor-system",storageBucket:"mto-assessor-system.firebasestorage.app",messagingSenderId:"1070249719",appId:"1:1070249719:web:d89ba39b086f5a65a3c5f2"};
 const ROLES={admin:'Administrator',treasurer:'Treasurer',cashier:'Cashier',assessor:'Assessor',mayor:'Mayor'};
 // Tabs each role can open (the ids are the data-t values in the sidebar). An account gets the tabs of ALL its roles.
-const ACC={admin:['look','bill','del','rep','dash','set','usr'],treasurer:['look','bill','del','rep','dash'],cashier:['look','bill','rep'],assessor:['look'],mayor:['dash']};
+const ACC={admin:['look','bill','del','rep','dash','prop','set','usr'],treasurer:['look','bill','del','rep','dash'],cashier:['look','bill','rep'],assessor:['look','prop'],mayor:['dash']};
 // Office tiles. An account can enter an office if it holds one of the listed roles (administrators can enter any office).
 // "home" is the tab opened first. Change the names here when an LGU gets its own branding.
 const OFF={
  mto:{name:"Municipal Treasurer's Office",roles:['treasurer','cashier'],home:['look']},
- assessor:{name:"Assessor's Office",roles:['assessor'],home:['look']},
+ assessor:{name:"Assessor's Office",roles:['assessor'],home:['prop']},
  mayor:{name:"Mayor's Office",roles:['mayor'],home:['dash']},
  admin:{name:'Administration',roles:['admin'],home:['usr']}
 };
@@ -752,7 +785,7 @@ function lgErr(x){const c=(x&&x.code)||'';return({
  'auth/email-already-in-use':'That email is already registered in Firebase Authentication. If the user was deleted here, remove the email in the Firebase console (Authentication, Users) before adding it again.','auth/weak-password':'Use a password of at least 8 characters.',
  'auth/invalid-api-key':'The Firebase API key in the page is wrong.','auth/api-key-not-valid.-please-pass-a-valid-api-key.':'The Firebase API key in the page is wrong.',
  'auth/operation-not-allowed':'Email/Password sign-in is not enabled in Firebase Authentication.',
- 'permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
+ 'stale':'Another counter already collected one of these tax years. The bill was refreshed.','permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
 }[c])||('Something went wrong ('+(c||(x&&x.message)||'unknown')+').')}
 // Names are stored in one text field as "Last, First Middle" (sorts by last name)
 const nm1=s=>$(s).value.trim().replace(/\s+/g,' ');
@@ -783,7 +816,7 @@ function enter(P,o){if(ROLE)return;ROLE=P.roles;ALLOW=canAct(P.roles);ME={uid:P.
  document.querySelectorAll('nav .ng').forEach(g=>{let n=g.nextElementSibling,any=false;while(n&&n.matches('button[data-t]')){if(!n.hidden)any=true;n=n.nextElementSibling}g.hidden=!any});
  if(!ALLOW.includes('bill'))document.body.dataset.nb=1;
  $('#uxr').innerHTML=roleBoxes(['cashier']);
- boot();tab(OFF[o].home.find(t=>ALLOW.includes(t))||ALLOW[0]);idleStart()}
+ $('#pc').value=P.name||P.email;boot();tab(OFF[o].home.find(t=>ALLOW.includes(t))||ALLOW[0]);idleStart()}
 function authInit(){
  try{firebase.initializeApp(FB_CFG);fa=firebase.auth();fdb=firebase.firestore()}
  catch(x){$('#of').hidden=true;$('#au').hidden=false;aMsg('#aum','Cannot start Firebase. Check the internet connection and reload the page.');return}
@@ -889,6 +922,55 @@ $('#udy').onclick=async()=>{$('#udy').disabled=true;
  try{await fdb.doc('users/'+UD.id).delete();dlgClose('#ud');aMsg('#uxm',(UD.name||UD.email)+' was deleted.',1);ul()}
  catch(x){aMsg('#udm',lgErr(x))}
  $('#udy').disabled=false};
+// Void a receipt (administrator or treasurer): needs a reason, puts the tax years back as unpaid, and is written to the audit log
+let VT=null;
+function vdOpen(t){VT=t;$('#vdo').textContent=t.or+' - '+M(t.t);$('#vdr').value='';aMsg('#vdm','');$('#vdy').disabled=false;dlgOpen('#vd');$('#vdr').focus()}
+$('#vdn').onclick=()=>dlgClose('#vd');
+$('#vdy').onclick=async()=>{const why=$('#vdr').value.trim();if(why.length<5){aMsg('#vdm','Enter the reason (at least 5 characters).');return}
+ $('#vdy').disabled=true;const nm=PROF.name||PROF.email,v={at:new Date().toISOString(),by:ME.uid,name:nm,reason:why};
+ try{await fdb.runTransaction(async tx=>{const pr=fdb.doc('properties/'+pk(VT.td)),qr=fdb.doc('payments/'+VT.or),[ps,qs]=await Promise.all([tx.get(pr),tx.get(qr)]);
+   if(qs.data().void)throw{code:'voided'};
+   tx.update(qr,{void:v});tx.update(pr,{u:[...new Set([...(ps.data().u||[]),...VT.yrs])].sort()});
+   tx.set(fdb.collection('audit').doc(),{at:TS(),uid:ME.uid,name:nm,act:'void',ref:VT.or,detail:why})});
+  dlgClose('#vd');VT.void=v;const p=S.p.find(x=>x.td==VT.td);if(p)p.u=[...new Set([...p.u,...VT.yrs])].sort();bl();look();slip(VT,true)}
+ catch(x){aMsg('#vdm',x.code=='voided'?'This receipt was already voided.':lgErr(x));$('#vdy').disabled=false}};
+// Properties tab (administrator and assessor): add, edit, import from CSV
+const yrsOf=s=>[...new Set((String(s).match(/\d{4}/g)||[]).map(Number))].filter(y=>y>=1990&&y<=cy).sort();
+function pf(){const q=($('#f_q').value||'').toLowerCase(),L=S.p.filter(p=>(p.td+p.owner+p.brgy).toLowerCase().includes(q));
+ $('#f_smp').hidden=S.p.length>0||!ROLE.includes('admin');
+ $('#f_rows').innerHTML=L.length?L.slice(0,100).map(p=>`<tr><td>${esc(p.td)}</td><td>${esc(p.owner)}</td><td>${esc(p.brgy)}</td><td>${esc(p.cls)}</td><td class="n">${M(p.mv)}</td><td class="n">${r(p.al*100)}%</td><td><button class="ghost" data-fe="${esc(p.td)}">Edit</button></td></tr>`).join('')+(L.length>100?`<tr><td colspan="7" class="muted">Showing 100 of ${L.length}. Type in the search box to narrow down.</td></tr>`:''):'<tr><td colspan="7">No properties yet. Add one above or import a CSV file.</td></tr>'}
+$('#f_q').oninput=pf;
+$('#f_clr').onclick=()=>{['f_td','f_ow','f_bg','f_ar','f_mv','f_al','f_u'].forEach(i=>$('#'+i).value='');aMsg('#f_m','')};
+$('#f_rows').onclick=e=>{const t=e.target.dataset.fe;if(!t)return;const p=S.p.find(x=>x.td==t);if(!p)return;
+ $('#f_td').value=p.td;$('#f_ow').value=p.owner;$('#f_bg').value=p.brgy;$('#f_cl').value=p.cls;$('#f_ar').value=p.area;$('#f_mv').value=p.mv;$('#f_al').value=r(p.al*100);$('#f_u').value=p.u.join(', ');aMsg('#f_m','Editing '+p.td+'.',1);$('#f_ow').focus()};
+$('#f_save').onclick=async()=>{const td=$('#f_td').value.trim(),ow=$('#f_ow').value.trim().replace(/\s+/g,' '),bg=$('#f_bg').value.trim(),mv=+$('#f_mv').value,al=+(+$('#f_al').value/100).toFixed(4);
+ if(!td||!ow||!bg||!(mv>0)||!(al>0&&al<=1)){aMsg('#f_m','Enter the TD no., owner, barangay, market value and assessment level (1 to 100).');return}
+ const old=S.p.find(x=>x.td==td),ut=$('#f_u').value.trim(),u=ut?yrsOf(ut):(old?old.u:[cy]);
+ $('#f_save').disabled=true;
+ try{await fdb.doc('properties/'+pk(td)).set({td,owner:ow,brgy:bg,cls:$('#f_cl').value,area:+$('#f_ar').value||0,mv,al,u});AUD('property',td,old?'edited':'added');aMsg('#f_m',td+(old?' updated.':' added.'),1);$('#f_clr').click();aMsg('#f_m',td+(old?' updated.':' added.'),1)}
+ catch(x){aMsg('#f_m',lgErr(x))}
+ $('#f_save').disabled=false};
+function csv(s){const R=[];let a=[''],q=0;s=s.replace(/^\uFEFF/,'');
+ for(let i=0;i<s.length;i++){const c=s[i];
+  if(q){if(c=='"'){if(s[i+1]=='"'){a[a.length-1]+='"';i++}else q=0}else a[a.length-1]+=c}
+  else if(c=='"')q=1;else if(c==',')a.push('');
+  else if(c=='\n'||c=='\r'){if(c=='\r'&&s[i+1]=='\n')i++;R.push(a);a=['']}else a[a.length-1]+=c}
+ if(a.length>1||a[0])R.push(a);return R.filter(x=>x.some(v=>v.trim()))}
+let IMP=[];
+$('#f_file').onchange=async()=>{const f=$('#f_file').files[0];IMP=[];$('#f_imp').disabled=true;if(!f)return;
+ const R=csv(await f.text()),h=(R[0]||[]).map(x=>x.toLowerCase().replace(/[^a-z]/g,'')),ix=(...n)=>h.findIndex(x=>n.includes(x));
+ const c={td:ix('td','tdno','tdnumber'),ow:ix('owner','ownername'),bg:ix('barangay','brgy'),cl:ix('class','cls'),ar:ix('area','areasqm'),mv:ix('marketvalue','mv'),al:ix('assessmentlevel','al'),u:ix('unpaidyears','unpaid','years')},bad=[];
+ if(c.td<0||c.ow<0||c.bg<0||c.cl<0||c.mv<0||c.al<0){aMsg('#f_im','The first row must have these columns: td, owner, barangay, class, area, market_value, assessment_level, unpaid_years (area and unpaid_years are optional).');return}
+ R.slice(1).forEach((x,i)=>{const g=k=>c[k]<0?'':(x[c[k]]||'').trim(),cl=Object.keys(CC).find(k=>k.toLowerCase()==g('cl').toLowerCase()),mv=parseFloat(g('mv').replace(/[^\d.]/g,'')),a0=parseFloat(g('al').replace(/[^\d.]/g,'')),al=a0>1?a0/100:a0;
+  if(!g('td')||!g('ow')||!g('bg')||!cl||!(mv>0)||!(al>0&&al<=1)){bad.push(i+2);return}
+  const rec={td:g('td'),owner:g('ow').replace(/\s+/g,' '),brgy:g('bg'),cls:cl,area:parseFloat(g('ar').replace(/[^\d.]/g,''))||0,mv,al:+al.toFixed(4)};
+  if(c.u>=0)rec.u=yrsOf(g('u'));else if(!S.p.some(p=>p.td==rec.td))rec.u=[cy];IMP.push(rec)});
+ aMsg('#f_im',IMP.length+' row(s) ready to import'+(bad.length?'. Skipped '+bad.length+' row(s) with missing or invalid data (file lines: '+bad.slice(0,8).join(', ')+(bad.length>8?', ...':'')+').':'.'),1);$('#f_imp').disabled=!IMP.length};
+$('#f_imp').onclick=async()=>{if(!IMP.length)return;$('#f_imp').disabled=true;aMsg('#f_im','Importing...',1);
+ try{for(let i=0;i<IMP.length;i+=400){const b=fdb.batch();IMP.slice(i,i+400).forEach(x=>b.set(fdb.doc('properties/'+pk(x.td)),x,{merge:true}));await b.commit()}
+  AUD('import','',IMP.length+' properties');aMsg('#f_im',IMP.length+' properties imported.',1);IMP=[];$('#f_file').value=''}
+ catch(x){aMsg('#f_im',lgErr(x));$('#f_imp').disabled=false}};
+$('#f_smp').onclick=async()=>{try{const b=fdb.batch();seed.forEach(x=>b.set(fdb.doc('properties/'+pk(x.td)),x));await b.commit();AUD('import','','10 sample properties')}catch(x){aMsg('#f_m',lgErr(x))}};
 authInit();
 </script>
 </body>
