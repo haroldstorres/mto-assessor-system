@@ -254,11 +254,44 @@ body[data-p=rc] #rc{max-width:460px}
 .rpb{margin:6px 0 10px;padding:6px 10px;border:1.5px solid var(--red);border-radius:6px;color:var(--red);font-size:0.8125rem;text-transform:uppercase;letter-spacing:.04em}
 .rpb span{text-transform:none;letter-spacing:0;font-weight:400}
 #bill>#hist{grid-column:1}
+/* Login, roles, users */
+nav [hidden]{display:none!important}
+.aw{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;background:var(--bg);overflow:auto}
+.aw[hidden],.ac[hidden]{display:none}
+.ac{width:min(24rem,100%);margin:auto;padding:22px;display:flex;flex-direction:column;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.18)}
+.ac input{min-width:0;width:100%}
+.ac p{margin:0;min-height:1.25em}
+.ah{display:flex;align-items:center;gap:10px}
+#usr{--sc:#64748b}
+nav [data-t=usr]{--nh:230}
+body[data-nb] #lr button{display:none}
+@media print{.aw{display:none!important}}
 </style>
 </head>
 <body>
+<div class="aw" id="au" hidden>
+<form class="ac" id="auf">
+<div class="ah"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><div><b>RPT Counter</b><div class="muted">Sign in to continue</div></div></div>
+<label>Email<input id="aue" type="email" autocomplete="username" required></label>
+<label>Password<input id="aup" type="password" autocomplete="current-password" required></label>
+<p id="aum" class="pen muted" role="alert"></p>
+<button class="pri" id="aub" type="submit">Sign in</button>
+<button class="ghost" id="aur" type="button">Forgot password</button>
+<button class="ghost" id="aus" type="button" hidden>First-time setup: create the administrator</button>
+</form>
+<form class="ac" id="asf" hidden>
+<div class="ah"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><div><b>First-time setup</b><div class="muted">Create the administrator account</div></div></div>
+<label>Full name<input id="asn" autocomplete="name" required></label>
+<label>Email<input id="ase" type="email" autocomplete="username" required></label>
+<label>Password (at least 8 characters)<input id="asp" type="password" autocomplete="new-password" required minlength="8"></label>
+<label>Confirm password<input id="asp2" type="password" autocomplete="new-password" required></label>
+<p id="asm" class="pen muted" role="alert"></p>
+<button class="pri" id="asb" type="submit">Create administrator</button>
+<button class="ghost" id="asc" type="button">Back to sign in</button>
+</form>
+</div>
 <header>
-<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h1>Real Property Tax Counter</h1><button class="ghost noprint" id="th" style="padding:8px 10px;display:flex"></button></div>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h1>Real Property Tax Counter</h1><div class="noprint" style="display:flex;gap:8px;align-items:center"><span id="who" class="muted"></span><button class="ghost" id="lo" hidden>Sign out</button><button class="ghost noprint" id="th" style="padding:8px 10px;display:flex"></button></div></div>
 <p class="sub">Prototype with sample data only. Rates and rules are demo assumptions.</p>
 </header>
 <nav role="tablist">
@@ -272,6 +305,7 @@ body[data-p=rc] #rc{max-width:460px}
 <button role="tab" data-t="dash" aria-selected="false" data-tipc="Mayor's dashboard" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="nl">Dashboard</span></button>
 <div class="ng">Admin</div>
 <button role="tab" data-t="set" aria-selected="false" data-tipc="Rates" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span class="nl">Rates</span></button>
+<button role="tab" data-t="usr" aria-selected="false" data-tipc="Users and roles" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2.2.7 3.5 2.6 3.5 5.6"/></svg><span class="nl">Users</span></button>
 <button id="nc" class="nt" data-tipc="Expand sidebar" data-tp="r" aria-label="Collapse sidebar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="nl">Collapse</span></button>
 </nav>
 <main>
@@ -359,6 +393,20 @@ body[data-p=rc] #rc{max-width:460px}
 <div class="row" style="margin-top:14px"><button class="pri" id="rsave">Save rates</button><button class="ghost" id="rreset">Restore defaults</button></div>
 <p id="rm" class="muted" role="status"></p></div>
 </section>
+<section id="usr" hidden>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Users and roles</h2>
+<p class="muted">Create staff accounts and choose what each person can do. Give the temporary password in person; the user can change it with Forgot password on the sign-in screen.</p>
+<div class="row">
+<label>Full name<input id="uxn" autocomplete="off"></label>
+<label>Email<input id="uxe" type="email" autocomplete="off"></label>
+<label>Temporary password<input id="uxp" type="text" autocomplete="off" placeholder="At least 8 characters"></label>
+<label>Role<select id="uxr"></select></label>
+<button class="pri" id="uxb">Add user</button></div>
+<p id="uxm" class="muted" role="status"></p></div>
+<div class="card wrap"><table>
+<thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+<tbody id="uxl"></tbody></table></div>
+</section>
 </main>
 <dialog id="cm" aria-labelledby="cmt"><div class="cmi"><div><div class="muted" id="cmt">Confirm payment</div><div class="big" id="cmb"></div></div><dl id="cmd"></dl><table id="cmx"></table><div class="cfb"><button type="button" class="pri" id="cfy">Confirm and issue receipt</button><button type="button" class="ghost" id="cfn">Go back</button></div></div></dialog>
 <div id="doc"></div>
@@ -367,6 +415,9 @@ body[data-p=rc] #rc{max-width:460px}
 <p>Default demo rules (editable in the Rates tab): basic tax 1% and SEF 1% of assessed value; 10% discount on the current year if paid by March 31; 2% interest per month on prior years, up to 36 months. Payments are stored in this browser only.</p>
 <button class="ghost" id="reset">Reset demo data</button>
 </footer>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 const $=s=>document.querySelector(s),now=new Date(),cy=now.getFullYear(),KEY='rpt-demo-v1';
 const M=n=>n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -399,8 +450,8 @@ function init(){S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   pay(S.p[0],[2025],'Maria L. Santos','GCash','Cashier A',at(9,5),{ref:'5021 334 871'});
   pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30),{ref:'0004521'});save()}
  if(!S.r)S.r={...DEF}}
-function tab(t){document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
- document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='dash')dash()}
+function tab(t){if(ROLE&&!ACC[ROLE].includes(t))return;document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${av(p.owner)}${p.owner}</td><td>${p.brgy}</td><td><span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span></td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?[...p.u].sort().map(yc).join(''):'<span class="chip" style="--h:150">Paid up</span>'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
@@ -618,7 +669,88 @@ addEventListener('scroll',()=>tip.classList.remove('on'),true);
 try{if(localStorage.getItem('rpt-nav')=='1'){document.body.classList.add('nc');$('#nc').setAttribute('aria-label','Expand sidebar')}}catch(e){}
 $('#nc').onclick=()=>{const c=document.body.classList.toggle('nc');try{localStorage.setItem('rpt-nav',c?'1':'0')}catch(e){}$('#nc').setAttribute('aria-label',c?'Expand sidebar':'Collapse sidebar');$('#nc').dispatchEvent(new MouseEvent('mouseover',{bubbles:true}))};
 $('#reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}boot()};
-boot();
+// ---- Login, roles and users (Firebase Auth and Firestore) ----
+const FB_CFG={apiKey:"AIzaSyC6CZ2p05Mja6eouMeVRUyTocrBXl716dc",authDomain:"mto-assessor-system.firebaseapp.com",projectId:"mto-assessor-system",storageBucket:"mto-assessor-system.firebasestorage.app",messagingSenderId:"1070249719",appId:"1:1070249719:web:d89ba39b086f5a65a3c5f2"};
+const ROLES={admin:'Administrator',treasurer:'Treasurer',cashier:'Cashier',assessor:'Assessor',mayor:'Mayor'};
+// Tabs each role can open (the ids are the data-t values in the sidebar)
+const ACC={admin:['look','bill','del','rep','dash','set','usr'],treasurer:['look','bill','del','rep','dash'],cashier:['look','bill','rep'],assessor:['look'],mayor:['dash']};
+let ROLE=null,ME=null,SETUP=false,UL=[],fa,fdb;
+const TS=()=>firebase.firestore.FieldValue.serverTimestamp();
+const roleOpts=v=>Object.keys(ROLES).map(k=>`<option value="${k}"${k==v?' selected':''}>${ROLES[k]}</option>`).join('');
+function lgErr(x){const c=(x&&x.code)||'';return({
+ 'auth/invalid-credential':'Wrong email or password.','auth/wrong-password':'Wrong email or password.','auth/user-not-found':'Wrong email or password.',
+ 'auth/invalid-email':'Enter a valid email address.','auth/user-disabled':'This account is turned off.',
+ 'auth/too-many-requests':'Too many attempts. Wait a few minutes and try again.','auth/network-request-failed':'No internet connection.',
+ 'auth/email-already-in-use':'That email already has an account.','auth/weak-password':'Use a password of at least 8 characters.',
+ 'auth/invalid-api-key':'The Firebase API key in the page is wrong.','auth/api-key-not-valid.-please-pass-a-valid-api-key.':'The Firebase API key in the page is wrong.',
+ 'auth/operation-not-allowed':'Email/Password sign-in is not enabled in Firebase Authentication.',
+ 'permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
+}[c])||('Something went wrong ('+(c||(x&&x.message)||'unknown')+').')}
+function aMsg(sel,t,ok){const m=$(sel);m.textContent=t||'';m.className=ok?'muted':'pen muted'}
+function showLogin(msg){$('#asf').hidden=true;$('#auf').hidden=false;$('#au').hidden=false;if(msg!==undefined)aMsg('#aum',msg);
+ fdb.doc('meta/setup').get().then(s=>{$('#aus').hidden=s.exists}).catch(()=>{$('#aus').hidden=false})}
+function enter(u,d){if(ROLE)return;ME=u;ROLE=d.role;$('#au').hidden=true;
+ $('#who').innerHTML=esc(d.name||u.email)+' <span class="chip" style="--h:'+hue(d.role)+'">'+ROLES[d.role]+'</span>';$('#lo').hidden=false;
+ const ok=ACC[ROLE];
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.hidden=!ok.includes(b.dataset.t));
+ document.querySelectorAll('nav .ng').forEach(g=>{let n=g.nextElementSibling,any=false;while(n&&n.matches('button[data-t]')){if(!n.hidden)any=true;n=n.nextElementSibling}g.hidden=!any});
+ if(!ok.includes('bill'))document.body.dataset.nb=1;
+ $('#uxr').innerHTML=roleOpts('cashier');
+ boot();tab(ok[0])}
+function authInit(){
+ try{firebase.initializeApp(FB_CFG);fa=firebase.auth();fdb=firebase.firestore()}
+ catch(x){$('#au').hidden=false;aMsg('#aum','Cannot start Firebase. Check the internet connection and reload the page.');return}
+ fa.onAuthStateChanged(async u=>{if(SETUP||ROLE)return;
+  if(!u){showLogin();return}
+  try{const s=await fdb.doc('users/'+u.uid).get(),d=s.exists&&s.data();
+   if(!d){await fa.signOut();showLogin('This account has no access yet. Ask the administrator to add you.');return}
+   if(d.active!==true||!ACC[d.role]){await fa.signOut();showLogin('This account is turned off. Ask the administrator.');return}
+   enter(u,d)}
+  catch(x){await fa.signOut().catch(()=>{});showLogin(lgErr(x))}})}
+// Sign in, password reset, sign out
+$('#auf').onsubmit=async e=>{e.preventDefault();aMsg('#aum','');$('#aub').disabled=true;
+ try{await fa.signInWithEmailAndPassword($('#aue').value.trim(),$('#aup').value)}catch(x){aMsg('#aum',lgErr(x))}
+ $('#aub').disabled=false};
+$('#aur').onclick=async()=>{const e=$('#aue').value.trim();if(!e){aMsg('#aum','Type your email first, then press Forgot password.');return}
+ try{await fa.sendPasswordResetEmail(e);aMsg('#aum','If that email has an account, a reset link was sent.',1)}catch(x){aMsg('#aum',lgErr(x))}};
+$('#lo').onclick=async()=>{try{await fa.signOut()}catch(x){}location.reload()};
+// First-time setup: the first administrator. Works only until meta/setup exists (enforced by the Firestore rules).
+$('#aus').onclick=()=>{$('#auf').hidden=true;$('#asf').hidden=false;aMsg('#asm','');$('#asn').focus()};
+$('#asc').onclick=()=>{$('#asf').hidden=true;$('#auf').hidden=false};
+$('#asf').onsubmit=async e=>{e.preventDefault();const n=$('#asn').value.trim(),em=$('#ase').value.trim(),p=$('#asp').value;
+ if(!n||!em||p.length<8){aMsg('#asm','Enter the name, email, and a password of at least 8 characters.');return}
+ if(p!=$('#asp2').value){aMsg('#asm','The two passwords do not match.');return}
+ aMsg('#asm','');SETUP=true;$('#asb').disabled=true;let c=null;
+ try{c=await fa.createUserWithEmailAndPassword(em,p);
+  const b=fdb.batch();
+  b.set(fdb.doc('users/'+c.user.uid),{name:n,email:em.toLowerCase(),role:'admin',active:true,createdAt:TS()});
+  b.set(fdb.doc('meta/setup'),{by:c.user.uid,at:TS()});
+  await b.commit();SETUP=false;enter(c.user,{name:n,role:'admin'})}
+ catch(x){SETUP=false;if(c&&c.user){try{await c.user.delete()}catch(y){}}try{await fa.signOut()}catch(y){}aMsg('#asm',lgErr(x))}
+ $('#asb').disabled=false};
+// Users tab (administrator only)
+async function ul(){const t=$('#uxl');t.innerHTML='<tr><td colspan="5">Loading...</td></tr>';
+ try{const q=await fdb.collection('users').get();
+  UL=q.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  t.innerHTML=UL.map(u=>{const me=u.id==ME.uid;
+   return`<tr><td>${av(u.name||u.email||'?')}${esc(u.name||'')}${me?' <span class="muted">(you)</span>':''}</td><td>${esc(u.email||'')}</td><td>${me?ROLES[u.role]:`<select data-ur="${u.id}" aria-label="Role of ${esc(u.name||u.email||'user')}">${roleOpts(u.role)}</select>`}</td><td>${u.active?'<span class="chip" style="--h:150">Active</span>':'<span class="chip" style="--h:5">Turned off</span>'}</td><td>${me?'':`<button class="ghost" data-ut="${u.id}">${u.active?'Turn off':'Turn on'}</button>`}</td></tr>`}).join('')}
+ catch(x){t.innerHTML='<tr><td colspan="5">Could not load the users.</td></tr>';aMsg('#uxm',lgErr(x))}}
+$('#uxb').onclick=async()=>{const n=$('#uxn').value.trim(),e=$('#uxe').value.trim(),p=$('#uxp').value,ro=$('#uxr').value;
+ if(!n||!e||p.length<8){aMsg('#uxm','Enter the name, email, and a temporary password of at least 8 characters.');return}
+ $('#uxb').disabled=true;aMsg('#uxm','Creating the account...',1);let sec=null,made=false;
+ try{sec=firebase.apps.find(a=>a.name=='sec')||firebase.initializeApp(FB_CFG,'sec');
+  const c=await sec.auth().createUserWithEmailAndPassword(e,p);made=true;
+  await fdb.doc('users/'+c.user.uid).set({name:n,email:e.toLowerCase(),role:ro,active:true,createdAt:TS()});
+  await sec.auth().signOut();
+  ['#uxn','#uxe','#uxp'].forEach(i=>$(i).value='');aMsg('#uxm',n+' was added as '+ROLES[ro]+'.',1);ul()}
+ catch(x){if(made){try{await sec.auth().currentUser.delete()}catch(y){}}aMsg('#uxm',lgErr(x))}
+ $('#uxb').disabled=false};
+$('#uxl').onclick=async e=>{const b=e.target.closest('button[data-ut]');if(!b)return;const u=UL.find(x=>x.id==b.dataset.ut);if(!u)return;b.disabled=true;
+ try{await fdb.doc('users/'+u.id).update({active:!u.active});aMsg('#uxm',(u.name||u.email)+(u.active?' was turned off.':' was turned on.'),1)}catch(x){aMsg('#uxm',lgErr(x))}
+ ul()};
+$('#uxl').onchange=async e=>{const s=e.target.closest('select[data-ur]');if(!s)return;
+ try{await fdb.doc('users/'+s.dataset.ur).update({role:s.value});aMsg('#uxm','Role updated.',1)}catch(x){aMsg('#uxm',lgErr(x));ul()}};
+authInit();
 </script>
 </body>
 </html>
