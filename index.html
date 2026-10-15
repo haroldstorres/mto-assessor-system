@@ -430,7 +430,9 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <div class="row"><label>Cash counted in the drawer<input id="dcc" type="number" min="0" step="0.01"></label><label>Note (optional)<input id="dcr" maxlength="200"></label></div>
 <p id="dcv" class="muted" role="status"></p>
 <div class="row"><button class="pri" id="dcb">Close day</button></div><p id="dcm" class="muted" role="status"></p></div>
-<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Closed shifts</h2><div class="row"><label>Date<input id="dcd" type="date"></label></div>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Closed shifts</h2><div class="row"><div class="fld"><label for="dcq" id="dcl2">Date</label>
+<div class="dp"><button type="button" class="dpb" id="dcq" aria-haspopup="dialog" aria-expanded="false" aria-controls="dcp"><span id="dct"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button><input type="hidden" id="dcd"><div class="dpop" id="dcp" role="dialog" aria-label="Choose date" hidden></div></div></div>
+</div>
 <div class="wrap"><table><thead><tr><th>Date</th><th>Cashier</th><th class="n">Receipts</th><th class="n">Cash</th><th class="n">Check</th><th class="n">GCash</th><th class="n">Total</th><th class="n">Counted</th><th class="n">Over / short</th></tr></thead><tbody id="dcl"></tbody></table></div></div>
 </section>
 <section id="aud" hidden>
@@ -644,30 +646,34 @@ const dpParse=s=>{const a=s.split('-');return new Date(+a[0],a[1]-1,+a[2])};
 const DPC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
 let dpY,dpM,dpF;
 function dpToday(){return dpFmt(now.getFullYear(),now.getMonth(),now.getDate())}
-function dpLabel(){const v=$('#rd').value;$('#rdt').textContent=v?dpParse(v).toLocaleDateString('en-PH',{day:'numeric',month:'long',year:'numeric'}):'Choose a date'}
-function dpRender(){const sel=$('#rd').value,td=dpToday(),dots=new Set(S.t.map(t=>new Date(t.at).toLocaleDateString('en-CA'))),start=-new Date(dpY,dpM,1).getDay();
+function dpLabel(){const v=$(DPT.v).value;$(DPT.l).textContent=v?dpParse(v).toLocaleDateString('en-PH',{day:'numeric',month:'long',year:'numeric'}):'Choose a date'}
+function dpRender(){const sel=$(DPT.v).value,td=dpToday(),dots=new Set(S.t.map(t=>new Date(t.at).toLocaleDateString('en-CA'))),start=-new Date(dpY,dpM,1).getDay();
  let h=['Su','Mo','Tu','We','Th','Fr','Sa'].map(x=>`<span aria-hidden="true">${x}</span>`).join('');
  for(let i=0;i<42;i++){const d=new Date(dpY,dpM,1+start+i),k=dpFmt(d.getFullYear(),d.getMonth(),d.getDate()),c=['dd'];
   if(d.getMonth()!=dpM)c.push('out');if(k==sel)c.push('sel');if(k==td)c.push('tod');if(dots.has(k))c.push('has');
   h+=`<button type="button" class="${c.join(' ')}" data-d="${k}" tabindex="${k==dpF?0:-1}" aria-label="${d.toLocaleDateString('en-PH',{dateStyle:'full'})}${dots.has(k)?', has collections':''}"${k==sel?' aria-pressed="true"':''}>${d.getDate()}</button>`}
- $('#rdp').innerHTML=`<div class="dph"><button type="button" class="dpn" data-s="-12" aria-label="Previous year">${DPC}<path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button><button type="button" class="dpn" data-s="-1" aria-label="Previous month">${DPC}<path d="M15 6l-6 6 6 6"/></svg></button><div class="dpm" aria-live="polite">${new Date(dpY,dpM,1).toLocaleDateString('en-PH',{month:'long',year:'numeric'})}</div><button type="button" class="dpn" data-s="1" aria-label="Next month">${DPC}<path d="M9 6l6 6-6 6"/></svg></button><button type="button" class="dpn" data-s="12" aria-label="Next year">${DPC}<path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></button></div><div class="dpg" role="group" aria-labelledby="rdl">${h}</div><div class="dpf"><button type="button" class="ghost" data-today="1">Today</button><span class="muted"><i class="dpk"></i>has collections</span></div>`}
-function dpOpen(){const v=$('#rd').value||dpToday(),d=dpParse(v);dpY=d.getFullYear();dpM=d.getMonth();dpF=v;dpRender();$('#rdp').hidden=false;$('#rdq').setAttribute('aria-expanded','true');const b=$('#rdp [data-d="'+dpF+'"]');if(b)b.focus()}
-function dpClose(f){$('#rdp').hidden=true;$('#rdq').setAttribute('aria-expanded','false');if(f)$('#rdq').focus()}
-function dpSet(k){$('#rd').value=k;dpLabel();dpClose(true);rep()}
-$('#rdq').onclick=()=>$('#rdp').hidden?dpOpen():dpClose();
-$('#rdq').onkeydown=e=>{if(e.key=='ArrowDown'&&$('#rdp').hidden){e.preventDefault();dpOpen()}};
-$('#rdp').onclick=e=>{const b=e.target.closest('button');if(!b)return;
- if(b.dataset.d)dpSet(b.dataset.d);
- else if(b.dataset.today)dpSet(dpToday());
+ $(DPT.p).innerHTML=`<div class="dph"><button type="button" class="dpn" data-s="-12" aria-label="Previous year">${DPC}<path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg></button><button type="button" class="dpn" data-s="-1" aria-label="Previous month">${DPC}<path d="M15 6l-6 6 6 6"/></svg></button><div class="dpm" aria-live="polite">${new Date(dpY,dpM,1).toLocaleDateString('en-PH',{month:'long',year:'numeric'})}</div><button type="button" class="dpn" data-s="1" aria-label="Next month">${DPC}<path d="M9 6l6 6-6 6"/></svg></button><button type="button" class="dpn" data-s="12" aria-label="Next year">${DPC}<path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg></button></div><div class="dpg" role="group" aria-labelledby="${DPT.lb}">${h}</div><div class="dpf"><button type="button" class="ghost" data-today="1">Today</button><span class="muted"><i class="dpk"></i>has collections</span></div>`}
+function dpOpen(){const v=$(DPT.v).value||dpToday(),d=dpParse(v);dpY=d.getFullYear();dpM=d.getMonth();dpF=v;dpRender();$(DPT.p).hidden=false;$(DPT.q).setAttribute('aria-expanded','true');const b=$(DPT.p+' [data-d="'+dpF+'"]');if(b)b.focus()}
+function dpClose(f){$(DPT.p).hidden=true;$(DPT.q).setAttribute('aria-expanded','false');if(f)$(DPT.q).focus()}
+function dpSet(k){$(DPT.v).value=k;dpLabel();dpClose(true);DPT.cb()}
+const DPR={q:'#rdq',p:'#rdp',v:'#rd',l:'#rdt',lb:'rdl',cb:()=>rep()},DPD={q:'#dcq',p:'#dcp',v:'#dcd',l:'#dct',lb:'dcl2',cb:()=>dcList()};let DPT=DPR;
+const dpOf=el=>{const d=el&&el.closest&&el.closest('.dp');return d?(d.querySelector('#dcq')?DPD:DPR):null};
+document.addEventListener('click',e=>{const T=dpOf(e.target);if(!T)return;DPT=T;
+ if(e.target.closest(T.q)){$(T.p).hidden?dpOpen():dpClose();return}
+ const b=e.target.closest(T.p+' button');if(!b)return;
+ if(b.dataset.d)dpSet(b.dataset.d);else if(b.dataset.today)dpSet(dpToday());
  else if(b.dataset.s){const s=+b.dataset.s,f=dpParse(dpF),n=new Date(dpY,dpM+s,1),last=new Date(n.getFullYear(),n.getMonth()+1,0).getDate();
-  dpY=n.getFullYear();dpM=n.getMonth();dpF=dpFmt(dpY,dpM,Math.min(f.getDate(),last));dpRender();$('#rdp [data-s="'+b.dataset.s+'"]').focus()}};
-$('#rdp').onkeydown=e=>{if(e.key=='Escape'){e.preventDefault();dpClose(true);return}
+  dpY=n.getFullYear();dpM=n.getMonth();dpF=dpFmt(dpY,dpM,Math.min(f.getDate(),last));dpRender();$(T.p+' [data-s="'+b.dataset.s+'"]').focus()}});
+document.addEventListener('keydown',e=>{const T=dpOf(e.target);if(!T)return;DPT=T;
+ if(e.target.closest(T.q)){if(e.key=='ArrowDown'&&$(T.p).hidden){e.preventDefault();dpOpen()}return}
+ if(!e.target.closest(T.p))return;
+ if(e.key=='Escape'){e.preventDefault();dpClose(true);return}
  if(!e.target.closest('.dd'))return;
  const mv={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[0,-7],ArrowDown:[0,7],PageUp:[-1,0],PageDown:[1,0]}[e.key];if(!mv)return;e.preventDefault();
  const d=dpParse(dpF),n=mv[0]?new Date(d.getFullYear(),d.getMonth()+mv[0],Math.min(d.getDate(),new Date(d.getFullYear(),d.getMonth()+mv[0]+1,0).getDate())):new Date(d.getFullYear(),d.getMonth(),d.getDate()+mv[1]);
- dpF=dpFmt(n.getFullYear(),n.getMonth(),n.getDate());dpY=n.getFullYear();dpM=n.getMonth();dpRender();$('#rdp [data-d="'+dpF+'"]').focus()};
-document.addEventListener('mousedown',e=>{if(!$('#rdp').hidden&&!e.target.closest('.dp'))dpClose()});
-document.addEventListener('focusin',e=>{if(!$('#rdp').hidden&&!e.target.closest('.dp'))dpClose()});
+ dpF=dpFmt(n.getFullYear(),n.getMonth(),n.getDate());dpY=n.getFullYear();dpM=n.getMonth();dpRender();$(T.p+' [data-d="'+dpF+'"]').focus()});
+const dpOut=e=>[DPR,DPD].forEach(T=>{if($(T.p)&&!$(T.p).hidden&&dpOf(e.target)!==T){DPT=T;dpClose()}});
+document.addEventListener('mousedown',dpOut);document.addEventListener('focusin',dpOut);
 // Payment extras: check or GCash reference, cash received and change, confirmation before collecting
 let TT=0;
 function pmFields(){const m=$('#pm').value;$('#pxf').hidden=m=='Cash';$('#pcf').hidden=m!='Cash';$('#pxl').textContent=m=='Check'?'Check no.':'GCash reference no.';$('#px').placeholder=m=='Check'?'e.g. 0004521':'e.g. 5021 334 871';$('#pe').hidden=true;cashUpd()}
@@ -1004,12 +1010,12 @@ $('#dcb').onclick=async()=>{const v=parseFloat($('#dcc').value);if(!(v>=0)){aMsg
  try{await fdb.doc('closings/'+d+'_'+ME.uid).set({date:d,uid:ME.uid,name:nm,n:DC.n,cash:DC.cash,check:DC.check,gcash:DC.gcash,total:DC.tot,counted:v,variance:r(v-DC.cash),note:$('#dcr').value.trim(),at:TS()});
   AUD('close',d,'cash '+M(DC.cash)+', counted '+M(v));aMsg('#dcm','Day closed.',1);dcList()}
  catch(x){aMsg('#dcm',lgErr(x));$('#dcb').disabled=false}};
-async function dcList(){const t=$('#dcl'),d=$('#dcd').value||dkey();$('#dcd').value=d;
+async function dcList(){const t=$('#dcl'),d=$('#dcd').value||dkey();$('#dcd').value=d;DPT=DPD;dpLabel();DPT=DPR;
  try{let q=fdb.collection('closings').where('date','==',d);if(!ROLE.some(k=>k=='admin'||k=='treasurer'))q=q.where('uid','==',ME.uid);
   const L=(await q.get()).docs.map(x=>x.data()).sort((a,b)=>a.name.localeCompare(b.name));
   t.innerHTML=L.length?L.map(c=>`<tr><td>${c.date}</td><td>${esc(c.name)}</td><td class="n">${c.n}</td><td class="n">${M(c.cash)}</td><td class="n">${M(c.check)}</td><td class="n">${M(c.gcash)}</td><td class="n">${M(c.total)}</td><td class="n">${M(c.counted)}</td><td class="n${c.variance?' pen':''}">${c.variance?(c.variance>0?'+':'')+M(c.variance):'0.00'}</td></tr>`).join(''):'<tr><td colspan="9">No closed shifts for this date.</td></tr>'}
  catch(x){t.innerHTML='<tr><td colspan="9">Could not load: '+esc(lgErr(x))+'</td></tr>'}}
-$('#dcd').onchange=dcList;
+
 // Audit log screen (administrator and treasurer)
 async function adl(){const t=$('#adr');t.innerHTML='<tr><td colspan="5">Loading...</td></tr>';
  try{const f=$('#adf').value,L=(await fdb.collection('audit').orderBy('at','desc').limit(200).get()).docs.map(x=>x.data()).filter(a=>!f||a.act==f);
