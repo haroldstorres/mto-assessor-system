@@ -342,6 +342,8 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <button role="tab" data-t="bill" aria-selected="false" data-tipc="Billing and payment" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span class="nl">Billing</span></button>
 <button role="tab" data-t="del" aria-selected="false" data-tipc="Delinquency list" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg><span class="nl">Delinquency</span></button>
 <button role="tab" data-t="rep" aria-selected="false" data-tipc="Daily collection report" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Collection report</span></button>
+<button role="tab" data-t="close" aria-selected="false" data-tipc="Day closing" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Collection report</span></button>
+<button role="tab" data-t="aud" aria-selected="false" data-tipc="Audit log" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Collection report</span></button>
 <div class="ng">Assessor</div>
 <button role="tab" data-t="prop" aria-selected="false" data-tipc="Properties" data-tp="r"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="nl">Properties</span></button>
 <div class="ng">Mayor</div>
@@ -422,6 +424,20 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <table><thead><tr><th>Barangay</th><th class="n">Accounts</th><th class="n">Collected</th><th class="n">Outstanding</th><th style="min-width:140px">Collection rate</th></tr></thead><tbody id="bb"></tbody></table></div>
 </section>
 
+<section id="close" hidden>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Close my day</h2><p class="muted" id="dcn"></p>
+<div class="stats" id="dcs"></div>
+<div class="row"><label>Cash counted in the drawer<input id="dcc" type="number" min="0" step="0.01"></label><label>Note (optional)<input id="dcr" maxlength="200"></label></div>
+<p id="dcv" class="muted" role="status"></p>
+<div class="row"><button class="pri" id="dcb">Close day</button></div><p id="dcm" class="muted" role="status"></p></div>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Closed shifts</h2><div class="row"><label>Date<input id="dcd" type="date"></label></div>
+<div class="wrap"><table><thead><tr><th>Date</th><th>Cashier</th><th class="n">Receipts</th><th class="n">Cash</th><th class="n">Check</th><th class="n">GCash</th><th class="n">Total</th><th class="n">Counted</th><th class="n">Over / short</th></tr></thead><tbody id="dcl"></tbody></table></div></div>
+</section>
+<section id="aud" hidden>
+<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Audit log</h2><p class="muted">The latest 200 actions.</p>
+<div class="row"><label>Action<select id="adf"><option value="">All</option><option>collect</option><option>void</option><option>reprint</option><option>close</option><option>property</option><option>import</option><option>rates</option></select></label></div>
+<div class="wrap"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Reference</th><th>Detail</th></tr></thead><tbody id="adr"></tbody></table></div></div>
+</section>
 <section id="prop" hidden>
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Add or edit a property</h2>
 <p class="muted">Type an existing TD no. to change that property. Leave unpaid years blank to keep them (new property: current year).</p>
@@ -521,7 +537,8 @@ const AUD=(act,ref,detail)=>fdb.collection('audit').add({at:TS(),uid:ME.uid,name
 async function pay(p,yrs,payor,mode,cash,when,x){
  const rows=yrs.map(y=>bill(p,y)),sum=k=>r(rows.reduce((a,z)=>a+z[k],0)),pr=fdb.doc('properties/'+pk(p.td)),cr=fdb.doc('counters/or-'+cy);let t;
  await fdb.runTransaction(async tx=>{
-  const [ps,cs]=await Promise.all([tx.get(pr),tx.get(cr)]),u=(ps.exists&&ps.data().u)||[];
+  const [ps,cs,ks]=await Promise.all([tx.get(pr),tx.get(cr),tx.get(fdb.doc('closings/'+when.toLocaleDateString('en-CA')+'_'+ME.uid))]),u=(ps.exists&&ps.data().u)||[];
+  if(ks.exists)throw{code:'closed'};
   if(yrs.some(y=>!u.includes(y)))throw{code:'stale'};
   const n=(cs.exists?cs.data().n:0)+1;
   t={or:'OR-'+cy+'-'+String(n).padStart(5,'0'),at:when.toISOString(),payor,td:p.td,brgy:p.brgy,yrs,b:sum('b'),s:sum('s'),d:sum('d'),pen:sum('pen'),t:sum('t'),mode,cash,ref:(x&&x.ref)||'',tend:(x&&x.tend)||0,by:ME.uid};
@@ -529,7 +546,7 @@ async function pay(p,yrs,payor,mode,cash,when,x){
   tx.set(fdb.collection('audit').doc(),{at:TS(),uid:ME.uid,name:cash,act:'collect',ref:t.or,detail:p.td+' '+yrs.join(',')+' '+M(t.t)})});
  p.u=p.u.filter(y=>!yrs.includes(y));if(!S.t.some(z=>z.or==t.or))S.t.push(t);return t}
 function tab(t){if(ALLOW&&!ALLOW.includes(t))return;document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
- document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='prop')pf();if(t=='dash')dash()}
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='prop')pf();if(t=='close')dcl();if(t=='aud')adl();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${av(p.owner)}${p.owner}</td><td>${p.brgy}</td><td><span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span></td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?[...p.u].sort().map(yc).join(''):'<span class="chip" style="--h:150">Paid up</span>'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
@@ -760,7 +777,7 @@ $('#nc').onclick=()=>{const c=document.body.classList.toggle('nc');try{localStor
 const FB_CFG={apiKey:"AIzaSyC6CZ2p05Mja6eouMeVRUyTocrBXl716dc",authDomain:"mto-assessor-system.firebaseapp.com",projectId:"mto-assessor-system",storageBucket:"mto-assessor-system.firebasestorage.app",messagingSenderId:"1070249719",appId:"1:1070249719:web:d89ba39b086f5a65a3c5f2"};
 const ROLES={admin:'Administrator',treasurer:'Treasurer',cashier:'Cashier',assessor:'Assessor',mayor:'Mayor'};
 // Tabs each role can open (the ids are the data-t values in the sidebar). An account gets the tabs of ALL its roles.
-const ACC={admin:['look','bill','del','rep','dash','prop','set','usr'],treasurer:['look','bill','del','rep','dash'],cashier:['look','bill','rep'],assessor:['look','prop'],mayor:['dash']};
+const ACC={admin:['look','bill','del','rep','dash','prop','set','usr','close','aud'],treasurer:['look','bill','del','rep','dash','close','aud'],cashier:['look','bill','rep','close'],assessor:['look','prop'],mayor:['dash']};
 // Office tiles. An account can enter an office if it holds one of the listed roles (administrators can enter any office).
 // "home" is the tab opened first. Change the names here when an LGU gets its own branding.
 const OFF={
@@ -785,7 +802,7 @@ function lgErr(x){const c=(x&&x.code)||'';return({
  'auth/email-already-in-use':'That email is already registered in Firebase Authentication. If the user was deleted here, remove the email in the Firebase console (Authentication, Users) before adding it again.','auth/weak-password':'Use a password of at least 8 characters.',
  'auth/invalid-api-key':'The Firebase API key in the page is wrong.','auth/api-key-not-valid.-please-pass-a-valid-api-key.':'The Firebase API key in the page is wrong.',
  'auth/operation-not-allowed':'Email/Password sign-in is not enabled in Firebase Authentication.',
- 'stale':'Another counter already collected one of these tax years. The bill was refreshed.','permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
+ 'closed':'Your day is already closed. Ask the treasurer if more must be collected today.','stale':'Another counter already collected one of these tax years. The bill was refreshed.','permission-denied':'Not allowed. The Firestore rules may not be published yet, or setup was already done.'
 }[c])||('Something went wrong ('+(c||(x&&x.message)||'unknown')+').')}
 // Names are stored in one text field as "Last, First Middle" (sorts by last name)
 const nm1=s=>$(s).value.trim().replace(/\s+/g,' ');
@@ -971,6 +988,34 @@ $('#f_imp').onclick=async()=>{if(!IMP.length)return;$('#f_imp').disabled=true;aM
   AUD('import','',IMP.length+' properties');aMsg('#f_im',IMP.length+' properties imported.',1);IMP=[];$('#f_file').value=''}
  catch(x){aMsg('#f_im',lgErr(x));$('#f_imp').disabled=false}};
 $('#f_smp').onclick=async()=>{try{const b=fdb.batch();seed.forEach(x=>b.set(fdb.doc('properties/'+pk(x.td)),x));await b.commit();AUD('import','','10 sample properties')}catch(x){aMsg('#f_m',lgErr(x))}};
+// Day closing: the cashier counts the cash and closes the shift (one closing per cashier per day, cannot be changed); collecting is blocked afterwards
+let DC={};
+const dkey=()=>new Date().toLocaleDateString('en-CA');
+function dcv(){const v=parseFloat($('#dcc').value),h=$('#dcv');if(!(v>=0)){h.textContent='';return}const d=r(v-(DC.cash||0));h.textContent=d==0?'Cash matches.':(d>0?'Over by ':'Short by ')+M(Math.abs(d));h.className=d==0?'muted':'pen muted'}
+async function dcl(){const d=dkey(),L=S.t.filter(t=>!t.void&&t.by==ME.uid&&new Date(t.at).toLocaleDateString('en-CA')==d),sm=m=>r(L.filter(t=>t.mode==m).reduce((a,t)=>a+t.t,0));
+ DC={n:L.length,cash:sm('Cash'),check:sm('Check'),gcash:sm('GCash'),tot:r(L.reduce((a,t)=>a+t.t,0))};
+ $('#dcn').textContent=new Date().toLocaleDateString('en-PH',{dateStyle:'full'})+' - '+(PROF.name||PROF.email)+', '+DC.n+' receipt(s)';
+ $('#dcs').innerHTML=[['Cash to remit',M(DC.cash)],['Check',M(DC.check)],['GCash',M(DC.gcash)],['Total collected',M(DC.tot)]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('');dcv();
+ try{const s=await fdb.doc('closings/'+d+'_'+ME.uid).get();$('#dcb').disabled=s.exists;aMsg('#dcm',s.exists?'Your day is closed. New collections are blocked until tomorrow.':'',s.exists)}catch(x){aMsg('#dcm',lgErr(x))}
+ dcList()}
+$('#dcc').oninput=dcv;
+$('#dcb').onclick=async()=>{const v=parseFloat($('#dcc').value);if(!(v>=0)){aMsg('#dcm','Enter the cash counted in the drawer (0 if none).');return}
+ $('#dcb').disabled=true;const d=dkey(),nm=PROF.name||PROF.email;
+ try{await fdb.doc('closings/'+d+'_'+ME.uid).set({date:d,uid:ME.uid,name:nm,n:DC.n,cash:DC.cash,check:DC.check,gcash:DC.gcash,total:DC.tot,counted:v,variance:r(v-DC.cash),note:$('#dcr').value.trim(),at:TS()});
+  AUD('close',d,'cash '+M(DC.cash)+', counted '+M(v));aMsg('#dcm','Day closed.',1);dcList()}
+ catch(x){aMsg('#dcm',lgErr(x));$('#dcb').disabled=false}};
+async function dcList(){const t=$('#dcl'),d=$('#dcd').value||dkey();$('#dcd').value=d;
+ try{let q=fdb.collection('closings').where('date','==',d);if(!ROLE.some(k=>k=='admin'||k=='treasurer'))q=q.where('uid','==',ME.uid);
+  const L=(await q.get()).docs.map(x=>x.data()).sort((a,b)=>a.name.localeCompare(b.name));
+  t.innerHTML=L.length?L.map(c=>`<tr><td>${c.date}</td><td>${esc(c.name)}</td><td class="n">${c.n}</td><td class="n">${M(c.cash)}</td><td class="n">${M(c.check)}</td><td class="n">${M(c.gcash)}</td><td class="n">${M(c.total)}</td><td class="n">${M(c.counted)}</td><td class="n${c.variance?' pen':''}">${c.variance?(c.variance>0?'+':'')+M(c.variance):'0.00'}</td></tr>`).join(''):'<tr><td colspan="9">No closed shifts for this date.</td></tr>'}
+ catch(x){t.innerHTML='<tr><td colspan="9">Could not load: '+esc(lgErr(x))+'</td></tr>'}}
+$('#dcd').onchange=dcList;
+// Audit log screen (administrator and treasurer)
+async function adl(){const t=$('#adr');t.innerHTML='<tr><td colspan="5">Loading...</td></tr>';
+ try{const f=$('#adf').value,L=(await fdb.collection('audit').orderBy('at','desc').limit(200).get()).docs.map(x=>x.data()).filter(a=>!f||a.act==f);
+  t.innerHTML=L.length?L.map(a=>`<tr><td>${a.at&&a.at.toDate?a.at.toDate().toLocaleString('en-PH'):''}</td><td>${esc(a.name||'')}</td><td><span class="chip" style="--h:${hue(a.act||'')}">${esc(a.act||'')}</span></td><td>${esc(a.ref||'')}</td><td>${esc(a.detail||'')}</td></tr>`).join(''):'<tr><td colspan="5">Nothing logged yet.</td></tr>'}
+ catch(x){t.innerHTML='<tr><td colspan="5">Could not load: '+esc(lgErr(x))+'</td></tr>'}}
+$('#adf').onchange=adl;
 authInit();
 </script>
 </body>
