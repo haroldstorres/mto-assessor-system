@@ -63,6 +63,66 @@ dt{font-size:12px;color:var(--mute)}dd{margin:0;font-weight:600}
 .bc:hover .bar{opacity:1}
 .bc.hl .bar{opacity:1;box-shadow:0 0 16px hsl(var(--h,175) 80% 55%/.55),inset 0 16px 18px -12px rgba(255,255,255,.5)}
 .bc .pill{background:hsl(var(--h,175) 72% 40%);color:#fff}
+/* Dashboard cards: color accents, entrance animation, hover lift */
+.kp .stat{position:relative;overflow:hidden;border-left:4px solid var(--c)}
+.kp .stat::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--c),transparent 65%);opacity:.12;pointer-events:none}
+.kp .stat::after{content:"";position:absolute;top:12px;right:12px;width:10px;height:10px;border-radius:50%;background:var(--c)}
+.kp .stat:nth-child(1){--c:#3b82f6}.kp .stat:nth-child(2){--c:#14b8a6}.kp .stat:nth-child(3){--c:#f97316}.kp .stat:nth-child(4){--c:#8b5cf6}
+#dash .hero>.card:first-child{background:linear-gradient(135deg,hsl(175 60% 38%/.2),hsl(230 65% 55%/.14)),var(--card)}
+#pf{background:linear-gradient(90deg,#14b8a6,#3b82f6)!important;transition:width 1s cubic-bezier(.3,.7,.2,1)}
+#dash .card,#dash .stat{animation:up .5s ease backwards;transition:transform .2s,box-shadow .2s}
+#dash .kp .stat:nth-child(1){animation-delay:.05s}#dash .kp .stat:nth-child(2){animation-delay:.12s}#dash .kp .stat:nth-child(3){animation-delay:.19s}#dash .kp .stat:nth-child(4){animation-delay:.26s}
+#dash .g2>.card:nth-child(2){animation-delay:.1s}#dash>.card:last-of-type{animation-delay:.2s}
+#dash .card:hover,#dash .stat:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.14)}
+@keyframes up{from{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion:reduce){#dash .card,#dash .stat{animation:none}#pf{transition:none}}
+/* Other tabs: section accent colors, entrance animation, soft hover */
+#look{--sc:#14b8a6}#bill{--sc:#3b82f6}#del{--sc:#f97316}#rep{--sc:#8b5cf6}#set{--sc:#64748b}
+main section:not(#dash) .card{border-top:3px solid var(--sc);animation:up .45s ease backwards;transition:box-shadow .2s}
+main section:not(#dash) .card:hover{box-shadow:0 6px 18px rgba(0,0,0,.12)}
+main section:not(#dash)>.card:nth-child(2){animation-delay:.06s}main section:not(#dash)>.card:nth-child(3){animation-delay:.12s}main section:not(#dash)>.card:nth-child(4){animation-delay:.18s}
+.stats .stat{position:relative;overflow:hidden;background:var(--card);border-left:4px solid var(--c,var(--sc));animation:up .45s ease backwards;transition:transform .2s,box-shadow .2s}
+.stats .stat::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--c,var(--sc)),transparent 65%);opacity:.12;pointer-events:none}
+.stats .stat::after{content:"";position:absolute;top:12px;right:12px;width:10px;height:10px;border-radius:50%;background:var(--c,var(--sc))}
+.stats .stat:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.stats .stat:nth-child(1){--c:#3b82f6;animation-delay:.04s}.stats .stat:nth-child(2){--c:#14b8a6;animation-delay:.1s}.stats .stat:nth-child(3){--c:#8b5cf6;animation-delay:.16s}.stats .stat:nth-child(4){--c:#f97316;animation-delay:.22s}.stats .stat:nth-child(5){--c:#22c55e;animation-delay:.28s}
+tbody tr{transition:background .15s}
+tbody tr:hover td{background:color-mix(in srgb,var(--sc,var(--acc)) 9%,transparent)}
+.slip{animation:up .4s ease}
+/* Avatars, chips, heat bars, and colored payment panel */
+.av{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;margin-right:8px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 65% 55%),hsl(calc(var(--h) + 40) 65% 42%));vertical-align:middle;flex:none}
+.chip{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;margin-right:4px;background:hsl(var(--h) 80% 50%/.15);color:hsl(var(--h) 70% 30%);border:1px solid hsl(var(--h) 70% 50%/.35)}
+:root[data-theme="dark"] .chip{color:hsl(var(--h) 85% 78%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip{color:hsl(var(--h) 85% 78%)}}
+.hb{display:block;height:6px;border-radius:3px;background:var(--line);margin-top:4px;overflow:hidden;min-width:90px}
+.hb i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#f59e0b,#ef4444);animation:gw .8s cubic-bezier(.3,.7,.2,1) backwards;transform-origin:left}
+@keyframes gw{from{transform:scaleX(0)}}
+input[type=checkbox]{accent-color:var(--acc);width:18px;height:18px;cursor:pointer}
+#bill>.pay{background:linear-gradient(160deg,hsl(215 80% 55%/.16),transparent 45%),var(--card)}
+.pay .big{background:linear-gradient(90deg,#3b82f6,#14b8a6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pay .big .dec{color:var(--mute)}
+.pay .pri{background:linear-gradient(135deg,#3b82f6,#14b8a6);color:#fff}
+@media (prefers-reduced-motion:reduce){.hb i{animation:none}}
+/* Sidebar navigation */
+body{padding-left:232px}
+header,main,footer{max-width:1180px}
+nav{position:fixed;left:0;top:0;bottom:0;width:232px;max-width:none;margin:0;padding:calc(16px + env(safe-area-inset-top,0px)) 12px 16px;flex-direction:column;gap:2px;border-bottom:0;border-right:1px solid var(--line);background:var(--card);overflow-y:auto;z-index:20}
+nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;border-radius:8px;padding:10px 12px;white-space:normal;transition:background .15s}
+nav button:hover{background:hsl(var(--nh,200) 60% 50%/.09)}
+nav button[aria-selected=true]{background:hsl(var(--nh,200) 75% 50%/.15);color:var(--ink);box-shadow:inset 3px 0 0 hsl(var(--nh,200) 70% 50%)}
+nav button[aria-selected=true] .ic{color:hsl(var(--nh,200) 70% 46%)}
+nav [data-t=look]{--nh:175}nav [data-t=bill]{--nh:215}nav [data-t=del]{--nh:25}nav [data-t=rep]{--nh:265}nav [data-t=dash]{--nh:200}nav [data-t=set]{--nh:230}
+.ic{width:20px;height:20px;flex:none}
+.ng{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:14px 12px 4px}
+.nb{display:flex;align-items:center;gap:10px;padding:4px 6px 10px}
+.nb small{display:block;color:var(--mute);font-size:11px;font-weight:400;line-height:1.2}
+.lg{display:flex;width:34px;height:34px;border-radius:9px;align-items:center;justify-content:center;background:linear-gradient(135deg,#3b82f6,#14b8a6);color:#fff;flex:none}
+nav .nt{margin-top:auto;color:var(--mute)}
+body.nc{padding-left:68px}body.nc nav{width:68px}body.nc .nl,body.nc .ng{display:none}body.nc nav button{justify-content:center;padding:10px 0}body.nc .nb{justify-content:center;padding:4px 0 10px}body.nc #nc .ic{transform:rotate(180deg)}
+@media(max-width:760px){body,body.nc{padding-left:0;padding-bottom:70px}nav,body.nc nav{top:auto;left:0;right:0;width:100%;flex-direction:row;border-right:0;border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));gap:2px;justify-content:space-around;overflow-x:auto}nav button{flex-direction:column;gap:2px;font-size:10px;padding:6px 4px;flex:1;min-width:58px;justify-content:center;text-align:center;width:auto}body.nc .nl{display:inline}nav .ng,nav .nb,nav .nt{display:none}}
+@media print{nav{display:none!important}body,body.nc{padding-left:0!important}}
+@media (prefers-reduced-motion:reduce){main section .card,.stats .stat,.slip{animation:none}}
+@media print{main section .card{border-top:1px solid #999;animation:none;box-shadow:none}.stats .stat{animation:none}}
 .dec{color:var(--mute)}
 .big{font-size:34px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
 .hero,.g2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
@@ -89,12 +149,17 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <p class="sub">Prototype with sample data only. Rates and rules are demo assumptions.</p>
 </header>
 <nav role="tablist">
-<button role="tab" data-t="look" aria-selected="true">Property lookup</button>
-<button role="tab" data-t="bill" aria-selected="false">Billing and payment</button>
-<button role="tab" data-t="del" aria-selected="false">Delinquency list</button>
-<button role="tab" data-t="rep" aria-selected="false">Daily collection report</button>
-<button role="tab" data-t="dash" aria-selected="false">Mayor's dashboard</button>
-<button role="tab" data-t="set" aria-selected="false">Rates</button>
+<div class="nb"><span class="lg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M10 21V10M14 21V10M19 21V10M2 10l10-7 10 7"/></svg></span><span class="nl"><b>RPT Counter</b><small>Treasurer and Assessor</small></span></div>
+<div class="ng">Treasurer</div>
+<button role="tab" data-t="look" aria-selected="true" title="Property lookup"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span class="nl">Property lookup</span></button>
+<button role="tab" data-t="bill" aria-selected="false" title="Billing and payment"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span class="nl">Billing</span></button>
+<button role="tab" data-t="del" aria-selected="false" title="Delinquency list"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg><span class="nl">Delinquency</span></button>
+<button role="tab" data-t="rep" aria-selected="false" title="Daily collection report"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h9l5 5v15H6z"/><path d="M9 13h8M9 17h8"/></svg><span class="nl">Collection report</span></button>
+<div class="ng">Mayor</div>
+<button role="tab" data-t="dash" aria-selected="false" title="Mayor's dashboard"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="nl">Dashboard</span></button>
+<div class="ng">Admin</div>
+<button role="tab" data-t="set" aria-selected="false" title="Rates"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span class="nl">Rates</span></button>
+<button id="nc" class="nt" title="Collapse sidebar" aria-label="Collapse sidebar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="nl">Collapse</span></button>
 </nav>
 <main>
 <section id="look">
@@ -156,7 +221,7 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <div class="row" style="margin-top:10px;flex-wrap:nowrap;align-items:center"><div id="dn" style="flex:0 0 56%;min-width:0"></div><div id="lg" style="font-size:13px"></div></div></div></div>
 <div class="card"><b>Recent payments</b><div id="rp"></div></div>
 <div class="card wrap"><b>By barangay</b> <span class="muted">(from the properties in this demo)</span>
-<table><thead><tr><th>Barangay</th><th class="n">Accounts</th><th class="n">Collected</th><th class="n">Outstanding</th></tr></thead><tbody id="bb"></tbody></table></div>
+<table><thead><tr><th>Barangay</th><th class="n">Accounts</th><th class="n">Collected</th><th class="n">Outstanding</th><th style="min-width:140px">Collection rate</th></tr></thead><tbody id="bb"></tbody></table></div>
 </section>
 
 <section id="set" hidden>
@@ -212,18 +277,18 @@ function init(){S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30));save()}
  if(!S.r)S.r={...DEF}}
 function tab(t){document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
- document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep')rep();if(t=='del')dq();if(t=='set')rt();if(t=='dash')dash()}
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
- $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${p.owner}</td><td>${p.brgy}</td><td>${p.cls}</td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?p.u.join(', '):'Paid up'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
+ $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${av(p.owner)}${p.owner}</td><td>${p.brgy}</td><td><span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span></td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?[...p.u].sort().map(yc).join(''):'<span class="chip" style="--h:150">Paid up</span>'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
 function cur(){return S.p.find(x=>x.td==$('#sp').value)}
 function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;
- $('#pd').innerHTML=[['TD no.',p.td],['Owner',p.owner],['Barangay',p.brgy],['Class',p.cls],['Area',p.area.toLocaleString()+' sqm'],['Market value',M(p.mv)],['Assessment level',p.al*100+'%'],['Assessed value',M(p.mv*p.al)]].map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
+ $('#pd').innerHTML=[['TD no.',p.td],['Owner',av(p.owner)+p.owner],['Barangay',p.brgy],['Class',`<span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span>`],['Area',p.area.toLocaleString()+' sqm'],['Market value',M(p.mv)],['Assessment level',p.al*100+'%'],['Assessed value',M(p.mv*p.al)]].map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
  const ys=[...p.u].sort();
- $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${y}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
+ $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${yc(y)}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
  tot()}
 function tot(){const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
- const T=r(ys.reduce((a,y)=>a+bill(p,y).t,0));$('#tot').textContent=M(T);$('#big').innerHTML=bigM(T);$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
+ const T=r(ys.reduce((a,y)=>a+bill(p,y).t,0));$('#tot').textContent=M(T);const bg=$('#big');anim(bg,T,bigM,bg._v||0);bg._v=T;$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
 function slip(t){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3><p class="muted">Prototype only. Not a valid official receipt.</p>
 <dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div></dl>
 <table style="margin:10px 0"><tr><td>Basic tax</td><td class="n">${f(t.b)}</td></tr><tr><td>SEF</td><td class="n">${f(t.s)}</td></tr><tr><td>Discount</td><td class="n">${t.d?'-'+f(t.d):'0.00'}</td></tr><tr><td>Penalty</td><td class="n">${f(t.pen)}</td></tr><tfoot><tr><td>Total paid</td><td class="n">${f(t.t)}</td></tr></tfoot></table>
@@ -233,12 +298,12 @@ function rep(){const d=$('#rd').value,L=S.t.filter(t=>new Date(t.at).toLocaleDat
  const sum=(a,k)=>r(a.reduce((x,t)=>x+t[k],0)),by=k=>[...new Set(L.map(t=>t[k]))].map(v=>`${v}: ${M(sum(L.filter(t=>t[k]==v),'t'))}`).join(' | ')||'None';
  $('#rt').textContent=new Date(d+'T00:00').toLocaleDateString('en-PH',{dateStyle:'full'})+' - '+L.length+' transaction(s)';
  $('#rs').innerHTML=[['Total collections',M(sum(L,'t'))],['Basic tax',M(sum(L,'b'))],['SEF',M(sum(L,'s'))],['Penalties',M(sum(L,'pen'))],['Discounts',M(sum(L,'d'))]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('')+`<div class="stat" style="grid-column:1/-1">By mode - ${by('mode')}<br>By cashier - ${by('cash')}</div>`;
- $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${t.mode}</td><td>${t.cash}</td></tr>`).join(''):'<tr><td colspan="12">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
+ $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.cash}</td></tr>`).join(''):'<tr><td colspan="12">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
 function boot(){init();
  $('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${b}</option>`).join('');
  $('#sp').innerHTML=S.p.map(p=>`<option value="${p.td}">${p.td} - ${p.owner}</option>`).join('');
  $('#rd').value=now.toLocaleDateString('en-CA');$('#db').innerHTML=$('#bg').innerHTML;look();bl()}
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+document.querySelectorAll('nav [data-t]').forEach(b=>b.onclick=()=>tab(b.dataset.t));
 $('#q').oninput=look;$('#bg').onchange=look;$('#sp').onchange=bl;$('#rd').onchange=rep;
 $('#lr').onclick=e=>{const t=e.target.dataset.td;if(t){$('#sp').value=t;bl();tab('bill')}};
 $('#br').onchange=e=>{const c=[...document.querySelectorAll('#br input')],i=c.indexOf(e.target);
@@ -259,7 +324,7 @@ function dq(){const b=$('#db').value;let tot=0;
  const L=S.p.filter(p=>!b||p.brgy==b).map(p=>{const ys=p.u.filter(y=>y<cy).sort();return{p,ys,amt:r(ys.reduce((a,y)=>a+bill(p,y).t,0))}}).filter(x=>x.ys.length).sort((a,c)=>c.amt-a.amt);
  L.forEach(x=>tot+=x.amt);
  $('#ds').innerHTML=`<div class="stat">Delinquent accounts<b>${L.length}</b></div><div class="stat">Total due with penalty<b>${M(r(tot))}</b></div>`;
- $('#dr').innerHTML=L.length?L.map(x=>`<tr><td>${x.p.td}</td><td>${x.p.owner}</td><td>${x.p.brgy}</td><td>${x.ys.join(', ')}</td><td class="n">${M(x.amt)}</td><td><button data-td="${x.p.td}">Open bill</button> <button class="ghost" data-n="${x.p.td}">Print notice</button></td></tr>`).join(''):'<tr><td colspan="6">No delinquent accounts for this filter.</td></tr>'}
+ $('#dr').innerHTML=L.length?L.map(x=>`<tr><td>${x.p.td}</td><td>${av(x.p.owner)}${x.p.owner}</td><td>${x.p.brgy}</td><td>${x.ys.map(yc).join('')}</td><td class="n">${M(x.amt)}<span class="hb"><i style="width:${x.amt/(L[0].amt||1)*100}%"></i></span></td><td><button data-td="${x.p.td}">Open bill</button> <button class="ghost" data-n="${x.p.td}">Print notice</button></td></tr>`).join(''):'<tr><td colspan="6">No delinquent accounts for this filter.</td></tr>'}
 $('#db').onchange=dq;
 $('#psoa').onclick=()=>pdoc('s',cur());
 $('#dr').onclick=e=>{const t=e.target.dataset.td,n=e.target.dataset.n;if(t){$('#sp').value=t;bl();tab('bill')}if(n)pdoc('n',S.p.find(x=>x.td==n))};
@@ -286,12 +351,23 @@ function dash(){if(!S.g)S.g=2500000;$('#tg').value=S.g;const cm=now.getMonth();
  const live=S.t.filter(t=>{const d=new Date(t.at);return d.getFullYear()==cy&&d.getMonth()==cm}).reduce((a,t)=>a+t.t,0);
  const ytd=r(H.slice(0,cm).reduce((a,x)=>a+x,0)+live),pct=S.g?ytd/S.g*100:0,el=(cm+now.getDate()/new Date(cy,cm+1,0).getDate())/12*100;
  let del=0;S.p.forEach(p=>p.u.forEach(y=>{if(y<cy)del+=bill(p,y).t}));
- $('#hb').innerHTML=bigM(ytd);
- $('#dk').innerHTML=[['Target (sample)',M(S.g)],['Target reached',pct.toFixed(1)+'%'],['Delinquent amount',M(r(del))],['Accounts paid up',S.p.filter(p=>!p.u.length).length+' of '+S.p.length]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('');
- $('#pf').style.width=Math.min(100,pct)+'%';dash2();
+ anim($('#hb'),ytd,bigM);
+ $('#dk').innerHTML=[['Target (sample)',S.g,'m'],['Target reached',pct,'p'],['Delinquent amount',r(del),'m'],['Accounts paid up',S.p.filter(p=>!p.u.length).length+' of '+S.p.length]].map(x=>`<div class="stat">${x[0]}<b${x[2]?` data-n="${x[1]}" data-f="${x[2]}"`:''}>${x[2]?'':x[1]}</b></div>`).join('');
+ document.querySelectorAll('#dk b[data-n]').forEach(b=>anim(b,+b.dataset.n,b.dataset.f=='p'?v=>v.toFixed(1)+'%':M));
+ $('#pf').style.width='0';void $('#pf').offsetWidth;$('#pf').style.width=Math.min(100,pct)+'%';dash2();
  $('#pt').textContent=`Year elapsed: ${el.toFixed(1)}%. Expected by now: ${M(r(S.g*el/100))}. `+(ytd>=S.g*el/100?'Collections are on or ahead of pace.':'Collections are behind pace.');
  barChart(cm,live);
- $('#bb').innerHTML=[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>{const ps=S.p.filter(p=>p.brgy==b),c=r(S.t.filter(t=>t.brgy==b).reduce((a,t)=>a+t.t,0)),o=r(ps.reduce((a,p)=>a+p.u.reduce((s,y)=>s+bill(p,y).t,0),0));return`<tr><td>${b}</td><td class="n">${ps.length}</td><td class="n">${M(c)}</td><td class="n">${M(o)}</td></tr>`}).join('')}
+ $('#bb').innerHTML=[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>{const ps=S.p.filter(p=>p.brgy==b),c=r(S.t.filter(t=>t.brgy==b).reduce((a,t)=>a+t.t,0)),o=r(ps.reduce((a,p)=>a+p.u.reduce((s,y)=>s+bill(p,y).t,0),0));return`<tr><td>${b}</td><td class="n">${ps.length}</td><td class="n">${M(c)}</td><td class="n">${M(o)}</td><td><span class="hb" style="margin:0 0 3px"><i style="width:${c+o?c/(c+o)*100:0}%;background:linear-gradient(90deg,#14b8a6,#3b82f6)"></i></span><span class="muted">${c+o?(c/(c+o)*100).toFixed(0):0}%</span></td></tr>`}).join('')}
+// Display helpers: initials avatar, class/mode/year chips
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h},CC={Residential:210,Agricultural:140,Commercial:265,Industrial:25},MC={Cash:150,Check:35,GCash:210};
+const av=n=>{const w=n.split(' ');return`<span class="av" style="--h:${hue(n)}">${w[0][0]}${w[w.length-1][0]}</span>`};
+const yc=y=>`<span class="chip" style="--h:${y<cy?5:215}">${y}</span>`;
+const mc=m=>`<span class="chip" style="--h:${MC[m]||200}">${m}</span>`;
+// Count-up animation for numbers (skipped when reduced motion is on)
+function anim(el,to,f,from=0){if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.innerHTML=f(to);return}
+ const id=el._a=(el._a||0)+1,t0=performance.now();(function s(t){if(el._a!=id)return;const k=Math.min(1,(t-t0)/900);el.innerHTML=f(from+(to-from)*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(s)})(t0)}
+// Count up the numeric stat values inside a container
+function cu(sel){document.querySelectorAll(sel+' .stat b').forEach(b=>{const s=b.textContent.trim();if(/^[\d,]+(\.\d+)?$/.test(s)){const n=parseFloat(s.replace(/,/g,'')),dec=s.includes('.');anim(b,n,v=>dec?M(v):String(Math.round(v)))}})}
 // Big amount with muted decimals, donut chart, and recent payments
 function bigM(n){const a=M(n).split('.');return a[0]+'<span class="dec">.'+a[1]+'</span>'}
 // Monthly bar chart: tracks, rounded bars, y-axis, highlighted current month, grow-in animation
@@ -310,8 +386,11 @@ function dash2(){let cu=0,dl=0;S.p.forEach(p=>p.u.forEach(y=>{const t=bill(p,y).
  const col=r(S.t.reduce((a,t)=>a+t.t,0)),P=[{n:'Collected',v:col,c:'var(--acc)'},{n:'Due this year',v:r(cu),c:'var(--mute)'},{n:'Delinquent',v:r(dl),c:'var(--red)'}],T=P.reduce((a,x)=>a+x.v,0)||1;
  $('#dn').innerHTML=arcChart(P);
  $('#lg').innerHTML=P.map(x=>`<div style="margin-bottom:8px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${x.c};margin-right:6px"></i>${x.n}<br><b>${M(x.v)}</b> <span class="muted">(${(x.v/T*100).toFixed(1)}%)</span></div>`).join('');
- $('#rp').innerHTML=S.t.length?S.t.slice(-5).reverse().map(t=>`<div class="tx"><div><b>${esc(t.payor)}</b><div class="muted">${t.or} - ${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</div></div><b style="color:var(--acc)">+${M(t.t)}</b></div>`).join(''):'<p class="muted">No payments yet.</p>'}
+ $('#rp').innerHTML=S.t.length?S.t.slice(-5).reverse().map(t=>`<div class="tx"><div style="display:flex;align-items:center">${av(t.payor)}<div><b>${esc(t.payor)}</b> ${mc(t.mode)}<div class="muted">${t.or} - ${new Date(t.at).toLocaleString('en-PH',{dateStyle:'medium',timeStyle:'short'})}</div></div></div><b style="color:var(--acc)">+${M(t.t)}</b></div>`).join(''):'<p class="muted">No payments yet.</p>'}
 $('#tg').onchange=()=>{const v=parseFloat($('#tg').value);if(v>=0){S.g=v;save();dash()}};
+// Sidebar collapse, remembered in this browser
+try{if(localStorage.getItem('rpt-nav')=='1')document.body.classList.add('nc')}catch(e){}
+$('#nc').onclick=()=>{const c=document.body.classList.toggle('nc');try{localStorage.setItem('rpt-nav',c?'1':'0')}catch(e){}};
 $('#reset').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}boot()};
 boot();
 </script>
