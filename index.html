@@ -301,11 +301,12 @@ td .rk{min-width:15rem}
 button.ghost.pen{color:var(--red);border-color:var(--red)}
 @media print{#ue,#ud{display:none}}
 /* Reopen day and record deposit dialogs */
-#ro,#xd,#tyd{width:min(32rem,calc(100vw - 32px));max-width:100%;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4)}
-#ro::backdrop,#xd::backdrop,#tyd::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
+#ro,#xd,#tyd,#orw{width:min(32rem,calc(100vw - 32px));max-width:100%;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4)}
+#ro::backdrop,#xd::backdrop,#tyd::backdrop,#orw::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
 #xd dl{grid-template-columns:1fr 1fr}
 #dcl td .ghost{padding:6px 10px;margin:2px 0}
-@media print{#ro,#xd,#tyd{display:none}}
+@media print{#ro,#xd,#tyd,#orw{display:none}}
+#orw input{min-width:0;width:100%}#orx dl{margin:8px 0}
 #ty{--sc:#14b8a6}nav [data-t=ty]{--nh:175}
 #tyd dl{grid-template-columns:1fr 1fr}#tyd input{min-width:0;width:100%}
 /* Add or edit property dialog */
@@ -477,11 +478,11 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 </section>
 <section id="aud" hidden>
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Audit log</h2><p class="muted">The latest 200 actions.</p>
-<div class="row"><label>Action<select id="adf"><option value="">All</option><option>collect</option><option>void</option><option>reprint</option><option>close</option><option>reopen</option><option>deposit</option><option>taxyear</option><option>property</option><option>import</option><option>rates</option><option>export</option></select></label></div>
+<div class="row"><label>Action<select id="adf"><option value="">All</option><option>collect</option><option>void</option><option>reprint</option><option>close</option><option>reopen</option><option>deposit</option><option>taxyear</option><option>orstart</option><option>property</option><option>import</option><option>rates</option><option>export</option></select></label></div>
 <div class="wrap"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Reference</th><th>Detail</th></tr></thead><tbody id="adr"></tbody></table></div></div>
 </section>
 <section id="prop" hidden>
-<div class="card"><div class="row" style="justify-content:space-between;align-items:end"><label>Search<input id="f_q" placeholder="TD, owner or barangay"></label><div class="row"><button class="ghost" id="f_imb" type="button">Import from Excel</button><button class="pri" id="f_add" type="button">+ Add property</button></div></div>
+<div class="card"><div class="row" style="justify-content:space-between;align-items:end"><label>Search<input id="f_q" placeholder="TD, owner or barangay"></label><div class="row"><button class="ghost" id="f_exp" type="button">Export properties (CSV)</button><button class="ghost" id="f_imb" type="button">Import from Excel</button><button class="pri" id="f_add" type="button">+ Add property</button></div></div>
 <p id="f_m" class="muted" role="status"></p>
 <div class="wrap"><table><thead><tr><th>TD no.</th><th>Owner</th><th>Barangay</th><th>Class</th><th class="n">Market value</th><th class="n">AL</th><th></th></tr></thead><tbody id="f_rows"></tbody></table></div></div>
 </section>
@@ -498,6 +499,7 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 </div>
 <div class="row" style="margin-top:14px"><button class="pri" id="rsave">Save rates</button><button class="ghost" id="rreset">Restore defaults</button></div>
 <p id="rm" class="muted" role="status"></p></div>
+<div class="card" id="orc"><h2 style="margin:0 0 4px;font-size:1.125rem">Official receipt numbers</h2><div id="orx"></div><p id="orm" class="muted" role="status"></p></div>
 </section>
 <section id="usr" hidden>
 <div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Users and roles</h2>
@@ -523,6 +525,11 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <div class="nmr"><label>Last name<input id="uenl" autocomplete="off"></label><label>First name<input id="uenf" autocomplete="off"></label><label>Middle name (optional)<input id="uenm" autocomplete="off"></label></div>
 <p id="uem" class="pen muted" role="alert"></p>
 <div class="cfb"><button type="button" class="pri" id="ues">Save name</button><button type="button" class="ghost" id="uec">Cancel</button></div></div></dialog>
+<dialog id="orw" aria-labelledby="orwt"><div class="cmi"><div><div class="muted" id="orwt">Set starting OR number</div><div class="big" id="orv"></div></div>
+<p style="margin:0">The first receipt issued this year will carry this number, and the next ones follow in order. After the first receipt, this cannot be changed from the app. Check the number against the receipt booklet.</p>
+<label>Type the number again to confirm<input id="orcf" type="number" min="1" step="1" inputmode="numeric" autocomplete="off"></label>
+<p id="orwm" class="pen muted" role="alert"></p>
+<div class="cfb"><button type="button" class="pri" id="orwy">Set starting number</button><button type="button" class="ghost" id="orwn">Cancel</button></div></div></dialog>
 <dialog id="tyd" aria-labelledby="tyt"><div class="cmi"><div><div class="muted" id="tyt">Generate tax year</div><div class="big" id="tyb"></div></div>
 <dl><div><dt>Properties in the system</dt><dd id="tyi"></dd></div><div><dt>Will get the new bill</dt><dd id="tya"></dd></div></dl>
 <p class="muted" style="margin:0" id="tyk"></p>
@@ -617,7 +624,7 @@ async function pay(p,yrs,payor,mode,cash,when,x){
   tx.set(fdb.collection('audit').doc(),{at:TS(),uid:ME.uid,name:cash,act:'collect',ref:t.or,detail:p.td+' '+yrs.join(',')+' '+M(t.t)})});
  p.u=p.u.filter(y=>!yrs.includes(y));if(!S.t.some(z=>z.or==t.or))S.t.push(t);return t}
 function tab(t){if(ALLOW&&!ALLOW.includes(t))return;document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
- document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='usr')ul();if(t=='prop')pf();if(t=='close')dcl();if(t=='aud')adl();if(t=='ty')tyl();if(t=='dash')dash()}
+ document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set'){rt();orl()}if(t=='usr')ul();if(t=='prop')pf();if(t=='close')dcl();if(t=='aud')adl();if(t=='ty')tyl();if(t=='dash')dash()}
 function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${av(p.owner)}${p.owner}</td><td>${p.brgy}</td><td><span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span></td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?[...p.u].sort().map(yc).join(''):'<span class="chip" style="--h:150">Paid up</span>'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
@@ -1175,6 +1182,32 @@ $('#tyy').onclick=async()=>{const L=tyTodo().L;if(!L.length||$('#tyc').value.tri
    await w.commit();d+=part.length;$('#typ').textContent=d+' of '+L.length+' done. Keep this page open until it finishes.'}
   AUD('taxyear',String(cy),L.length+' properties');dlgClose('#tyd');aMsg('#tym','Tax year '+cy+' added to '+L.length+' properties.',1);tyl()}
  catch(x){aMsg('#tye',lgErr(x)+' Some properties may already be updated. Open this tab again and run it again; properties already done are skipped.');$('#tyc').disabled=false;$('#tyy').disabled=false}};
+// Starting OR number (administrator): sets where this year's receipt numbers begin, only before the first receipt
+const orF=n=>'OR-'+cy+'-'+String(n).padStart(5,'0');
+async function orl(){const b=$('#orx');b.innerHTML='<p class="muted">Loading...</p>';aMsg('#orm','');
+ try{const s=await fdb.doc('counters/or-'+cy).get();
+  if(s.exists){const n=s.data().n;b.innerHTML=`<p class="muted">Receipts have already been issued for ${cy}, so the numbering is locked.</p><dl><div><dt>Last receipt issued</dt><dd>${n>0?orF(n):'None yet'}</dd></div><div><dt>Next receipt</dt><dd>${orF(n+1)}</dd></div></dl>`}
+  else b.innerHTML=`<p class="muted">Set the number the first receipt of ${cy} will use. This can be done only once, before any receipt is issued. Without it, numbering starts at 00001.</p><div class="row"><label>First OR number for ${cy}<input id="orn" type="number" min="1" max="999999" step="1" inputmode="numeric"></label><span class="muted" id="orp"></span><button class="pri" id="orset">Set starting number</button></div>`}
+ catch(x){b.innerHTML='';aMsg('#orm',lgErr(x))}}
+$('#orx').oninput=e=>{if(e.target.id=='orn'){const v=parseInt(e.target.value);$('#orp').textContent=v>=1?'First receipt will be '+orF(v):''}};
+$('#orx').onclick=e=>{if(!e.target.closest('#orset'))return;const v=Number($('#orn').value);
+ if(!Number.isInteger(v)||v<1||v>999999){aMsg('#orm','Enter a whole number from 1 to 999999.');return}
+ aMsg('#orm','');$('#orv').textContent=orF(v);$('#orv').dataset.v=v;$('#orcf').value='';aMsg('#orwm','');$('#orwy').disabled=false;dlgOpen('#orw');$('#orcf').focus()};
+$('#orwn').onclick=()=>dlgClose('#orw');
+$('#orwy').onclick=async()=>{const v=+$('#orv').dataset.v;
+ if(Number($('#orcf').value)!==v){aMsg('#orwm','The two numbers do not match.');return}
+ $('#orwy').disabled=true;const cr=fdb.doc('counters/or-'+cy);
+ try{await fdb.runTransaction(async tx=>{if((await tx.get(cr)).exists)throw{code:'orlocked'};tx.set(cr,{n:v-1})});
+  AUD('orstart',orF(v),'starting number set');dlgClose('#orw');orl();aMsg('#orm','The first receipt of '+cy+' will be '+orF(v)+'.',1)}
+ catch(x){aMsg('#orwm',x&&x.code=='orlocked'?'A receipt was already issued for '+cy+'. The numbering is locked.':lgErr(x));$('#orwy').disabled=false}};
+// Export all properties as CSV, in the same columns as Import (assessment level is written as a decimal, for example 0.2 for 20%)
+$('#f_exp').onclick=()=>{if(!S.p.length){aMsg('#f_m','There are no properties to export.');return}
+ const q=v=>{if(v==null)v='';if(typeof v=='string'&&/^[=+\-@\t\r]/.test(v))v="'"+v;return '"'+String(v).replace(/"/g,'""')+'"'},
+ H=['td','owner','barangay','class','area','market_value','assessment_level','unpaid_years'],
+ W=S.p.map(p=>[p.td,p.owner,p.brgy,p.cls,p.area,p.mv,p.al,p.u.join(';')]),
+ c='\uFEFF'+[H,...W].map(w=>w.map(q).join(',')).join('\r\n'),a=document.createElement('a'),d=new Date().toLocaleDateString('en-CA');
+ a.href=URL.createObjectURL(new Blob([c],{type:'text/csv;charset=utf-8'}));a.download='properties-'+d+'.csv';document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);AUD('export','properties',S.p.length+' rows');aMsg('#f_m',S.p.length+' properties exported.',1)};
 // Audit log screen (administrator and treasurer)
 async function adl(){const t=$('#adr');t.innerHTML='<tr><td colspan="5">Loading...</td></tr>';
  try{const f=$('#adf').value,L=(await fdb.collection('audit').orderBy('at','desc').limit(200).get()).docs.map(x=>x.data()).filter(a=>!f||a.act==f);
