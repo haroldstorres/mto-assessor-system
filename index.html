@@ -147,6 +147,14 @@ body.nc{padding-left:68px}body.nc nav{width:68px}body.nc .nl,body.nc .ng{display
 #doc{display:none;padding:24px;background:var(--card);color:var(--ink)}
 footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 @media print{body *{visibility:hidden}body[data-p=rc] #rc,body[data-p=rc] #rc *,body[data-p=rep] #repbox,body[data-p=rep] #repbox *{visibility:visible}body[data-p=rc] #rc,body[data-p=rep] #repbox{position:absolute;left:0;top:0;width:100%}.noprint{display:none!important}body[data-p=doc] #doc,body[data-p=doc] #doc *{visibility:visible}body[data-p=doc] #doc{position:absolute;left:0;top:0;width:100%;display:block}:root:root:root{--bg:#fff;--card:#fff;--ink:#000;--mute:#444;--line:#999;--red:#a32014;--acc:#0b5f66;--on:#fff}}
+/* Dark mode: a black shadow is invisible on a dark page, so hover uses a colored glow and a brighter highlight */
+:root[data-theme="dark"] .card:hover,:root[data-theme="dark"] .stat:hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--c,var(--sc,#3b82f6)) 55%,transparent),0 8px 28px color-mix(in srgb,var(--c,var(--sc,#3b82f6)) 35%,transparent)!important}
+:root[data-theme="dark"] tbody tr:hover td{background:color-mix(in srgb,var(--sc,var(--acc)) 20%,transparent)}
+:root[data-theme="dark"] nav button:not([aria-selected=true]):hover{background:hsl(var(--nh,200) 60% 60%/.16)}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]) .card:hover,:root:not([data-theme="light"]) .stat:hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--c,var(--sc,#3b82f6)) 55%,transparent),0 8px 28px color-mix(in srgb,var(--c,var(--sc,#3b82f6)) 35%,transparent)!important}
+:root:not([data-theme="light"]) tbody tr:hover td{background:color-mix(in srgb,var(--sc,var(--acc)) 20%,transparent)}
+:root:not([data-theme="light"]) nav button:not([aria-selected=true]):hover{background:hsl(var(--nh,200) 60% 60%/.16)}}
 </style>
 </head>
 <body>
