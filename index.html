@@ -53,14 +53,14 @@ dt{font-size:0.8125rem;color:var(--mute)}dd{margin:0;font-weight:600}
 .bc{position:relative;flex:1;min-width:0}
 .trk{position:absolute;inset:0;border-radius:8px;background:var(--line);opacity:.4}
 .bar{position:absolute;left:0;right:0;bottom:0;border-radius:8px 8px 4px 4px;background:var(--mute);opacity:.35;transform-origin:bottom;animation:gr .5s cubic-bezier(.3,.7,.2,1) backwards;animation-delay:calc(var(--i)*45ms);transition:opacity .2s}
-.bc:hover .bar{opacity:.7}
+.bar:hover{opacity:.7}
 .bc.hl .bar{opacity:1;background:var(--acc);box-shadow:inset 0 16px 18px -12px rgba(255,255,255,.5)}
 .bc .pill{position:absolute;left:50%;transform:translateX(-50%);margin:0;display:none;z-index:2}
 .bc.hl .pill{display:block}
 @keyframes gr{from{transform:scaleY(0)}}
 @media (prefers-reduced-motion:reduce){.bar{animation:none}}
 .bar{background:linear-gradient(180deg,hsl(var(--h,175) 72% 62%),hsl(var(--h,175) 72% 42%));opacity:.78}
-.bc:hover .bar{opacity:1}
+.bar:hover{opacity:1}
 .bc.hl .bar{opacity:1;box-shadow:0 0 16px hsl(var(--h,175) 80% 55%/.55),inset 0 16px 18px -12px rgba(255,255,255,.5)}
 .bc .pill{background:hsl(var(--h,175) 72% 28%);color:#fff}
 /* Dashboard cards: color accents, entrance animation, hover lift */
@@ -582,7 +582,7 @@ function bigM(n){const a=M(n).split('.');return a[0]+'<span class="dec">.'+a[1]+
 function barChart(cm,live){const vals=MN.map((m,i)=>i<cm?H[i]:i==cm?live:0),mx=Math.max(...vals,1),raw=mx/4,mag=Math.pow(10,Math.floor(Math.log10(raw))),step=[1,2,2.5,5,10].find(k=>k*mag>=raw)*mag,top=step*Math.ceil(mx/step),n=Math.round(top/step);
  const fm=v=>v>=1000?(v/1000)+'k':String(v);
  let g='';for(let k=0;k<=n;k++){const b=k/n*100;g+=`<div style="position:absolute;left:0;right:0;bottom:${b}%;border-top:1px dashed var(--line)"></div><span class="muted" style="position:absolute;left:-38px;width:32px;text-align:right;font-size:0.75rem;bottom:${b}%;transform:translateY(50%)">${fm(step*k)}</span>`}
- const cols=vals.map((v,i)=>`<div class="bc${i==cm?' hl':''}" style="--h:${175+i*8}" data-tip="${MN[i]}: ${M(v)}" data-tf><div class="trk"></div><div class="bar" style="height:${v/top*100}%;--i:${i}"></div><span class="pill" style="bottom:calc(${v/top*100}% + 6px)">${M(v)}</span></div>`).join('');
+ const cols=vals.map((v,i)=>`<div class="bc${i==cm?' hl':''}" style="--h:${175+i*8}"><div class="trk"></div><div class="bar" style="height:${v/top*100}%;--i:${i}" data-tip="${MN[i]}: ${M(v)}" data-tf></div><span class="pill" style="bottom:calc(${v/top*100}% + 6px)">${M(v)}</span></div>`).join('');
  $('#tr').innerHTML=`<div style="position:absolute;left:38px;right:0;top:8px;bottom:22px">${g}<div style="position:absolute;inset:0;display:flex;gap:8px">${cols}</div></div><div style="position:absolute;left:38px;right:0;bottom:0;display:flex;gap:8px">${MN.map(m=>`<span class="muted" style="flex:1;text-align:center;font-size:0.75rem">${m}</span>`).join('')}</div>`}
 // Semicircle arc chart: rounded, gapped segments with gradient fills and an animated reveal
 function arcChart(P){const T=P.reduce((a,x)=>a+x.v,0)||1,R=85,ri=65,d=4.2,pt=(q,a)=>{const t=Math.PI*(1-a/180);return[(100+q*Math.cos(t)).toFixed(2),(100-q*Math.sin(t)).toFixed(2)]};let a=0,defs='',paths='';
