@@ -155,6 +155,37 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 :root:not([data-theme="light"]) .card:hover,:root:not([data-theme="light"]) .stat:hover{box-shadow:0 0 0 1px color-mix(in srgb,var(--c,var(--sc,#3b82f6)) 55%,transparent),0 8px 28px color-mix(in srgb,var(--c,var(--sc,#3b82f6)) 35%,transparent)!important}
 :root:not([data-theme="light"]) tbody tr:hover td{background:color-mix(in srgb,var(--sc,var(--acc)) 20%,transparent)}
 :root:not([data-theme="light"]) nav button:not([aria-selected=true]):hover{background:hsl(var(--nh,200) 60% 60%/.16)}}
+/* Form controls: taller targets, own chevron, clear focus ring */
+input:not([type=checkbox]),select{min-height:44px;border-radius:8px;transition:border-color .15s,box-shadow .15s}
+input:not([type=checkbox]):hover,select:hover{border-color:var(--mute)}
+input:not([type=checkbox]):focus-visible,select:focus-visible{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 30%,transparent)}
+select{-webkit-appearance:none;appearance:none;padding-right:38px;cursor:pointer;background-color:var(--card);background-repeat:no-repeat;background-position:right 13px center;background-size:14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475467' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+:root[data-theme="dark"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b4bfcf' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b4bfcf' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")}}
+select option{background:var(--card);color:var(--ink)}
+/* Field wrapper used by the segmented control and the searchable picker */
+.fld{display:flex;flex-direction:column;font-size:0.875rem;color:var(--mute);gap:4px}
+/* Segmented control (payment mode) */
+.sgm{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.sgm button{flex:1;min-height:44px;padding:8px 10px;border:0;border-right:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;transition:background .15s,color .15s}
+.sgm button:last-child{border-right:0}
+.sgm button:hover{background:color-mix(in srgb,var(--acc) 12%,var(--card))}
+.sgm button[aria-checked=true]{background:var(--acc);color:var(--on)}
+.sgm button:focus-visible{outline:2px solid var(--acc);outline-offset:-3px}
+.sgm button[aria-checked=true]:focus-visible{outline-color:var(--on)}
+/* Searchable picker (tax declaration) */
+.cb{position:relative;width:min(28rem,100%)}
+.cb input{width:100%;padding-right:38px;background-repeat:no-repeat;background-position:right 13px center;background-size:16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475467' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E")}
+:root[data-theme="dark"] .cb input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b4bfcf' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E")}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cb input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b4bfcf' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E")}}
+.cb ul{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;margin:0;padding:4px;list-style:none;max-height:16rem;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.22)}
+.cb ul[hidden]{display:none}
+.cb li{display:flex;align-items:baseline;gap:8px;padding:9px 10px;border-radius:6px;cursor:pointer;color:var(--ink);font-size:0.9375rem}
+.cb li b{flex:none}
+.cb li .muted{margin-left:auto;padding-left:8px;white-space:nowrap;flex:none}
+.cb li.on{background:color-mix(in srgb,var(--acc) 24%,transparent)}
+.cb li.none{cursor:default;color:var(--mute)}
+@media print{.cb ul{display:none}}
 </style>
 </head>
 <body>
@@ -187,7 +218,8 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 </section>
 
 <section id="bill" hidden>
-<div class="card row"><label>Tax declaration<select id="sp"></select></label></div>
+<div class="card row"><div class="fld"><label for="spq">Tax declaration</label>
+<div class="cb"><input id="spq" type="text" role="combobox" aria-expanded="false" aria-controls="spl" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Type TD number or owner name"><input type="hidden" id="sp"><ul id="spl" role="listbox" aria-label="Tax declarations" hidden></ul></div></div></div>
 <div class="card"><dl id="pd"></dl></div>
 <div class="card">
 <div class="wrap"><table>
@@ -197,7 +229,9 @@ footer{max-width:1000px;margin:0 auto 32px;padding:0 16px}
 <div class="card pay"><div class="muted">Amount to collect</div><div class="big" id="big">0.00</div>
 <div class="row" style="margin-top:14px">
 <label>Payor name<input id="pn"></label>
-<label>Payment mode<select id="pm"><option>Cash</option><option>Check</option><option>GCash</option></select></label>
+<div class="fld"><span id="pml">Payment mode</span>
+<div class="sgm" id="pmg" role="radiogroup" aria-labelledby="pml"><button type="button" role="radio" aria-checked="true" tabindex="0" data-v="Cash">Cash</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-v="Check">Check</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-v="GCash">GCash</button></div>
+<input type="hidden" id="pm" value="Cash"></div>
 <label>Cashier<select id="pc"><option>Cashier A</option><option>Cashier B</option></select></label>
 <button class="pri" id="go" disabled>Collect payment</button>
 <button class="ghost" id="psoa">Print statement of account</button>
@@ -316,11 +350,36 @@ function rep(){const d=$('#rd').value,L=S.t.filter(t=>new Date(t.at).toLocaleDat
  $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.cash}</td></tr>`).join(''):'<tr><td colspan="12">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
 function boot(){init();
  $('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${b}</option>`).join('');
- $('#sp').innerHTML=S.p.map(p=>`<option value="${p.td}">${p.td} - ${p.owner}</option>`).join('');
+ $('#sp').value=S.p[0].td;$('#spq').value=S.p[0].td+' - '+S.p[0].owner;
  $('#rd').value=now.toLocaleDateString('en-CA');$('#db').innerHTML=$('#bg').innerHTML;look();bl()}
 document.querySelectorAll('nav [data-t]').forEach(b=>b.onclick=()=>tab(b.dataset.t));
-$('#q').oninput=look;$('#bg').onchange=look;$('#sp').onchange=bl;$('#rd').onchange=rep;
-$('#lr').onclick=e=>{const t=e.target.dataset.td;if(t){$('#sp').value=t;bl();tab('bill')}};
+$('#q').oninput=look;$('#bg').onchange=look;$('#rd').onchange=rep;
+// Searchable tax declaration picker: type to filter, arrows and Enter to choose, Esc to close
+let spA=-1,spL=[];
+function spLabel(){const p=cur();$('#spq').value=p?p.td+' - '+p.owner:''}
+function spClose(){$('#spl').hidden=true;$('#spq').setAttribute('aria-expanded','false');$('#spq').removeAttribute('aria-activedescendant')}
+function spHi(ns){document.querySelectorAll('#spl li[role=option]').forEach((li,i)=>{const on=i==spA;li.classList.toggle('on',on);li.setAttribute('aria-selected',on);if(on){$('#spq').setAttribute('aria-activedescendant',li.id);if(!ns)li.scrollIntoView({block:'nearest'})}})}
+function spList(f){const q=f.trim().toLowerCase();spL=S.p.filter(p=>(p.td+' '+p.owner+' '+p.brgy).toLowerCase().includes(q));spA=spL.length?Math.max(0,spL.findIndex(p=>p.td==$('#sp').value&&!q)):-1;
+ $('#spl').innerHTML=spL.length?spL.map((p,i)=>`<li role="option" id="spo${i}" data-td="${p.td}"><b>${p.td}</b>${esc(p.owner)}<span class="muted">${p.brgy}</span></li>`).join(''):'<li class="none">No match. Try a TD number or owner name.</li>';
+ $('#spl').hidden=false;$('#spq').setAttribute('aria-expanded','true');spHi()}
+function spSet(td){$('#sp').value=td;spLabel();spClose();bl()}
+$('#spq').onfocus=()=>{$('#spq').select();spList('')};
+$('#spq').onclick=()=>{if($('#spl').hidden)spList('')};
+$('#spq').oninput=()=>spList($('#spq').value);
+$('#spq').onblur=()=>{spClose();spLabel()};
+$('#spq').onkeydown=e=>{const open=!$('#spl').hidden;
+ if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();if(!open){spList('');return}if(spL.length){spA=(spA+(e.key=='ArrowDown'?1:-1)+spL.length)%spL.length;spHi()}}
+ else if(e.key=='Enter'){if(open){e.preventDefault();if(spL[spA])spSet(spL[spA].td)}}
+ else if(e.key=='Escape'){if(open){e.preventDefault();spClose();spLabel()}}};
+$('#spl').onmousedown=e=>e.preventDefault();
+$('#spl').onmousemove=e=>{const li=e.target.closest('li[role=option]');if(!li)return;const i=+li.id.slice(3);if(i!=spA){spA=i;spHi(1)}};
+$('#spl').onclick=e=>{const li=e.target.closest('li[data-td]');if(li){spSet(li.dataset.td);$('#spq').blur()}};
+// Payment mode: segmented buttons (value kept in the hidden #pm field)
+function pmSet(v,focus){document.querySelectorAll('#pmg button').forEach(b=>{const on=b.dataset.v==v;b.setAttribute('aria-checked',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});$('#pm').value=v}
+$('#pmg').onclick=e=>{const b=e.target.closest('button');if(b)pmSet(b.dataset.v)};
+$('#pmg').onkeydown=e=>{const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(!k)return;e.preventDefault();
+ const bs=[...document.querySelectorAll('#pmg button')],i=bs.findIndex(b=>b.dataset.v==$('#pm').value);pmSet(bs[(i+k+bs.length)%bs.length].dataset.v,1)};
+$('#lr').onclick=e=>{const t=e.target.dataset.td;if(t){$('#sp').value=t;spLabel();bl();tab('bill')}};
 $('#br').onchange=e=>{const c=[...document.querySelectorAll('#br input')],i=c.indexOf(e.target);
  c.forEach((x,j)=>{if(e.target.checked&&j<i)x.checked=true;if(!e.target.checked&&j>i)x.checked=false});tot()};
 $('#go').onclick=()=>{const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
@@ -342,7 +401,7 @@ function dq(){const b=$('#db').value;let tot=0;
  $('#dr').innerHTML=L.length?L.map(x=>`<tr><td>${x.p.td}</td><td>${av(x.p.owner)}${x.p.owner}</td><td>${x.p.brgy}</td><td>${x.ys.map(yc).join('')}</td><td class="n">${M(x.amt)}<span class="hb"><i style="width:${x.amt/(L[0].amt||1)*100}%"></i></span></td><td><button data-td="${x.p.td}">Open bill</button> <button class="ghost" data-n="${x.p.td}">Print notice</button></td></tr>`).join(''):'<tr><td colspan="6">No delinquent accounts for this filter.</td></tr>'}
 $('#db').onchange=dq;
 $('#psoa').onclick=()=>pdoc('s',cur());
-$('#dr').onclick=e=>{const t=e.target.dataset.td,n=e.target.dataset.n;if(t){$('#sp').value=t;bl();tab('bill')}if(n)pdoc('n',S.p.find(x=>x.td==n))};
+$('#dr').onclick=e=>{const t=e.target.dataset.td,n=e.target.dataset.n;if(t){$('#sp').value=t;spLabel();bl();tab('bill')}if(n)pdoc('n',S.p.find(x=>x.td==n))};
 // Printable documents: statement of account ('s') and notice of delinquency ('n')
 function pdoc(k,p){const ys=[...p.u].sort().filter(y=>k=='n'?y<cy:1);let T=0;
  const rows=ys.map(y=>{const b=bill(p,y);T+=b.t;return`<tr><td>${y}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${M(b.d)}</td><td class="n">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join('');
