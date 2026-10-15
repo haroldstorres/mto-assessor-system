@@ -139,7 +139,7 @@ body.nc{padding-left:68px}body.nc nav{width:68px}body.nc .nl,body.nc .ng{display
 #bill:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) 21.25rem;gap:0 16px;align-items:start}
 #bill>.card:nth-child(-n+3){grid-column:1}
 #bill>.pay{grid-column:2;grid-row:1 / span 3;position:sticky;top:12px}
-#bill>#rc{grid-column:2}
+#bill>#rc{grid-column:1}
 .pay .row{flex-direction:column;align-items:stretch}
 .pay input,.pay select{min-width:0;width:100%}
 .pay .pri{padding:12px;font-size:1.0625rem}
@@ -213,6 +213,28 @@ select option{background:var(--card);color:var(--ink)}
 .dpf .ghost{padding:6px 12px}
 .dpk{display:inline-block;width:6px;height:6px;margin-right:6px;border-radius:50%;background:var(--acc)}
 @media print{.dpop{display:none}}
+/* Payment extras: reference number, cash received, confirmation step */
+.fld[hidden],.cfm[hidden]{display:none}
+#pcr{-moz-appearance:textfield}
+#pcr::-webkit-outer-spin-button,#pcr::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pay #pe{margin:0}
+.cfm{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--acc);border-radius:8px;background:color-mix(in srgb,var(--acc) 10%,var(--card))}
+.cfm p{margin:0}
+.cfb{display:flex;gap:8px}
+.cfb button{flex:1;min-height:44px}
+/* Payment confirmation modal (centered card, bottom sheet on phones) */
+#cm{width:min(26rem,calc(100vw - 32px));max-width:100%;max-height:calc(100vh - 32px);padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:auto}
+#cm::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
+#cm[open]{animation:cmin .18s ease-out}
+@keyframes cmin{from{opacity:0;transform:translateY(8px) scale(.98)}}
+@keyframes cms{from{transform:translateY(100%)}}
+.cmi{display:flex;flex-direction:column;gap:14px;padding:20px}
+.cmi table{margin:0}
+#cmd{grid-template-columns:1fr 1fr}
+.cfb .pri{flex:2}
+@media(max-width:560px){#cm{width:100%;margin:auto 0 0;border-radius:16px 16px 0 0;border-bottom:0}#cm[open]{animation-name:cms}.cmi{padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:reduce){#cm[open]{animation:none}}
+@media print{#cm{display:none}}
 </style>
 </head>
 <body>
@@ -259,7 +281,10 @@ select option{background:var(--card);color:var(--ink)}
 <div class="fld"><span id="pml">Payment mode</span>
 <div class="sgm" id="pmg" role="radiogroup" aria-labelledby="pml"><button type="button" role="radio" aria-checked="true" tabindex="0" data-v="Cash">Cash</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-v="Check">Check</button><button type="button" role="radio" aria-checked="false" tabindex="-1" data-v="GCash">GCash</button></div>
 <input type="hidden" id="pm" value="Cash"></div>
+<div class="fld" id="pxf" hidden><label for="px" id="pxl">Reference no.</label><input id="px" autocomplete="off"></div>
+<div class="fld" id="pcf"><label for="pcr">Cash received (optional)</label><input id="pcr" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Amount handed over"><span class="muted" id="pch" role="status"></span></div>
 <label>Cashier<select id="pc"><option>Cashier A</option><option>Cashier B</option></select></label>
+<p id="pe" class="pen muted" role="alert" hidden></p>
 <button class="pri" id="go" disabled>Collect payment</button>
 <button class="ghost" id="psoa">Print statement of account</button>
 </div></div>
@@ -273,7 +298,7 @@ select option{background:var(--card);color:var(--ink)}
 <div id="repbox" class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Report of collections</h2><p class="muted" id="rt"></p>
 <div class="stats" id="rs"></div>
 <div class="wrap"><table>
-<thead><tr><th>OR no.</th><th>Time</th><th>Payor</th><th>TD no.</th><th>Tax years</th><th class="n">Basic</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th><th>Mode</th><th>Cashier</th></tr></thead>
+<thead><tr><th>OR no.</th><th>Time</th><th>Payor</th><th>TD no.</th><th>Tax years</th><th class="n">Basic</th><th class="n">SEF</th><th class="n">Discount</th><th class="n">Penalty</th><th class="n">Total</th><th>Mode</th><th>Ref. no.</th><th>Cashier</th></tr></thead>
 <tbody id="rr"></tbody></table></div></div>
 </section>
 <section id="del" hidden>
@@ -315,6 +340,7 @@ select option{background:var(--card);color:var(--ink)}
 <p id="rm" class="muted" role="status"></p></div>
 </section>
 </main>
+<dialog id="cm" aria-labelledby="cmt"><div class="cmi"><div><div class="muted" id="cmt">Confirm payment</div><div class="big" id="cmb"></div></div><dl id="cmd"></dl><table id="cmx"></table><div class="cfb"><button type="button" class="pri" id="cfy">Confirm and issue receipt</button><button type="button" class="ghost" id="cfn">Go back</button></div></div></dialog>
 <div id="doc"></div>
 <div id="tip" role="tooltip"></div>
 <footer class="muted">
@@ -343,15 +369,15 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function bill(p,y){const av=p.mv*p.al,b=r(av*S.r.b/100),s=r(av*S.r.s/100);let d=0,n=0;
  if(y==cy){if(now.getMonth()<S.r.e)d=r((b+s)*S.r.d/100)}else n=Math.min(S.r.c,(cy-y)*12+now.getMonth()+1);
  const pen=r((b+s)*S.r.p/100*n);return{y,b,s,d,pen,n,t:r(b+s-d+pen)}}
-function pay(p,yrs,payor,mode,cash,when){const rows=yrs.map(y=>bill(p,y)),sum=k=>r(rows.reduce((a,x)=>a+x[k],0));
- const t={or:'OR-'+cy+'-'+String(S.t.length+1).padStart(5,'0'),at:when.toISOString(),payor,td:p.td,brgy:p.brgy,yrs,b:sum('b'),s:sum('s'),d:sum('d'),pen:sum('pen'),t:sum('t'),mode,cash};
+function pay(p,yrs,payor,mode,cash,when,x){const rows=yrs.map(y=>bill(p,y)),sum=k=>r(rows.reduce((a,x)=>a+x[k],0));
+ const t={or:'OR-'+cy+'-'+String(S.t.length+1).padStart(5,'0'),at:when.toISOString(),payor,td:p.td,brgy:p.brgy,yrs,b:sum('b'),s:sum('s'),d:sum('d'),pen:sum('pen'),t:sum('t'),mode,cash,ref:(x&&x.ref)||'',tend:(x&&x.tend)||0};
  p.u=p.u.filter(y=>!yrs.includes(y));S.t.push(t);save();return t}
 function init(){S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
  if(!S||!S.p){S={p:JSON.parse(JSON.stringify(seed)),t:[],r:{...DEF}};
   const at=(h,m)=>new Date(cy,now.getMonth(),now.getDate(),h,m);
-  pay(S.p[3],[2026],'Ramon C. Bautista','Cash','Cashier A',at(8,42));
-  pay(S.p[0],[2025],'Maria L. Santos','GCash','Cashier A',at(9,5));
-  pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30));save()}
+  pay(S.p[3],[2026],'Ramon C. Bautista','Cash','Cashier A',at(8,42),{tend:4000});
+  pay(S.p[0],[2025],'Maria L. Santos','GCash','Cashier A',at(9,5),{ref:'5021 334 871'});
+  pay(S.p[8],[2026],'Teresita B. Flores','Check','Cashier B',at(9,30),{ref:'0004521'});save()}
  if(!S.r)S.r={...DEF}}
 function tab(t){document.querySelectorAll('section').forEach(s=>s.hidden=s.id!=t);
  document.querySelectorAll('nav [data-t]').forEach(b=>b.setAttribute('aria-selected',b.dataset.t==t));if(t=='rep'){rep();cu('#rs')}if(t=='del'){dq();cu('#ds')}if(t=='set')rt();if(t=='dash')dash()}
@@ -359,23 +385,23 @@ function look(){const q=$('#q').value.toLowerCase(),b=$('#bg').value;
  const rows=S.p.filter(p=>(!b||p.brgy==b)&&(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#lr').innerHTML=rows.length?rows.map(p=>`<tr><td>${p.td}</td><td>${av(p.owner)}${p.owner}</td><td>${p.brgy}</td><td><span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span></td><td class="n">${M(p.mv*p.al)}</td><td>${p.u.length?[...p.u].sort().map(yc).join(''):'<span class="chip" style="--h:150">Paid up</span>'}</td><td><button data-td="${p.td}">Open bill</button></td></tr>`).join(''):'<tr><td colspan="7">No property matches. Try a TD number, an owner name, or a barangay.</td></tr>'}
 function cur(){return S.p.find(x=>x.td==$('#sp').value)}
-function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;
+function bl(){const p=cur();$('#rc').hidden=true;$('#pn').value=p.owner;$('#px').value='';$('#pcr').value='';pmFields();
  $('#pd').innerHTML=[['TD no.',p.td],['Owner',av(p.owner)+p.owner],['Barangay',p.brgy],['Class',`<span class="chip" style="--h:${CC[p.cls]}">${p.cls}</span>`],['Area',p.area.toLocaleString()+' sqm'],['Market value',M(p.mv)],['Assessment level',p.al*100+'%'],['Assessed value',M(p.mv*p.al)]].map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
  const ys=[...p.u].sort();
  $('#br').innerHTML=ys.length?ys.map(y=>{const b=bill(p,y);return`<tr><td><input type="checkbox" data-y="${y}" aria-label="Pay ${y}" style="min-width:0"></td><td>${yc(y)}${b.n?` <span class="muted">(${b.n} mo. late)</span>`:''}</td><td class="n">${M(b.b)}</td><td class="n">${M(b.s)}</td><td class="n">${b.d?'-'+M(b.d):'0.00'}</td><td class="n pen">${M(b.pen)}</td><td class="n">${M(b.t)}</td></tr>`}).join(''):'<tr><td colspan="7">All tax years are paid for this property.</td></tr>';
  tot()}
 function tot(){const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
- const T=r(ys.reduce((a,y)=>a+bill(p,y).t,0));$('#tot').textContent=M(T);$('#big').innerHTML=bigM(T);$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
+ const T=r(ys.reduce((a,y)=>a+bill(p,y).t,0));TT=T;$('#tot').textContent=M(T);cashUpd();cfClose();$('#big').innerHTML=bigM(T);$('#go').disabled=!ys.length;$('#psoa').disabled=!p.u.length}
 function slip(t){const f=x=>M(x);$('#rc').hidden=false;$('#rc').innerHTML=`<h3>Official receipt (demo)</h3><p class="muted">Prototype only. Not a valid official receipt.</p>
-<dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div></dl>
+<dl style="grid-template-columns:1fr 1fr"><div><dt>OR no.</dt><dd>${t.or}</dd></div><div><dt>Date and time</dt><dd>${new Date(t.at).toLocaleString('en-PH')}</dd></div><div><dt>Payor</dt><dd>${esc(t.payor)}</dd></div><div><dt>TD no.</dt><dd>${t.td}</dd></div><div><dt>Tax years</dt><dd>${t.yrs.join(', ')}</dd></div><div><dt>Mode</dt><dd>${t.mode}</dd></div>${t.ref?`<div><dt>${t.mode=='Check'?'Check no.':'GCash ref. no.'}</dt><dd>${esc(t.ref)}</dd></div>`:''}</dl>
 <table style="margin:10px 0"><tr><td>Basic tax</td><td class="n">${f(t.b)}</td></tr><tr><td>SEF</td><td class="n">${f(t.s)}</td></tr><tr><td>Discount</td><td class="n">${t.d?'-'+f(t.d):'0.00'}</td></tr><tr><td>Penalty</td><td class="n">${f(t.pen)}</td></tr><tfoot><tr><td>Total paid</td><td class="n">${f(t.t)}</td></tr></tfoot></table>
-<p class="muted">Collected by ${t.cash}</p><button class="ghost noprint" id="prc">Print receipt</button>`;
+${t.tend>0?`<table style="margin:0 0 10px"><tr><td>Cash received</td><td class="n">${f(t.tend)}</td></tr><tr><td>Change</td><td class="n">${f(r(t.tend-t.t))}</td></tr></table>`:''}<p class="muted">Collected by ${t.cash}</p><button class="ghost noprint" id="prc">Print receipt</button>`;
  $('#prc').onclick=()=>{document.body.dataset.p='rc';print()};$('#rc').scrollIntoView({block:'nearest'})}
 function rep(){const d=$('#rd').value,L=S.t.filter(t=>new Date(t.at).toLocaleDateString('en-CA')==d);
  const sum=(a,k)=>r(a.reduce((x,t)=>x+t[k],0)),by=k=>[...new Set(L.map(t=>t[k]))].map(v=>`${v}: ${M(sum(L.filter(t=>t[k]==v),'t'))}`).join(' | ')||'None';
  $('#rt').textContent=new Date(d+'T00:00').toLocaleDateString('en-PH',{dateStyle:'full'})+' - '+L.length+' transaction(s)';
  $('#rs').innerHTML=[['Total collections',M(sum(L,'t'))],['Basic tax',M(sum(L,'b'))],['SEF',M(sum(L,'s'))],['Penalties',M(sum(L,'pen'))],['Discounts',M(sum(L,'d'))]].map(x=>`<div class="stat">${x[0]}<b>${x[1]}</b></div>`).join('')+`<div class="stat" style="grid-column:1/-1">By mode - ${by('mode')}<br>By cashier - ${by('cash')}</div>`;
- $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.cash}</td></tr>`).join(''):'<tr><td colspan="12">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
+ $('#rr').innerHTML=L.length?L.map(t=>`<tr><td>${t.or}</td><td>${new Date(t.at).toLocaleTimeString('en-PH',{timeStyle:'short'})}</td><td>${av(t.payor)}${esc(t.payor)}</td><td>${t.td}</td><td>${t.yrs.join(', ')}</td><td class="n">${M(t.b)}</td><td class="n">${M(t.s)}</td><td class="n">${M(t.d)}</td><td class="n">${M(t.pen)}</td><td class="n">${M(t.t)}</td><td>${mc(t.mode)}</td><td>${t.ref?esc(t.ref):''}</td><td>${t.cash}</td></tr>`).join(''):'<tr><td colspan="13">No collections on this date. Collect a payment in Billing and payment, or pick another date.</td></tr>'}
 function boot(){init();
  $('#bg').innerHTML='<option value="">All barangays</option>'+[...new Set(S.p.map(p=>p.brgy))].sort().map(b=>`<option>${b}</option>`).join('');
  $('#sp').value=S.p[0].td;$('#spq').value=S.p[0].td+' - '+S.p[0].owner;
@@ -403,15 +429,13 @@ $('#spl').onmousedown=e=>e.preventDefault();
 $('#spl').onmousemove=e=>{const li=e.target.closest('li[role=option]');if(!li)return;const i=+li.id.slice(3);if(i!=spA){spA=i;spHi(1)}};
 $('#spl').onclick=e=>{const li=e.target.closest('li[data-td]');if(li){spSet(li.dataset.td);$('#spq').blur()}};
 // Payment mode: segmented buttons (value kept in the hidden #pm field)
-function pmSet(v,focus){document.querySelectorAll('#pmg button').forEach(b=>{const on=b.dataset.v==v;b.setAttribute('aria-checked',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});$('#pm').value=v}
+function pmSet(v,focus){document.querySelectorAll('#pmg button').forEach(b=>{const on=b.dataset.v==v;b.setAttribute('aria-checked',on);b.tabIndex=on?0:-1;if(on&&focus)b.focus()});$('#pm').value=v;pmFields()}
 $('#pmg').onclick=e=>{const b=e.target.closest('button');if(b)pmSet(b.dataset.v)};
 $('#pmg').onkeydown=e=>{const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(!k)return;e.preventDefault();
  const bs=[...document.querySelectorAll('#pmg button')],i=bs.findIndex(b=>b.dataset.v==$('#pm').value);pmSet(bs[(i+k+bs.length)%bs.length].dataset.v,1)};
 $('#lr').onclick=e=>{const t=e.target.dataset.td;if(t){$('#sp').value=t;spLabel();bl();tab('bill')}};
 $('#br').onchange=e=>{const c=[...document.querySelectorAll('#br input')],i=c.indexOf(e.target);
  c.forEach((x,j)=>{if(e.target.checked&&j<i)x.checked=true;if(!e.target.checked&&j>i)x.checked=false});tot()};
-$('#go').onclick=()=>{const p=cur(),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
- const t=pay(p,ys,$('#pn').value.trim()||p.owner,$('#pm').value,$('#pc').value,new Date());bl();look();slip(t)};
 $('#pr').onclick=()=>{document.body.dataset.p='rep';print()};
 window.onafterprint=()=>delete document.body.dataset.p;
 // Theme switch: light or dark, remembered in this browser
@@ -469,6 +493,32 @@ $('#rdp').onkeydown=e=>{if(e.key=='Escape'){e.preventDefault();dpClose(true);ret
  dpF=dpFmt(n.getFullYear(),n.getMonth(),n.getDate());dpY=n.getFullYear();dpM=n.getMonth();dpRender();$('#rdp [data-d="'+dpF+'"]').focus()};
 document.addEventListener('mousedown',e=>{if(!$('#rdp').hidden&&!e.target.closest('.dp'))dpClose()});
 document.addEventListener('focusin',e=>{if(!$('#rdp').hidden&&!e.target.closest('.dp'))dpClose()});
+// Payment extras: check or GCash reference, cash received and change, confirmation before collecting
+let TT=0;
+function pmFields(){const m=$('#pm').value;$('#pxf').hidden=m=='Cash';$('#pcf').hidden=m!='Cash';$('#pxl').textContent=m=='Check'?'Check no.':'GCash reference no.';$('#px').placeholder=m=='Check'?'e.g. 0004521':'e.g. 5021 334 871';$('#pe').hidden=true;cashUpd()}
+function cashUpd(){const v=parseFloat($('#pcr').value),h=$('#pch');
+ if($('#pm').value!='Cash'||!(v>0)||!TT){h.textContent='';h.className='muted';return}
+ if(v>=TT){h.textContent='Change: '+M(r(v-TT));h.className='muted'}else{h.textContent='Short by '+M(r(TT-v));h.className='muted pen'}}
+function cfClose(){const d=$('#cm');if(d.open)d.close()}
+function cfOpen(){const p=cur(),m=$('#pm').value,ref=$('#px').value.trim(),v=parseFloat($('#pcr').value),e=$('#pe');let msg='';
+ if(m!='Cash'&&!ref)msg=(m=='Check'?'Enter the check number':'Enter the GCash reference number')+' before collecting.';
+ else if(m=='Cash'&&v>0&&v<TT)msg='Cash received is less than the amount to collect ('+M(TT)+').';
+ e.textContent=msg;e.hidden=!msg;if(msg){(m=='Cash'?$('#pcr'):$('#px')).focus();return}
+ const ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y),payor=$('#pn').value.trim()||p.owner;
+ const rows=ys.map(y=>bill(p,y)),sm=k=>r(rows.reduce((a,x)=>a+x[k],0)),dl=[['Payor',esc(payor)],['TD no.',p.td],['Tax years',ys.join(', ')],['Mode',m]];
+ if(ref)dl.push([m=='Check'?'Check no.':'GCash ref. no.',esc(ref)]);
+ if(m=='Cash'&&v>0){dl.push(['Cash received',M(v)]);dl.push(['Change',M(r(v-TT))])}
+ $('#cmb').innerHTML=bigM(TT);
+ $('#cmd').innerHTML=dl.map(x=>`<div><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`).join('');
+ $('#cmx').innerHTML=`<tr><td>Basic tax</td><td class="n">${M(sm('b'))}</td></tr><tr><td>SEF</td><td class="n">${M(sm('s'))}</td></tr><tr><td>Discount</td><td class="n">${sm('d')?'-'+M(sm('d')):'0.00'}</td></tr><tr><td>Penalty</td><td class="n pen">${M(sm('pen'))}</td></tr><tr><td><b>Total</b></td><td class="n"><b>${M(sm('t'))}</b></td></tr>`;
+ const d=$('#cm');$('#cfy').disabled=false;if(d.showModal)d.showModal();else d.setAttribute('open','');$('#cfy').focus()}
+$('#go').onclick=cfOpen;
+$('#pcr').oninput=cashUpd;
+$('#cfn').onclick=cfClose;
+$('#cm').onclick=e=>{if(e.target==$('#cm'))cfClose()};
+$('#cfy').onclick=()=>{if($('#cfy').disabled)return;$('#cfy').disabled=true;const p=cur(),m=$('#pm').value,v=parseFloat($('#pcr').value),ys=[...document.querySelectorAll('#br input:checked')].map(i=>+i.dataset.y);
+ const t=pay(p,ys,$('#pn').value.trim()||p.owner,m,$('#pc').value,new Date(),{ref:m=='Cash'?'':$('#px').value.trim(),tend:m=='Cash'&&v>0?v:0});
+ cfClose();bl();look();slip(t)};
 // Rates form
 function rt(){['b','s','d','e','p','c'].forEach(k=>$('#r_'+k).value=S.r[k]);$('#rm').textContent=''}
 $('#rsave').onclick=()=>{const n={};let ok=1;
