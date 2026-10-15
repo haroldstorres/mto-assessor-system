@@ -306,6 +306,19 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 #xd dl{grid-template-columns:1fr 1fr}
 #dcl td .ghost{padding:6px 10px;margin:2px 0}
 @media print{#ro,#xd{display:none}}
+/* Add or edit property dialog */
+#pq,#im{width:min(34rem,calc(100vw - 32px));max-width:100%;max-height:calc(100vh - 32px);padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:auto}
+#pq::backdrop,#im::backdrop{background:rgba(8,14,24,.6);backdrop-filter:blur(2px)}
+#pqf input,#pqf select,#im input[type=file]{min-width:0;width:100%}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg label{min-width:0}
+.fe{color:var(--red);font-size:0.8125rem}
+.fe:empty{display:none}
+#pqf input.bad{border-color:var(--red)}
+#pqf input[readonly]{opacity:.7}
+@media(max-width:560px){.fg{grid-template-columns:1fr}}
+@media print{#pq,#im{display:none}}
+
 @media(max-width:560px){
 .bt thead{display:none}
 .bt,.bt tbody,.bt tfoot{display:block}
@@ -458,21 +471,8 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <div class="wrap"><table><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Reference</th><th>Detail</th></tr></thead><tbody id="adr"></tbody></table></div></div>
 </section>
 <section id="prop" hidden>
-<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Add or edit a property</h2>
-<p class="muted">Type an existing TD no. to change that property. Leave unpaid years blank to keep them (new property: current year).</p>
-<div class="row">
-<label>TD no.<input id="f_td" maxlength="40"></label><label>Owner<input id="f_ow" maxlength="120"></label><label>Barangay<input id="f_bg" maxlength="80"></label>
-<label>Class<select id="f_cl"><option>Residential</option><option>Agricultural</option><option>Commercial</option><option>Industrial</option></select></label>
-<label>Area (sqm)<input id="f_ar" type="number" min="0" step="any"></label><label>Market value<input id="f_mv" type="number" min="0" step="any"></label>
-<label>Assessment level (%)<input id="f_al" type="number" min="1" max="100" step="any"></label><label>Unpaid tax years (e.g. 2025, 2026)<input id="f_u"></label>
-</div>
-<div class="row" style="margin-top:14px"><button class="pri" id="f_save">Save property</button><button class="ghost" id="f_clr">Clear</button></div>
-<p id="f_m" class="muted" role="status"></p></div>
-<div class="card"><h2 style="margin:0 0 4px;font-size:1.125rem">Import from Excel</h2>
-<p class="muted">In Excel, use Save As, CSV UTF-8. First row = column names: td, owner, barangay, class, area, market_value, assessment_level, unpaid_years (years separated by ; or space). Existing TD numbers are updated. Class must be Residential, Agricultural, Commercial or Industrial.</p>
-<div class="row"><input type="file" id="f_file" accept=".csv,text/csv"><button class="pri" id="f_imp" disabled>Import</button><button class="ghost" id="f_smp" hidden>Load 10 sample properties</button></div>
-<p id="f_im" class="muted" role="status"></p></div>
-<div class="card"><div class="row"><label>Search<input id="f_q" placeholder="TD, owner or barangay"></label></div>
+<div class="card"><div class="row" style="justify-content:space-between;align-items:end"><label>Search<input id="f_q" placeholder="TD, owner or barangay"></label><div class="row"><button class="ghost" id="f_imb" type="button">Import from Excel</button><button class="pri" id="f_add" type="button">+ Add property</button></div></div>
+<p id="f_m" class="muted" role="status"></p>
 <div class="wrap"><table><thead><tr><th>TD no.</th><th>Owner</th><th>Barangay</th><th>Class</th><th class="n">Market value</th><th class="n">AL</th><th></th></tr></thead><tbody id="f_rows"></tbody></table></div></div>
 </section>
 <section id="set" hidden>
@@ -527,6 +527,26 @@ button.ghost.pen{color:var(--red);border-color:var(--red)}
 <p class="muted" style="margin:0">Saved once. A deposit cannot be edited afterwards, and the day can no longer be reopened.</p>
 <p id="xdm" class="pen muted" role="alert"></p>
 <div class="cfb"><button type="button" class="pri" id="xdy">Save deposit</button><button type="button" class="ghost" id="xdb">Cancel</button></div></div></dialog>
+<dialog id="pq" aria-labelledby="pqt"><form class="cmi" id="pqf" novalidate>
+<div><div style="font-size:1.125rem;font-weight:700" id="pqt">Add property</div><div class="muted" id="pqs"></div></div>
+<label>TD no. *<input id="f_td" maxlength="40" autocomplete="off"><span class="fe" id="e_td"></span></label>
+<label>Owner *<input id="f_ow" maxlength="120" autocomplete="off"><span class="fe" id="e_ow"></span></label>
+<div class="fg">
+<label>Barangay *<input id="f_bg" maxlength="80" autocomplete="off"><span class="fe" id="e_bg"></span></label>
+<label>Class *<select id="f_cl"><option>Residential</option><option>Agricultural</option><option>Commercial</option><option>Industrial</option></select></label>
+<label>Area (sqm)<input id="f_ar" type="number" min="0" step="any" inputmode="decimal"></label>
+<label>Market value *<input id="f_mv" type="number" min="0" step="any" inputmode="decimal"><span class="fe" id="e_mv"></span></label>
+<label>Assessment level (%) *<input id="f_al" type="number" min="1" max="100" step="any" inputmode="decimal"><span class="fe" id="e_al"></span></label>
+<label>Unpaid tax years<input id="f_u" placeholder="e.g. 2025, 2026"></label>
+</div>
+<p class="muted" id="pqh" style="margin:0"></p>
+<p id="pqm" class="pen muted" role="alert"></p>
+<div class="cfb"><button type="submit" class="pri" id="f_save">Save property</button><button type="button" class="ghost" id="f_cn">Cancel</button></div></form></dialog>
+<dialog id="im" aria-labelledby="imt"><div class="cmi"><div style="font-size:1.125rem;font-weight:700" id="imt">Import from Excel</div>
+<p class="muted" style="margin:0">In Excel, use Save As, CSV UTF-8. First row = column names: td, owner, barangay, class, area, market_value, assessment_level, unpaid_years (years separated by ; or space). Existing TD numbers are updated. Class must be Residential, Agricultural, Commercial or Industrial.</p>
+<div class="row"><input type="file" id="f_file" accept=".csv,text/csv"><button class="pri" id="f_imp" disabled>Import</button><button class="ghost" id="f_smp" hidden>Load 10 sample properties</button></div>
+<p id="f_im" class="muted" role="status"></p>
+<div class="cfb"><button type="button" class="ghost" id="f_imc">Close</button></div></div></dialog>
 <dialog id="ud" aria-labelledby="udt"><div class="cmi"><div><div class="muted" id="udt">Delete user</div><b id="udn"></b></div>
 <p style="margin:0">This user will no longer be able to open the app. Their sign-in email stays registered in Firebase Authentication. Remove it in the Firebase console (Authentication, Users) before using the same email again. If they may be needed again, use Turn off instead.</p>
 <p id="udm" class="pen muted" role="alert"></p>
@@ -998,17 +1018,36 @@ $('#vdy').onclick=async()=>{const why=$('#vdr').value.trim();if(why.length<5){aM
 const yrsOf=s=>[...new Set((String(s).match(/\d{4}/g)||[]).map(Number))].filter(y=>y>=1990&&y<=cy).sort();
 function pf(){const q=($('#f_q').value||'').toLowerCase(),L=S.p.filter(p=>(p.td+p.owner+p.brgy).toLowerCase().includes(q));
  $('#f_smp').hidden=S.p.length>0||!ROLE.includes('admin');
- $('#f_rows').innerHTML=L.length?L.slice(0,100).map(p=>`<tr><td>${esc(p.td)}</td><td>${esc(p.owner)}</td><td>${esc(p.brgy)}</td><td>${esc(p.cls)}</td><td class="n">${M(p.mv)}</td><td class="n">${r(p.al*100)}%</td><td><button class="ghost" data-fe="${esc(p.td)}">Edit</button></td></tr>`).join('')+(L.length>100?`<tr><td colspan="7" class="muted">Showing 100 of ${L.length}. Type in the search box to narrow down.</td></tr>`:''):'<tr><td colspan="7">No properties yet. Add one above or import a CSV file.</td></tr>'}
+ $('#f_rows').innerHTML=L.length?L.slice(0,100).map(p=>`<tr><td>${esc(p.td)}</td><td>${esc(p.owner)}</td><td>${esc(p.brgy)}</td><td>${esc(p.cls)}</td><td class="n">${M(p.mv)}</td><td class="n">${r(p.al*100)}%</td><td><button class="ghost" data-fe="${esc(p.td)}">Edit</button></td></tr>`).join('')+(L.length>100?`<tr><td colspan="7" class="muted">Showing 100 of ${L.length}. Type in the search box to narrow down.</td></tr>`:''):'<tr><td colspan="7">No properties yet. Use Add property or Import from Excel.</td></tr>'}
 $('#f_q').oninput=pf;
-$('#f_clr').onclick=()=>{['f_td','f_ow','f_bg','f_ar','f_mv','f_al','f_u'].forEach(i=>$('#'+i).value='');aMsg('#f_m','')};
-$('#f_rows').onclick=e=>{const t=e.target.dataset.fe;if(!t)return;const p=S.p.find(x=>x.td==t);if(!p)return;
- $('#f_td').value=p.td;$('#f_ow').value=p.owner;$('#f_bg').value=p.brgy;$('#f_cl').value=p.cls;$('#f_ar').value=p.area;$('#f_mv').value=p.mv;$('#f_al').value=r(p.al*100);$('#f_u').value=p.u.join(', ');aMsg('#f_m','Editing '+p.td+'.',1);$('#f_ow').focus()};
-$('#f_save').onclick=async()=>{const td=$('#f_td').value.trim(),ow=$('#f_ow').value.trim().replace(/\s+/g,' '),bg=$('#f_bg').value.trim(),mv=+$('#f_mv').value,al=+(+$('#f_al').value/100).toFixed(4);
- if(!td||!ow||!bg||!(mv>0)||!(al>0&&al<=1)){aMsg('#f_m','Enter the TD no., owner, barangay, market value and assessment level (1 to 100).');return}
- const old=S.p.find(x=>x.td==td),ut=$('#f_u').value.trim(),u=ut?yrsOf(ut):(old?old.u:[cy]);
+let PE=null;
+const PK=['td','ow','bg','mv','al'];
+function peClr(){PK.forEach(k=>{$('#e_'+k).textContent='';$('#f_'+k).classList.remove('bad');$('#f_'+k).removeAttribute('aria-invalid')});aMsg('#pqm','')}
+function peOpen(p){PE=p?p.td:null;peClr();
+ ['f_td','f_ow','f_bg','f_ar','f_mv','f_al','f_u'].forEach(i=>$('#'+i).value='');$('#f_cl').value='Residential';
+ if(p){$('#f_td').value=p.td;$('#f_ow').value=p.owner;$('#f_bg').value=p.brgy;$('#f_cl').value=p.cls;$('#f_ar').value=p.area;$('#f_mv').value=p.mv;$('#f_al').value=r(p.al*100);$('#f_u').value=p.u.join(', ')}
+ $('#f_td').readOnly=!!p;$('#pqt').textContent=p?'Edit property':'Add property';
+ $('#pqs').textContent=p?'The TD no. cannot be changed here.':'Fields marked * are required. The TD no. must be new. To change an existing property, use Edit in the list.';
+ $('#pqh').textContent=p?'Unpaid years: leave blank to keep the current ones.':'Unpaid years: leave blank for a new property to use the current year ('+cy+').';
+ $('#f_save').disabled=false;dlgOpen('#pq');(p?$('#f_ow'):$('#f_td')).focus()}
+$('#f_add').onclick=()=>peOpen(null);
+$('#f_cn').onclick=()=>dlgClose('#pq');
+$('#f_rows').onclick=e=>{const t=e.target.dataset.fe;if(!t)return;const p=S.p.find(x=>x.td==t);if(p)peOpen(p)};
+$('#f_imb').onclick=()=>{aMsg('#f_im','');dlgOpen('#im')};
+$('#f_imc').onclick=()=>dlgClose('#im');
+$('#pqf').onsubmit=async e=>{e.preventDefault();peClr();
+ const td=$('#f_td').value.trim(),ow=$('#f_ow').value.trim().replace(/\s+/g,' '),bg=$('#f_bg').value.trim(),mv=+$('#f_mv').value,alp=+$('#f_al').value,al=+(alp/100).toFixed(4),bad={};
+ if(!td)bad.td='Enter the TD no.';else if(!PE&&S.p.some(x=>x.td==td))bad.td='This TD no. already exists. Use Edit in the list to change it.';
+ if(!ow)bad.ow='Enter the owner name.';
+ if(!bg)bad.bg='Enter the barangay.';
+ if(!(mv>0))bad.mv='Enter a value above 0.';
+ if(!(alp>=1&&alp<=100))bad.al='Enter a number from 1 to 100.';
+ const ks=PK.filter(k=>bad[k]);
+ if(ks.length){ks.forEach(k=>{$('#e_'+k).textContent=bad[k];$('#f_'+k).classList.add('bad');$('#f_'+k).setAttribute('aria-invalid','true')});$('#f_'+ks[0]).focus();return}
+ const old=PE?S.p.find(x=>x.td==PE):null,ut=$('#f_u').value.trim(),u=ut?yrsOf(ut):(old?old.u:[cy]);
  $('#f_save').disabled=true;
- try{await fdb.doc('properties/'+pk(td)).set({td,owner:ow,brgy:bg,cls:$('#f_cl').value,area:+$('#f_ar').value||0,mv,al,u});AUD('property',td,old?'edited':'added');aMsg('#f_m',td+(old?' updated.':' added.'),1);$('#f_clr').click();aMsg('#f_m',td+(old?' updated.':' added.'),1)}
- catch(x){aMsg('#f_m',lgErr(x))}
+ try{await fdb.doc('properties/'+pk(td)).set({td,owner:ow,brgy:bg,cls:$('#f_cl').value,area:+$('#f_ar').value||0,mv,al,u});AUD('property',td,old?'edited':'added');dlgClose('#pq');aMsg('#f_m',td+(old?' updated.':' added.'),1)}
+ catch(x){aMsg('#pqm',lgErr(x))}
  $('#f_save').disabled=false};
 function csv(s){const R=[];let a=[''],q=0;s=s.replace(/^\uFEFF/,'');
  for(let i=0;i<s.length;i++){const c=s[i];
